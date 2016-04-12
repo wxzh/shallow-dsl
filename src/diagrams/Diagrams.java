@@ -25,8 +25,11 @@ interface Family {
         Extent _toExtent();
         XML _toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans);
         String _show();
-        default Drawing draw(StyleSheet style) {
-            return Drawing.of(singletonList(this), singletonList(style), singletonList(p -> p));
+        default Drawing draw(Styling... styles) {
+            return draw(StyleSheet.of(asList(styles)));
+        }
+        default Drawing draw(StyleSheet sheet) {
+            return Drawing.of(singletonList(this), singletonList(sheet), singletonList(p -> p));
         }
     }
 
@@ -216,25 +219,55 @@ interface Family {
         return Rectangle.of(x, y);
     }
 
+    static Ellipse ellipse(double rx, double ry) {
+        return Ellipse.of(rx, ry);
+    }
+
+    static Triangle triangle(double length) {
+        return Triangle.of(length);
+    }
+
+    static StyleSheet styleSheet(Styling... stylings) {
+        return StyleSheet.of(asList(stylings));
+    }
+
+    static Styling fillColor(Col col) {
+        return FillColor.of(col);
+    }
+
+    static Styling strokeWidth(double w) {
+        return StrokeWidth.of(w);
+    }
+
+    static Styling strokeColor(Col col) {
+        return StrokeColor.of(col);
+    }
+
+    static Col blue = Blue.of();
+    static Col black = Black.of();
+    static Col bisque = Bisque.of();
+    static Col red = Red.of();
+    static Col green = Green.of();
+
     static Drawing human() {
-        StyleSheet sheet = StyleSheet.of(asList(FillColor.of(Blue.of()), StrokeWidth.of(0)));
-        Drawing head = Ellipse.of(3, 3).draw(StyleSheet.of(asList(StrokeWidth.of(0.1), StrokeColor.of(Black.of()), FillColor.of(Bisque.of()))));
-        Drawing arms = Rectangle.of(1, 10).draw(StyleSheet.of(asList(FillColor.of(Red.of()), StrokeWidth.of(0))));
-        Drawing upper = Triangle.of(10).draw(StyleSheet.of(asList(FillColor.of(Red.of()), StrokeWidth.of(0))));
-        Drawing leg = Rectangle.of(5, 1).draw(sheet);
-        Drawing foot = Rectangle.of(1, 2).draw(sheet);
-        Drawing legs = leg.beside(Rectangle.of(5, 2).draw(StyleSheet.of(asList(StrokeWidth.of(0))))).beside(leg);
-        Drawing foots = foot.beside(Rectangle.of(1, 2).draw(StyleSheet.of(asList(StrokeWidth.of(0))))).beside(foot);
+        StyleSheet sheet = styleSheet(fillColor(blue), strokeWidth(0));
+        Drawing head = ellipse(3, 3).draw(strokeWidth(0.1), strokeColor(black), fillColor(bisque));
+        Drawing arms = rectangle(1, 10).draw(fillColor(red), strokeWidth(0));
+        Drawing upper = triangle(10).draw(fillColor(red), strokeWidth(0));
+        Drawing leg = rectangle(5, 1).draw(sheet);
+        Drawing foot = rectangle(1, 2).draw(sheet);
+        Drawing legs = leg.beside(rectangle(5, 2).draw(strokeWidth(0))).beside(leg);
+        Drawing foots = foot.beside(rectangle(1, 2).draw(strokeWidth(0))).beside(foot);
         Drawing human = head.above(arms).above(upper).above(legs).above(foots);
         return human;
     }
+
     static Drawing chick() {
-        Drawing eyeball = Ellipse.of(0.25, 0.75).draw(StyleSheet.of(asList(FillColor.of(Black.of()))));
-        Drawing eye = Ellipse.of(2, 1).draw(StyleSheet.of(asList(FillColor.of(Green.of()))));
+        Drawing eyeball = ellipse(0.25, 0.75).draw(fillColor(black));
+        Drawing eye = ellipse(2, 1).draw(fillColor(green));
         return eyeball.inFrontOf(eye);
     }
 }
-
 
 public class Diagrams {
     public static void main(String[] args) {
