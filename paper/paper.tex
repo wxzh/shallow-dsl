@@ -1,0 +1,133 @@
+\documentclass[10pt,numbers,preprint,nocopyrightspace]{sigplanconf}
+
+% The following \documentclass options may be useful:
+
+% preprint      Remove this option only once the paper is in final form.
+% 10pt          To set in 10-point type instead of 9-point.
+% 11pt          To set in 11-point type instead of 9-point.
+% numbers       To obtain numeric citation style instead of author/year.
+
+\usepackage{amsmath}
+\usepackage{color}
+\usepackage{listings}
+\usepackage{balance}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage{url}
+\usepackage{pstricks,pst-node,pst-tree}
+\usepackage{theorem}
+\usepackage{bbm}
+\usepackage{pgf}
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{wrapfig}
+\usepackage{xspace}
+\usepackage{mdwlist}
+\usepackage{morefloats}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.85]{beramono}
+\usepackage{mathptmx}
+\usepackage[normalem]{ulem}
+\usepackage{booktabs}
+\usepackage{tablefootnote}
+\usepackage{enumitem}
+
+\setlist[itemize]{noitemsep,nolistsep}
+\setlist[enumerate]{noitemsep,nolistsep}
+
+\lstset{ %
+language=Java,                % choose the language of the code
+columns=flexible,
+lineskip=-1pt,
+basicstyle=\ttfamily\small,       % the size of the fonts that are used for the code
+numberstyle=\ttfamily\tiny,      % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it's 1 each line will be numbered
+numbers=none,
+stepnumber=1,
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+%  frame=single,                   % adds a frame around the code
+tabsize=2,                  % sets default tabsize to 2 spaces
+captionpos=none,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+title=\lstname,                 % show the filename of files included with \lstinputlisting; also try caption instead of title
+escapeinside={(*}{*)},          % if you want to add a comment within your code
+keywordstyle=\ttfamily\bfseries,
+aboveskip=3pt,
+belowskip=-1pt
+% commentstyle=\color{Gray},
+% stringstyle=\color{Green}
+}
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country}
+\copyrightyear{20yy}
+\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}
+\copyrightdoi{nnnnnnn.nnnnnnn}
+
+% Uncomment the publication rights you want to use.
+%\publicationrights{transferred}
+%\publicationrights{licensed}     % this is the default
+%\publicationrights{author-pays}
+
+\titlebanner{banner above paper title}        % These are ignored unless
+\preprintfooter{short description of paper}   % 'preprint' option specified.
+
+\title{Title}
+
+\authorinfo{}
+           {}
+           {}
+%\authorinfo{Name}
+%           {Affiliation2/3}
+%           {Email2/3}
+
+\maketitle
+
+\begin{abstract}
+TODO
+\end{abstract}
+
+\begin{comment}
+\category{CR-number}{subcategory}{third-level}
+
+% general terms are not compulsory anymore,
+% you may leave them out
+\terms
+term1, term2
+
+\keywords
+keyword1, keyword2
+\end{comment}
+
+%===============================================================================
+\input{sections/Introduction.tex}
+\input{sections/Overview.tex}
+\input{sections/CaseStudy.tex}
+\input{sections/RelatedWork.tex}
+%\acks
+
+
+%Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+\bibliography{paper}
+
+% The bibliography should be embedded for final submission.
+
+\end{document}
