@@ -8,15 +8,15 @@ import lombok.Obj;
 
 @Obj
 interface XML {
-    String tag();
-    List<Attr> attrs();
-    List<XML> xmls();
+    String _tag();
+    List<Attr> _attrs();
+    List<XML> _xmls();
 
     default String show() {
-        String attrs = " " + attrs().stream().map(Attr::show).collect(joining(" "));
-        if (xmls().size() == 0)
-            return "<" + tag() + attrs + "/>";
+        String attrs = " " + _attrs().stream().map(Attr::show).collect(joining(" "));
+        if (_xmls().size() == 0)
+            return "<" + _tag() + attrs + "/>";
         else
-            return "<" + tag() + attrs + ">\n" + xmls().stream().map(XML::show).collect(joining("\n")) + "\n</" + tag() + ">";
+            return "<" + _tag() + attrs + ">\n" + _xmls().stream().map(XML::show).collect(joining("\n")) + "\n</" + _tag() + ">";
     }
 }

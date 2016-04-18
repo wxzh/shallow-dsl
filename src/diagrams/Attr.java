@@ -4,9 +4,9 @@ import lombok.Obj;
 
 @Obj
 interface Attr {
-    String name();
-    String value();
+    String _name();
+    String _value();
     default String show() {
-        return name() + "=\"" + value() + "\"";
+        return _name() + "=\"" + _value() + "\"";
     }
 }

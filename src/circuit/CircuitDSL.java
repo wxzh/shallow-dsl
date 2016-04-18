@@ -21,53 +21,53 @@ interface AST {
     interface Circuit {
     }
     interface Identity extends Circuit {
-        int n();
+        int _n();
     }
     interface Fan extends Circuit {
-        int n();
+        int _n();
     }
     interface Above extends Circuit {
-        Circuit c1();
-        Circuit c2();
+        Circuit _c1();
+        Circuit _c2();
     }
     interface Beside extends Circuit {
-        Circuit c1();
-        Circuit c2();
+        Circuit _c1();
+        Circuit _c2();
     }
     interface Stretch extends Circuit {
-        IntList ns();
-        Circuit c();
+        IntList _ns();
+        Circuit _c();
     }
 }
 
 @Obj
 interface DepthFeature extends AST {
     interface Circuit {
-        int _depth();
+        int depth();
     }
     interface Identity{
-        default int _depth() {
+        default int depth() {
             return 0;
         }
     }
     interface Fan {
-        default int _depth() {
+        default int depth() {
             return 1;
         }
     }
     interface Above {
-        default int _depth() {
-            return c1()._depth() + c2()._depth();
+        default int depth() {
+            return _c1().depth() + _c2().depth();
         }
     }
     interface Beside {
-        default int _depth() {
-            return Math.max(c1()._depth(), c2()._depth());
+        default int depth() {
+            return Math.max(_c1().depth(), _c2().depth());
         }
     }
     interface Stretch {
-        default int _depth() {
-            return c()._depth();
+        default int depth() {
+            return _c().depth();
         }
     }
 }
@@ -75,31 +75,31 @@ interface DepthFeature extends AST {
 @Obj
 interface WidthFeature extends AST {
     interface Circuit {
-        int _width();
+        int width();
     }
     interface Identity {
-        default int _width() {
-            return n();
+        default int width() {
+            return _n();
         }
     }
     interface Fan {
-        default int _width() {
-            return n();
+        default int width() {
+            return _n();
         }
     }
     interface Above {
-        default int _width() {
-            return c1()._width();
+        default int width() {
+            return _c1().width();
         }
     }
     interface Beside {
-        default int _width() {
-            return c1()._width() + c2()._width();
+        default int width() {
+            return _c1().width() + _c2().width();
         }
     }
     interface Stretch {
-        default int _width() {
-            return ns().out().stream().reduce(0, (a, b) -> a + b); // bug: the inner type(Integer) is lost
+        default int width() {
+            return _ns()._out().stream().reduce(0, (a, b) -> a + b); // bug: the inner type(Integer) is lost
         }
     }
 }
@@ -108,31 +108,31 @@ interface WidthFeature extends AST {
 @Obj
 interface WellSizeFeature extends WidthFeature, DepthFeature {
     interface Circuit {
-        boolean _wellSize();
+        boolean wellSize();
     }
     interface Identity {
-        default boolean _wellSize() {
+        default boolean wellSize() {
             return true;
         }
     }
     interface Fan {
-        default boolean _wellSize() {
+        default boolean wellSize() {
             return true;
         }
     }
     interface Above {
-        default boolean _wellSize() {
-            return c1()._wellSize() && c2()._wellSize() && c1()._width() == c2()._width();
+        default boolean wellSize() {
+            return _c1().wellSize() && _c2().wellSize() && _c1().width() == _c2().width();
         }
     }
     interface Beside {
-        default boolean _wellSize() {
-            return c1()._wellSize() && c2()._wellSize();
+        default boolean wellSize() {
+            return _c1().wellSize() && _c2().wellSize();
         }
     }
     interface Stretch {
-        default boolean _wellSize() {
-            return c()._wellSize() && ns().out().size() == c()._width();
+        default boolean wellSize() {
+            return _c().wellSize() && _ns()._out().size() == _c().width();
         }
     }
 }
@@ -145,48 +145,48 @@ interface ExtendedAST extends WellSizeFeature {
 @Obj
 interface LayoutFeature extends ExtendedAST {
     interface Circuit {
-        Layout _layout();
+        Layout layout();
     }
     interface Identity {
-        default Layout _layout() {
+        default Layout layout() {
             return Layout.of(emptyList());
         }
     }
     interface Fan {
-        default Layout _layout() {
-            return Layout.of(singletonList(IntStream.range(1, n()).mapToObj(j -> IntPair.of(0, j)).collect(toList())));
+        default Layout layout() {
+            return Layout.of(singletonList(IntStream.range(1, _n()).mapToObj(j -> IntPair.of(0, j)).collect(toList())));
         }
     }
     interface Above {
-        default Layout _layout() {
-            return Layout.of(concat(c1()._layout().layout(), c2()._layout().layout()));
+        default Layout layout() {
+            return Layout.of(concat(_c1().layout()._layout(), _c2().layout()._layout()));
         }
     }
     interface Beside {
-        default Layout _layout() {
-            return Layout.of(lzw(c1()._layout().layout(), c2()._layout().map(i -> i + c1()._width()).layout(), LayoutFeature::concat));
+        default Layout layout() {
+            return Layout.of(lzw(_c1().layout()._layout(), _c2().layout().map(i -> i + _c1().width())._layout(), LayoutFeature::concat));
         }
     }
     interface Stretch {
-        default Layout _layout() {
+        default Layout layout() {
             int acc = 0;
-            List<Integer> ns = new ArrayList<>();
-            for (int n : ns().out()) {
-                ns.add(n + acc - 1);
+            List<Integer> _ns = new ArrayList<>();
+            for (int n : _ns()._out()) {
+                _ns.add(n + acc - 1);
                 acc += n;
             }
-            return c()._layout().map(i -> ns.get(i));
+            return _c().layout().map(i -> _ns.get(i));
         }
     }
     interface RStretch {
         default Layout _layout() {
-            int acc = ns().out().size();
-            List<Integer> ns = new ArrayList<>();
-            for (int n : ns().out()) {
-                ns.add(acc - 1);
+            int acc = _ns()._out().size();
+            List<Integer> _ns = new ArrayList<>();
+            for (int n : _ns()._out()) {
+                _ns.add(acc - 1);
                 acc += n;
             }
-            return c()._layout().map(i -> ns.get(i));
+            return _c().layout().map(i -> _ns.get(i));
         }
     }
     static <E> List<E> concat(List<E> xs, List<E> ys) {
@@ -204,51 +204,51 @@ interface LayoutFeature extends ExtendedAST {
 @Obj
 interface TlayoutFeature extends LayoutFeature {
     interface Circuit {
-        Layout _tlayout(IntUnaryOperator f);
+        Layout tlayout(IntUnaryOperator f);
     }
     interface Identity {
-        default Layout _tlayout(IntUnaryOperator f) {
+        default Layout tlayout(IntUnaryOperator f) {
             return Layout.of(emptyList());
         }
     }
     interface Fan {
-        default Layout _tlayout(IntUnaryOperator f) {
-            return Layout.of(singletonList(IntStream.range(1, n()).mapToObj(j -> IntPair.of(0, j).map(f)).collect(toList())));
+        default Layout tlayout(IntUnaryOperator f) {
+            return Layout.of(singletonList(IntStream.range(1, _n()).mapToObj(j -> IntPair.of(0, j).map(f)).collect(toList())));
         }
     }
     interface Above {
-        default Layout _tlayout(IntUnaryOperator f) {
-            return Layout.of(LayoutFeature.concat(c1()._tlayout(f).layout(), c2()._tlayout(f).layout()));
+        default Layout tlayout(IntUnaryOperator f) {
+            return Layout.of(LayoutFeature.concat(_c1().tlayout(f)._layout(), _c2().tlayout(f)._layout()));
         }
     }
     interface Beside {
-        default Layout _tlayout(IntUnaryOperator f) {
+        default Layout tlayout(IntUnaryOperator f) {
             return Layout.of(
-                    LayoutFeature.lzw(c1()._tlayout(f).layout(),
-                            c2()._tlayout(f).map(f.andThen(i -> i + c1()._width())::applyAsInt).layout(),
+                    LayoutFeature.lzw(_c1().tlayout(f)._layout(),
+                            _c2().tlayout(f).map(f.andThen(i -> i + _c1().width())::applyAsInt)._layout(),
                             LayoutFeature::concat));
         }
     }
     interface Stretch {
-        default Layout _tlayout(IntUnaryOperator f) {
+        default Layout tlayout(IntUnaryOperator f) {
             int acc = 0;
-            List<Integer> ns = new ArrayList<>();
-            for (int n : ns().out()) {
-                ns.add(n + acc - 1);
+            List<Integer> _ns = new ArrayList<>();
+            for (int n : _ns()._out()) {
+                _ns.add(n + acc - 1);
                 acc += n;
             }
-            return c()._tlayout(f).map(f.andThen(ns::get));
+            return _c().tlayout(f).map(f.andThen(_ns::get));
         }
     }
     interface RStretch {
-        default Layout _tlayout(IntUnaryOperator f) {
-            int acc = ns().out().size();
-            List<Integer> ns = new ArrayList<>();
-            for (int n : ns().out()) {
-                ns.add(acc - 1);
+        default Layout tlayout(IntUnaryOperator f) {
+            int acc = _ns()._out().size();
+            List<Integer> _ns = new ArrayList<>();
+            for (int n : _ns()._out()) {
+                _ns.add(acc - 1);
                 acc += n;
             }
-            return c()._tlayout(f).map(ns::get);
+            return _c().tlayout(f).map(_ns::get);
         }
     }
 }
@@ -262,11 +262,11 @@ public interface CircuitDSL extends TlayoutFeature {
         default Circuit above(Circuit that) {
             return Above.of(this, that);
         }
-        default Circuit stretch(Integer... ns) {
-            return Stretch.of(this, IntList.of(Arrays.asList(ns)));
+        default Circuit stretch(Integer... _ns) {
+            return Stretch.of(this, IntList.of(Arrays.asList(_ns)));
         }
-        default Circuit rStretch(Integer... ns) {
-            return RStretch.of(this, IntList.of(Arrays.asList(ns)));
+        default Circuit rStretch(Integer... _ns) {
+            return RStretch.of(this, IntList.of(Arrays.asList(_ns)));
         }
         default void draw() {
             SwingUtilities.invokeLater(new Runnable() {
@@ -276,7 +276,7 @@ public interface CircuitDSL extends TlayoutFeature {
                     frame.setTitle("Draw Circuit");
                     frame.setResizable(false);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.getContentPane().add(new DrawCircuit(Circuit.this._tlayout(i -> i)));
+                    frame.getContentPane().add(new DrawCircuit(Circuit.this.tlayout(i -> i)));
                     frame.pack();
                     frame.setVisible(true);
                 }

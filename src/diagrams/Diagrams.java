@@ -22,9 +22,9 @@ import lombok.Obj;
 @Obj
 interface Family {
     interface Shape {
-        Extent _toExtent();
-        XML _toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans);
-        String _show();
+        Extent toExtent();
+        XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans);
+        String show();
         default Drawing draw(Styling... styles) {
             return draw(StyleSheet.of(asList(styles)));
         }
@@ -34,68 +34,68 @@ interface Family {
     }
 
     interface Rectangle extends Shape {
-        double width();
-        double height();
-        default Extent _toExtent() {
-            return Extent.of(Pos.of(width(), height()).resize(-0.5), Pos.of(width(), height()).resize(0.5));
+        double _width();
+        double _height();
+        default Extent toExtent() {
+            return Extent.of(Pos.of(_width(), _height()).resize(-0.5), Pos.of(_width(), _height()).resize(0.5));
         }
-        default XML _toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
-            List<Attr> attrs = new ArrayList<>(trans.apply(Pos.of(width(), height()).resize(-0.5)).toAttrs("x", "y"));
-            attrs.addAll(Pos.of(width(), height()).toAttrs("width", "height"));
+        default XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
+            List<Attr> attrs = new ArrayList<>(trans.apply(Pos.of(_width(), _height()).resize(-0.5)).toAttrs("x", "y"));
+            attrs.addAll(Pos.of(_width(), _height()).toAttrs("width", "height"));
             attrs.addAll(styleAttrs);
             return XML.of(attrs, "rect", emptyList());
         }
-        default String _show() {
-            return "Rectangle " + width() + " " + height();
+        default String show() {
+            return "Rectangle " + _width() + " " + _height();
         }
     }
 
     interface Ellipse extends Shape {
-        double rx();
-        double ry();
+        double _rx();
+        double _ry();
         @Override
-        default Extent _toExtent() {
-            return Extent.of(Pos.of(-rx(), -ry()), Pos.of(rx(), ry()));
+        default Extent toExtent() {
+            return Extent.of(Pos.of(-_rx(), -_ry()), Pos.of(_rx(), _ry()));
         }
-        default XML _toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
+        default XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
             List<Attr> attrs = new ArrayList<>(trans.apply(Pos.of(0, 0)).toAttrs("cx", "cy"));
-            attrs.addAll(Pos.of(rx(), ry()).toAttrs("rx", "ry"));
+            attrs.addAll(Pos.of(_rx(), _ry()).toAttrs("rx", "ry"));
             attrs.addAll(styleAttrs);
             return XML.of(attrs, "ellipse", emptyList());
         }
         @Override
-        default String _show() {
-            return "Ellipse " + rx() + " " + ry();
+        default String show() {
+            return "Ellipse " + _rx() + " " + _ry();
         }
     }
     interface Triangle extends Shape {
-        double length();
-        default Extent _toExtent() {
-            double y = Math.sqrt(3)/4 * length();
-            return Extent.of(Pos.of(-length()/2, -y), Pos.of(length()/2, y));
+        double _length();
+        default Extent toExtent() {
+            double y = Math.sqrt(3)/4 * _length();
+            return Extent.of(Pos.of(-_length()/2, -y), Pos.of(_length()/2, y));
         }
-        default XML _toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
-            double h = Math.sqrt(3)/4 * length();
+        default XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
+            double h = Math.sqrt(3)/4 * _length();
             List<Attr> attrs = new ArrayList<>();
-            attrs.add(Attr.of("points", Stream.of(Pos.of(-length()/2, -h), Pos.of(length()/2, -h), Pos.of(0, h))
+            attrs.add(Attr.of("points", Stream.of(Pos.of(-_length()/2, -h), Pos.of(_length()/2, -h), Pos.of(0, h))
                     .map(pos -> trans.apply(pos).show())
                     .reduce("", (s1, s2) -> s1 + " " + s2)));
             attrs.addAll(styleAttrs);
             return XML.of(attrs, "polygon", emptyList());
         }
-        default String _show() {
-            return "Triangle " + length();
+        default String show() {
+            return "Triangle " + _length();
         }
     }
 
     interface StyleSheet {
-        List<Styling> stylings();
-        default List<Attr> toAttrs() {
+        List<Styling> _stylings();
+        default List<Attr> _toAttrs() {
             boolean hasFill = false;
             List<Attr> attrs = new ArrayList<>();
-            for (Styling s : stylings()) {
-                Attr attr = s._toAttr();
-                if (attr.name().equals("fill")) hasFill = true;
+            for (Styling s : _stylings()) {
+                Attr attr = s.toAttr();
+                if (attr._name().equals("fill")) hasFill = true;
                 attrs.add(attr);
             }
             if (!hasFill) attrs.add(Attr.of("fill", "none"));
@@ -104,66 +104,66 @@ interface Family {
     }
 
     interface Styling {
-        Attr _toAttr();
+        Attr toAttr();
     }
     interface FillColor extends Styling {
-        Col color();
-        default Attr _toAttr() {
-            return Attr.of("fill", color()._show());
+        Col _color();
+        default Attr toAttr() {
+            return Attr.of("fill", _color().show());
         }
     }
     interface StrokeColor extends Styling {
-        Col color();
-        default Attr _toAttr() {
-            return Attr.of("stroke", color()._show());
+        Col _color();
+        default Attr toAttr() {
+            return Attr.of("stroke", _color().show());
         }
     }
     interface StrokeWidth extends Styling {
-        double width();
-        default Attr _toAttr() {
-            return Attr.of("stroke-width", ""+width());
+        double _width();
+        default Attr toAttr() {
+            return Attr.of("stroke-width", ""+_width());
         }
     }
 
     interface Col {
-        String _show();
+        String show();
     }
     interface Red extends Col {
-        default String _show() { return "red"; }
+        default String show() { return "red"; }
     }
     interface Blue extends Col {
-        default String _show() { return "blue"; }
+        default String show() { return "blue"; }
     }
     interface Green extends Col {
-        default String _show() { return "green"; }
+        default String show() { return "green"; }
     }
     interface Yellow extends Col {
-        default String _show() { return "yellow"; }
+        default String show() { return "yellow"; }
     }
     interface Bisque extends Col {
-        default String _show() { return "bisque"; }
+        default String show() { return "bisque"; }
     }
     interface Black extends Col {
-        default String _show() { return "black"; }
+        default String show() { return "black"; }
     }
 
     interface Drawing {
-        List<Function<Pos, Pos>> transforms();
-        List<Shape> shapes(); // wildcards could be used for extensibility of shapes?
+        List<Function<Pos, Pos>> _transforms();
+        List<Shape> _shapes(); // wildcards could be used for extensibility of shapes?
         // List<? extends Shape> shapes();
-        List<StyleSheet> styles();
+        List<StyleSheet> _styles();
 
         default Drawing above(Drawing other) {
             Extent e1 = toExtent();
             Extent e2 = other.toExtent();
-            Drawing t1 = transform(Pos.of(0, e2.p2().y())::add);
-            Drawing t2 = other.transform(Pos.of(0, e1.p1().y())::add);
+            Drawing t1 = transform(Pos.of(0, e2._p2()._2())::add);
+            Drawing t2 = other.transform(Pos.of(0, e1._p1()._2())::add);
             return t1.merge(t2);
         }
 
         default Drawing beside(Drawing other) {
-            Drawing t1 = transform(Pos.of(other.toExtent().p1().x(), 0)::add);
-            Drawing t2 = other.transform(Pos.of(toExtent().p2().x(), 0)::add);
+            Drawing t1 = transform(Pos.of(other.toExtent()._p1()._1(), 0)::add);
+            Drawing t2 = other.transform(Pos.of(toExtent()._p2()._1(), 0)::add);
             return t1.merge(t2);
         }
 
@@ -173,39 +173,39 @@ interface Family {
 
         default Drawing flip() {
             Extent e = toExtent();
-            return Drawing.of(shapes(), styles(), transforms());
+            return Drawing.of(_shapes(), _styles(), _transforms());
         }
 
         default Extent toExtent() {
-            return IntStream.range(0, shapes().size())
-                    .mapToObj(i -> shapes().get(i)._toExtent().transform(transforms().get(i)))
+            return IntStream.range(0, _shapes().size())
+                    .mapToObj(i -> _shapes().get(i).toExtent().transform(_transforms().get(i)))
                     .reduce(Extent::union).get();
         }
         default Drawing transform(UnaryOperator<Pos> trans) {
-            return Drawing.of(shapes(), styles(), transforms().stream().map(t1 -> t1.andThen(trans)).collect(toList()));
+            return Drawing.of(_shapes(), _styles(), _transforms().stream().map(t1 -> t1.andThen(trans)).collect(toList()));
         }
         default Drawing merge(Drawing other) {
-            return Drawing.of(concat(shapes(), other.shapes()), concat(styles(), other.styles()), concat(transforms(), other.transforms()));
+            return Drawing.of(concat(_shapes(), other._shapes()), concat(_styles(), other._styles()), concat(_transforms(), other._transforms()));
         }
         default XML toXML() {
             int scale = 10;
             Extent e = toExtent();
-            Pos p1 = e.p1();
-            Pos p2 = e.p2();
-            Pos p = Pos.of(p2.x()-p1.x(), p2.y()-p1.y()).resize(scale);
+            Pos p1 = e._p1();
+            Pos p2 = e._p2();
+            Pos p = Pos.of(p2._1()-p1._1(), p2._2()-p1._2()).resize(scale);
             List<Attr> svgAttrs = new ArrayList<>(p.toAttrs("width", "height"));
             svgAttrs.add(Attr.of("viewBox", p1.resize(scale).show() + "," + p.show()));
             svgAttrs.add(Attr.of("xmlns", "http://www.w3.org/2000/svg"));
             svgAttrs.add(Attr.of("version", "1.1"));
 
-            List<XML> shapeXMLs = IntStream.range(0, shapes().size())
-                            .mapToObj(i -> shapes().get(i)._toXML(styles().get(i).toAttrs(), transforms().get(i)))
+            List<XML> shapeXMLs = IntStream.range(0, _shapes().size())
+                            .mapToObj(i -> _shapes().get(i).toXML(_styles().get(i)._toAttrs(), _transforms().get(i)))
                             .collect(toList());
             return XML.of(svgAttrs, "svg",
                     singletonList(XML.of(singletonList(Attr.of("transform", "scale(" + Pos.of(1,-1).resize(scale).show() + ")")), "g", shapeXMLs)));
         }
         default String show() {
-            return IntStream.range(0, shapes().size()).mapToObj(i -> "(" + transforms().get(i).toString() + shapes().get(i)._show() + ")").collect(joining(",", "[", "]"));
+            return IntStream.range(0, _shapes().size()).mapToObj(i -> "(" + _transforms().get(i).toString() + _shapes().get(i).show() + ")").collect(joining(",", "[", "]"));
         }
     }
 
@@ -216,11 +216,15 @@ interface Family {
     }
 
     static Rectangle rectangle(double x, double y) {
-        return Rectangle.of(x, y);
+        return Rectangle.of(y, x);
     }
 
     static Ellipse ellipse(double rx, double ry) {
         return Ellipse.of(rx, ry);
+    }
+
+    static Ellipse circle(double x) {
+        return Ellipse.of(x, x);
     }
 
     static Triangle triangle(double length) {
@@ -260,12 +264,6 @@ interface Family {
         Drawing foots = foot.beside(rectangle(1, 2).draw(strokeWidth(0))).beside(foot);
         Drawing human = head.above(arms).above(upper).above(legs).above(foots);
         return human;
-    }
-
-    static Drawing chick() {
-        Drawing eyeball = ellipse(0.25, 0.75).draw(fillColor(black));
-        Drawing eye = ellipse(2, 1).draw(fillColor(green));
-        return eyeball.inFrontOf(eye);
     }
 }
 

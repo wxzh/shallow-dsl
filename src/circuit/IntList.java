@@ -8,5 +8,5 @@ import lombok.Obj;
 // the inner type (Integer) will be lost in the sub-family
 @Obj
 public interface IntList {
-    List<Integer> out();
+    List<Integer> _out();
 }

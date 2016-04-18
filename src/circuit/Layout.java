@@ -9,9 +9,9 @@ import lombok.Obj;
 
 @Obj
 public interface Layout {
-    List<List<IntPair>> layout();
+    List<List<IntPair>> _layout();
     default Layout map(IntUnaryOperator f) {
-            return Layout.of(layout().stream()
+            return Layout.of(_layout().stream()
                     .map(xs -> xs.stream()
                             .map(pr -> pr.map(f))
                             .collect(toList()))

@@ -22,30 +22,30 @@ class DrawCircuit extends JPanel {
     }
 
     public void drawDot(Graphics2D g, IntPair p) {
-        int x = p.x() - (R/2);
-        int y = p.y() - (R/2);
+        int x = p._1() - (R/2);
+        int y = p._2() - (R/2);
         g.fillOval(x, y, R, R);
 
     }
 
     public void drawLine(Graphics2D g, IntPair from, IntPair to) {
-        g.drawLine(from.x(), from.y(), to.x(), to.y());
+        g.drawLine(from._1(), from._2(), to._1(), to._2());
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        List<List<IntPair>> ll = layout.layout();
-        int col = ll.stream().flatMap(l -> l.stream()).map(pr -> pr.y()).reduce(Integer::max).orElse(0);
+        List<List<IntPair>> ll = layout._layout();
+        int col = ll.stream().flatMap(l -> l.stream()).map(pr -> pr._2()).reduce(Integer::max).orElse(0);
 
         // draw vertical lines
         for (int c = 0; c <= col; c++)
             drawLine(g2d, toCoord(c, 0), toCoord(c, ll.size()));
         for (int r = 0; r < ll.size(); r++) {
             for (IntPair pr : ll.get(r)) {
-                IntPair from = toCoord(pr.x(), r);
-                IntPair to = toCoord(pr.y(), r+1);
+                IntPair from = toCoord(pr._1(), r);
+                IntPair to = toCoord(pr._2(), r+1);
                 drawDot(g2d, from);
                 drawDot(g2d, to);
                 drawLine(g2d, from, to);

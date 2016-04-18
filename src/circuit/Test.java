@@ -31,9 +31,10 @@ public class Test {
                                         Identity.of(1),
                                         Fan.of(2)),
                                 Identity.of(1)));
-        fan(2).beside(fan(2))
-        .above(fan(2).stretch(2,2))
-        .above(identity(1).beside(fan(2)).beside(identity(1)))
-        .draw();
+Circuit circuit = fan(2).beside(fan(2))
+                  .above(fan(2).stretch(2,2))
+                  .above(identity(1).beside(fan(2)).beside(identity(1)));
+circuit.width();
+//.draw();
     }
 }

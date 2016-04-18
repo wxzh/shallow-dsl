@@ -6,13 +6,13 @@ import lombok.Obj;
 
 @Obj
 public interface IntPair {
-    int x();
-    int y();
+    int _1();
+    int _2();
 
     default String show() {
-        return "(" + x() + "," + y() + ")";
+        return "(" + _1() + "," + _2() + ")";
     }
     default IntPair map(IntUnaryOperator f) {
-        return IntPair.of(f.applyAsInt(x()), f.applyAsInt(y()));
+        return IntPair.of(f.applyAsInt(_1()), f.applyAsInt(_2()));
     }
 }
