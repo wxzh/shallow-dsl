@@ -4,11 +4,15 @@ import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 
 import lombok.Obj;
 
@@ -198,7 +202,7 @@ interface LayoutFeature extends ExtendedAST {
 }
 
 @Obj
-public interface TlayoutFeature extends LayoutFeature {
+interface TlayoutFeature extends LayoutFeature {
     interface Circuit {
         Layout _tlayout(IntUnaryOperator f);
     }
@@ -246,5 +250,43 @@ public interface TlayoutFeature extends LayoutFeature {
             }
             return c()._tlayout(f).map(ns::get);
         }
+    }
+}
+
+@Obj
+public interface CircuitDSL extends TlayoutFeature {
+    interface Circuit {
+        default Circuit beside(Circuit that) {
+            return Beside.of(this, that);
+        }
+        default Circuit above(Circuit that) {
+            return Above.of(this, that);
+        }
+        default Circuit stretch(Integer... ns) {
+            return Stretch.of(this, IntList.of(Arrays.asList(ns)));
+        }
+        default Circuit rStretch(Integer... ns) {
+            return RStretch.of(this, IntList.of(Arrays.asList(ns)));
+        }
+        default void draw() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    JFrame frame = new JFrame();
+                    frame.setTitle("Draw Circuit");
+                    frame.setResizable(false);
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.getContentPane().add(new DrawCircuit(Circuit.this._tlayout(i -> i)));
+                    frame.pack();
+                    frame.setVisible(true);
+                }
+            });
+        }
+    }
+    static Circuit identity(int n) {
+        return Identity.of(n);
+    }
+    static Circuit fan(int n) {
+        return Fan.of(n);
     }
 }
