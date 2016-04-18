@@ -25,28 +25,28 @@ interface Family {
         Extent toExtent();
         XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans);
         String show();
-        default Drawing draw(Styling... styles) {
-            return draw(StyleSheet.of(asList(styles)));
+        default Drawing withStyle(Styling... styles) {
+            return withStyle(StyleSheet.of(asList(styles)));
         }
-        default Drawing draw(StyleSheet sheet) {
+        default Drawing withStyle(StyleSheet sheet) {
             return Drawing.of(singletonList(this), singletonList(sheet), singletonList(p -> p));
         }
     }
 
     interface Rectangle extends Shape {
-        double _width();
-        double _height();
+        double _x();
+        double _y();
         default Extent toExtent() {
-            return Extent.of(Pos.of(_width(), _height()).resize(-0.5), Pos.of(_width(), _height()).resize(0.5));
+            return Extent.of(Pos.of(_x(), _y()).resize(-0.5), Pos.of(_x(), _y()).resize(0.5));
         }
         default XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
-            List<Attr> attrs = new ArrayList<>(trans.apply(Pos.of(_width(), _height()).resize(-0.5)).toAttrs("x", "y"));
-            attrs.addAll(Pos.of(_width(), _height()).toAttrs("width", "height"));
+            List<Attr> attrs = new ArrayList<>(trans.apply(Pos.of(_x(), _y()).resize(-0.5)).toAttrs("x", "y"));
+            attrs.addAll(Pos.of(_x(), _y()).toAttrs("width", "height"));
             attrs.addAll(styleAttrs);
             return XML.of(attrs, "rect", emptyList());
         }
         default String show() {
-            return "Rectangle " + _width() + " " + _height();
+            return "Rectangle " + _x() + " " + _y();
         }
     }
 
@@ -69,22 +69,22 @@ interface Family {
         }
     }
     interface Triangle extends Shape {
-        double _length();
+        double _l();
         default Extent toExtent() {
-            double y = Math.sqrt(3)/4 * _length();
-            return Extent.of(Pos.of(-_length()/2, -y), Pos.of(_length()/2, y));
+            double y = Math.sqrt(3)/4 * _l();
+            return Extent.of(Pos.of(-_l()/2, -y), Pos.of(_l()/2, y));
         }
         default XML toXML(List<Attr> styleAttrs, Function<Pos, Pos> trans) {
-            double h = Math.sqrt(3)/4 * _length();
+            double h = Math.sqrt(3)/4 * _l();
             List<Attr> attrs = new ArrayList<>();
-            attrs.add(Attr.of("points", Stream.of(Pos.of(-_length()/2, -h), Pos.of(_length()/2, -h), Pos.of(0, h))
+            attrs.add(Attr.of("points", Stream.of(Pos.of(-_l()/2, -h), Pos.of(_l()/2, -h), Pos.of(0, h))
                     .map(pos -> trans.apply(pos).show())
                     .reduce("", (s1, s2) -> s1 + " " + s2)));
             attrs.addAll(styleAttrs);
             return XML.of(attrs, "polygon", emptyList());
         }
         default String show() {
-            return "Triangle " + _length();
+            return "Triangle " + _l();
         }
     }
 
@@ -216,7 +216,7 @@ interface Family {
     }
 
     static Rectangle rectangle(double x, double y) {
-        return Rectangle.of(y, x);
+        return Rectangle.of(x, y);
     }
 
     static Ellipse ellipse(double rx, double ry) {
@@ -255,13 +255,13 @@ interface Family {
 
     static Drawing human() {
         StyleSheet sheet = styleSheet(fillColor(blue), strokeWidth(0));
-        Drawing head = ellipse(3, 3).draw(strokeWidth(0.1), strokeColor(black), fillColor(bisque));
-        Drawing arms = rectangle(1, 10).draw(fillColor(red), strokeWidth(0));
-        Drawing upper = triangle(10).draw(fillColor(red), strokeWidth(0));
-        Drawing leg = rectangle(5, 1).draw(sheet);
-        Drawing foot = rectangle(1, 2).draw(sheet);
-        Drawing legs = leg.beside(rectangle(5, 2).draw(strokeWidth(0))).beside(leg);
-        Drawing foots = foot.beside(rectangle(1, 2).draw(strokeWidth(0))).beside(foot);
+        Drawing head = ellipse(3, 3).withStyle(strokeWidth(0.1), strokeColor(black), fillColor(bisque));
+        Drawing arms = rectangle(10, 1).withStyle(fillColor(red), strokeWidth(0));
+        Drawing upper = triangle(10).withStyle(fillColor(red), strokeWidth(0));
+        Drawing leg = rectangle(1, 5).withStyle(sheet);
+        Drawing foot = rectangle(2, 1).withStyle(sheet);
+        Drawing legs = leg.beside(rectangle(2, 5).withStyle(strokeWidth(0))).beside(leg);
+        Drawing foots = foot.beside(rectangle(2, 1).withStyle(strokeWidth(0))).beside(foot);
         Drawing human = head.above(arms).above(upper).above(legs).above(foots);
         return human;
     }
