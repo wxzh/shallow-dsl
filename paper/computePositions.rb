@@ -49,6 +49,10 @@ Dir['../src/*/*.java'].each do |file|
   scan(file, beginpos, endpos, fileloc)
 end
 
+Dir['./code/*'].each do |file|
+  scan(file, beginpos, endpos, fileloc)
+end
+
 Dir['*.tex'].each do |file|
   #temp = Tempfile.new('compute_positions')
   tempname = "footempfile.txt"
