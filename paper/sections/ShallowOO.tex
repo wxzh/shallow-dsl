@@ -1,0 +1,47 @@
+\section{Shallow Object-Oriented Programming}
+
+Argue that shallow embeddings and straightforward OO 
+programs are essentially the same thing. 
+
+Start from a simple shallow DSL in Haskell, 
+and iterate throught it until you reach a form 
+that looks like an OO program.
+
+Show how todo transformations in Shallow embeddings
+using the insight of how to do transformations in OO
+programs.
+
+Show the correponding Java programs and the Java program 
+with transformation that we can port back to Haskell.
+
+\begin{verbatim}
+{-
+type Exp = Int
+
+lit x = x
+
+add e1 e2 = e1 + e2
+-}
+
+{-
+newtype Exp = E Int
+
+lit x = E x
+
+add (E e1) (E e2) = E (e1 + e2)
+-}
+
+data Exp = E {
+  eval :: Int,
+  transform :: Exp
+}
+
+lit x = E {eval = x, transform = lit x}
+
+add e1 e2 = E {
+  eval = eval e1 + eval e2,
+  transform = add (lit 0) e2
+}
+
+p = eval $ transform (add (lit 5) (lit 3))
+\end{verbatim}
