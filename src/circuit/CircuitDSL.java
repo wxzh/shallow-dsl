@@ -154,7 +154,7 @@ interface LayoutFeature extends ExtendedAST {
     }
     interface Fan {
         default Layout layout() {
-            return Layout.of(singletonList(IntStream.range(1, _n()).mapToObj(j -> IntPair.of(0, j)).collect(toList())));
+            return Layout.of(singletonList(IntStream.range(1, _n()).mapToObj(i -> IntPair.of(0, i)).collect(toList())));
         }
     }
     interface Above {
@@ -269,9 +269,8 @@ public interface CircuitDSL extends TlayoutFeature {
             return RStretch.of(this, IntList.of(Arrays.asList(_ns)));
         }
         default void draw() {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
+            SwingUtilities.invokeLater(
+                () -> {
                     JFrame frame = new JFrame();
                     frame.setTitle("Draw Circuit");
                     frame.setResizable(false);
@@ -280,7 +279,7 @@ public interface CircuitDSL extends TlayoutFeature {
                     frame.pack();
                     frame.setVisible(true);
                 }
-            });
+            );
         }
     }
     static Circuit identity(int n) {
