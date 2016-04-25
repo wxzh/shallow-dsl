@@ -49,6 +49,10 @@ Dir['../src/*/*.java'].each do |file|
   scan(file, beginpos, endpos, fileloc)
 end
 
+Dir['../src/*/*/*.java'].each do |file|
+  scan(file, beginpos, endpos, fileloc)
+end
+
 Dir['./code/*'].each do |file|
   scan(file, beginpos, endpos, fileloc)
 end

@@ -1,5 +1,6 @@
 \section{Shallow Object-Oriented Programming}
 
+\begin{comment}
 Weixin writes this part.
 
 Argue that shallow embeddings and straightforward OO 
@@ -16,7 +17,108 @@ programs.
 Show the correponding Java programs and the Java program 
 with transformation that we can port back to Haskell.
 
-\lstinputlisting[language=haskell,linerange=2-5]{./code/shallow.hs}%APPLY:EXPR1
-\lstinputlisting[language=haskell,linerange=9-12]{./code/shallow.hs}%APPLY:EXPR2
-\lstinputlisting[language=haskell,linerange=16-18]{./code/shallow.hs}%APPLY:EXPR3
-\lstinputlisting[language=haskell,linerange=22-33]{./code/shallow.hs}%APPLY:EXPR4
+Shallow embedding interpreter pattern
+Deep embedding visitor pattern
+\end{comment}
+
+In this section, we argue that \emph{shallow embedding} and straightforward OO
+programming are essentially the same thing. We use a subset
+of the DSL presented in Gibbons and Wu's paper~\cite{} as the running example.
+We first show how to use shallow embedding to define it and then gradually
+rewrite the definition into an ``OO style''. And we also show how to do
+transformations in shallow embedding, which is typically thought can only be
+done in deep embedding.
+
+\subsection{A DSL for Parallel Prefix Circuits}
+Consider an DSL named \dsl that models parallel circuits.
+Its BNF grammar is given below:
+$$
+\begin{array}{lcl}
+Circuit & ::= & Identity \\
+ & \mid & Fan \\
+ & \mid & Beside \\
+Fan & ::= & ``fan''\; PositiveNumber \\
+Identity & ::= & ``identity''\;  PositiveNumber \\
+Beside & ::= & Circuit ``beside'' Circuit \\
+PositiveNumber & ::= & [1-9] \\
+     & \mid & [1-9][0-9]^* \\
+\end{array}
+$$
+% bnf
+\weixin{the bnf grammar needs polishing}
+
+There are three constructs - two primitives
+\emph{fan} and \emph{identity} and one combinator \emph{beside} whose
+meanings are: \emph{identity n} contains \emph{n} isolated vertical wires;
+\emph{fan n} contains \emph{n} vertical wires and the first wire connects to
+all the remaining ones from top to bottom; $beside\ c_1\ c_2$ joins two circuits
+$c_1$ and $c_2$ horizontally.
+For example, the circuit \emph{fan 3 beside identity 3} can be visualized in Figure~\ref{}.
+
+\subsection{Shallow Embedding and Object-Oriented Programming}
+Different from deep embedding, which uses a data structure to represent the
+abstract syntax of a language, shallow embedding defines a language
+directly through encoding its semantics. In the case of \dsl,
+the shallow embedding implementation of language should conform to the types given below:
+
+\lstinputlisting[language=haskell,linerange=2-5]{./code/shallowCircuit.hs}%APPLY:CTYPE
+where \texttt{Circuit} models the semantic domain and should be later filled in with a
+concrete type according to the semantics of the language.
+For example, if the semantics of \dsl is to calculate the width of a
+circuit, the definition would be:
+\lstinputlisting[language=haskell,linerange=11-16]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
+
+As shallow embedding is semantics-oriented, it is already an integer after
+constructing a circuit. For example, we will immediately get $6$ for
+\texttt{fan 3 `beside` identity 3} and hence \texttt{width1} is just an identity function.
+
+The above implementation can be rewritten by wrapping the result into an
+datatype and get back the value by pattern matching:
+\lstinputlisting[language=haskell,linerange=20-26]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
+A question then arises - is this implementation shallow or deep?
+
+We continue rewriting the definition. This time, we use a record to represent
+the result and give it a name:
+\lstinputlisting[language=haskell,linerange=31-36]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
+The implementation is apparently shallow since it is no different from the last version.
+At this stage, however, the definition looks so like an OO program that we can easily
+translate it into an OO language like Java:
+\lstinputlisting[linerange=5-24]{../src/paper/sec2/Circuit.java}%APPLY:CIRCUIT_OO
+The record type maps to an interface with its field declared as an abstract method.
+Each case corresponds to an class and its parameters become fields of the class.
+And the class implements the \texttt{Circuit} interface by giving \texttt{width}
+a definition. This implementation, in fact, is an instance of the \interp pattern.
+In other words, shallow embedding and the \interp are essentially the same thing.
+It may also worth mentioning that deep embedding is closely related to the
+\textsc{Visitor} pattern.
+
+\subsection{Transformations in Shallow Embedding}
+One of the main criticism of shallow embedding is that how to define transformations
+becomes unclear since there is not a structure representing the Abstract Syntax Tree (AST).
+%In fact, transformations can still be defined in shallow embedding.
+For example, there usually are some language constructs that do not extend the
+expressive power of the language but ease programming in the language.
+Then, in implementation, we define a core language with less constructs and
+define a transformation that rewrites the AST to use core constructs.
+
+The \emph{identity n} construct in \dsl is a syntactic sugar, which can
+be rewritten using the following formula:
+$$identity\ n = (fan\ 1) \overbrace{`beside`\ (fan\ 1)}^{n-1}\ (n \geq 1)$$
+which states that \emph{identity n} equals to \emph{n} of \emph{fan 1} combined
+with \emph{beside}.
+%Using the above formula, we can define a transformation that desugars every
+%occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
+
+We can implement this desugaring operation in Java:
+\lstinputlisting[language=haskell,linerange=29-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
+The return type of \texttt{desugar} is \texttt{Circuit} reflecting that it is a
+transformation. The implementation is straightforward: \emph{fan n} just returns
+itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wrap back
+their results into an instance of \texttt{Beside}; \emph{identity n} encodes the above
+formula.
+
+\weixin{define a show function in the and show the result after desugaring?}
+Of course, defining \texttt{desugar} is also possible in Haskell:
+
+\lstinputlisting[language=haskell,linerange=40-55]{./code/shallowCircuit.hs}%APPLY:DESUGAR
+The definition is a little bit tricky since it makes use of Haskell's laziness.

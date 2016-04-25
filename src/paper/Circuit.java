@@ -4,6 +4,8 @@ import java.util.List;
 
 import lombok.Obj;
 
+
+interface namespace {
 @Obj
 //BEGIN_CIRCUIT
 interface Circuit { int width(); }
@@ -37,16 +39,29 @@ interface Beside extends Circuit {
 //END_BESIDE
 @Obj
 //BEGIN_ID
-interface Id extends Circuit {
-  int _n();
-  default int width() { return _n(); }
-}
+//interface Identity extends Circuit {
+//  int _n();
+//  default int width() { return _n(); }
+//}
 //END_ID
+interface Identity extends Circuit {
+  int _n();
+  default int width() {
+    return _n();
+  }
+  default Circuit desugar() {
+    Circuit res = Fan.of(1);
+    for (int i = 1; i < _n(); i++)
+      res = Beside.of(res, Fan.of(1));
+    return res;
+  }
+}
+
 @Obj
 //BEGIN_ABOVE
 interface Above extends Circuit {
-  CircuitWS _c1();
-  CircuitWS _c2();
+  Circuit _c1();
+  Circuit _c2();
   default int width() { return _c2().width(); }
 }
 //END_ABOVE
@@ -82,12 +97,17 @@ interface BesideWS extends Beside, CircuitWS {
   }
 }
 //END_BESIDEWS
-
+}
+/*
 //BEGIN_FAMILY
 @Obj interface Family {
-  interface Circuit {
-    int width();
-  }
+  // the same code in Figure .
+  ...
+}
+//END_FAMILY
+*/
+@Obj interface Family {
+  interface Circuit { int width(); }
   interface Fan extends Circuit {
     int _n();
     default int width() {
@@ -109,43 +129,37 @@ interface BesideWS extends Beside, CircuitWS {
     }
   }
 }
-//END_FAMILY
 
-//BEGIN_FAMILY_SEMANTICS
-@Obj interface NewSemantics extends Family {
-  interface Circuit {
-    boolean wellSize();
-  }
-  interface Fan extends Circuit {
-    default boolean wellSize() { return true; }
-  }
-  interface Stretch extends Circuit {
-    default boolean wellSize() {
-      return _ns().size() == _c().width();
-    }
-  }
-  interface Beside extends Circuit {
-    default boolean wellSize() {
-      return _c1().wellSize() && _c2().wellSize();
-    }
-  }
-}
-//END_FAMILY_SEMANTICS
 
 //BEGIN_FAMILY_SYNTAX
-@Obj interface NewSyntax extends NewSemantics {
-  interface Id extends Circuit {
+@Obj interface NewSyntax extends Family {
+  interface Identity extends Circuit {
     int _n();
     default int width() { return _n(); }
-    default boolean wellSize() { return true; }
   }
   interface Above extends Circuit {
     Circuit _c1();
     Circuit _c2();
     default int width() { return _c2().width(); }
-    default boolean wellSize() {
-      return _c1().width() == _c2().width();
-    }
   }
 }
 //END_FAMILY_SYNTAX
+
+//BEGIN_FAMILY_SEMANTICS
+@Obj interface NewSemantics extends Family {
+  interface Circuit { boolean wellSized(); }
+  interface Fan extends Circuit {
+    default boolean wellSized() { return true; }
+  }
+  interface Stretch extends Circuit {
+    default boolean wellSized() {
+      return _ns().size() == _c().width();
+    }
+  }
+  interface Beside extends Circuit {
+    default boolean wellSized() {
+      return _c1().wellSized() && _c2().wellSized();
+    }
+  }
+}
+//END_FAMILY_SEMANTICS
