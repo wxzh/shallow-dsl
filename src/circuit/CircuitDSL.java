@@ -35,7 +35,7 @@ interface AST {
         Circuit _c2();
     }
     interface Stretch extends Circuit {
-        IntList _ns();
+        List<Integer> _ns();
         Circuit _c();
     }
 }
@@ -99,7 +99,7 @@ interface WidthFeature extends AST {
     }
     interface Stretch {
         default int width() {
-            return _ns()._out().stream().reduce(0, (a, b) -> a + b); // bug: the inner type(Integer) is lost
+            return _ns().stream().reduce(0, (a, b) -> a + b);
         }
     }
 }
@@ -132,7 +132,7 @@ interface WellSizeFeature extends WidthFeature, DepthFeature {
     }
     interface Stretch {
         default boolean wellSize() {
-            return _c().wellSize() && _ns()._out().size() == _c().width();
+            return _c().wellSize() && _ns().size() == _c().width();
         }
     }
 }
@@ -171,7 +171,7 @@ interface LayoutFeature extends ExtendedAST {
         default Layout layout() {
             int acc = 0;
             List<Integer> _ns = new ArrayList<>();
-            for (int n : _ns()._out()) {
+            for (int n : _ns()) {
                 _ns.add(n + acc - 1);
                 acc += n;
             }
@@ -180,9 +180,9 @@ interface LayoutFeature extends ExtendedAST {
     }
     interface RStretch {
         default Layout _layout() {
-            int acc = _ns()._out().size();
+            int acc = _ns().size();
             List<Integer> _ns = new ArrayList<>();
-            for (int n : _ns()._out()) {
+            for (int n : _ns()) {
                 _ns.add(acc - 1);
                 acc += n;
             }
@@ -233,7 +233,7 @@ interface TlayoutFeature extends LayoutFeature {
         default Layout tlayout(IntUnaryOperator f) {
             int acc = 0;
             List<Integer> _ns = new ArrayList<>();
-            for (int n : _ns()._out()) {
+            for (int n : _ns()) {
                 _ns.add(n + acc - 1);
                 acc += n;
             }
@@ -242,9 +242,9 @@ interface TlayoutFeature extends LayoutFeature {
     }
     interface RStretch {
         default Layout tlayout(IntUnaryOperator f) {
-            int acc = _ns()._out().size();
+            int acc = _ns().size();
             List<Integer> _ns = new ArrayList<>();
-            for (int n : _ns()._out()) {
+            for (int n : _ns()) {
                 _ns.add(acc - 1);
                 acc += n;
             }
@@ -263,10 +263,10 @@ public interface CircuitDSL extends TlayoutFeature {
             return Above.of(this, that);
         }
         default Circuit stretch(Integer... _ns) {
-            return Stretch.of(this, IntList.of(Arrays.asList(_ns)));
+            return Stretch.of(this, Arrays.asList(_ns));
         }
         default Circuit rStretch(Integer... _ns) {
-            return RStretch.of(this, IntList.of(Arrays.asList(_ns)));
+            return RStretch.of(this, Arrays.asList(_ns));
         }
         default void draw() {
             SwingUtilities.invokeLater(
