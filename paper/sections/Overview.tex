@@ -1,4 +1,5 @@
 \section{Overview}
+\weixin{title: Evolution on DSLs?}
 
 \begin{comment}
 Weixin writes this one.
@@ -14,112 +15,102 @@ or introducing before with some other examples?
 \end{comment}
 
 %As language evolves, the need of new syntax often arises.
-DSLs may evolve along the time with new syntax and semantics introduced.
-This is essentially the Expression Problem (EP)~\cite{wadler}, which requires
-the host language equipped with two dimensions of extensibility.
-To illustrate, we start with a subset of the DSL presented in Gibbons and Wu's
-paper with a single semantic function. And then we show how to extend this
-language with full language constructs and additional semantics both in Haskell
-and in Java. The key difference is that the extension on semantics for Java is
-\emph{modular} whereas the Haskell approach needs to modify existing code.
+As DSLs evolve along the time, the demand for new syntax and and semantics may arise.
+It would be good if we can introduce these new features to the DSL \emph{modularly}.
+%This is actually a hard problem, known as the Expression Problem (EP)~\cite{wadler}, which
+This, however, requires the host language equipped with two dimensions of
+extensibility.
+In this section, we argue that from extensibility perspective, OO languages are
+better candidates as host languages than FP languages.
+To demonstrate this, we try to extend \dsl with new syntax and new semantics in
+the setting of shallow embedding. Adding new syntax is both easy for both FP
+and OOP. Adding new semantics, however, is hard in FP. Although it is possible
+in OOP, the solution requires some boilerplate code. We hence developed \name
+for defining modular extensions easily.
 
-\subsection{A DSL for Parallel Prefix Circuits}
-Initially, the language contains three language constructs: a primitive
-\emph{fan} and two combinators \emph{beside} and \emph{stretch}. Their types are
-given as follows:
+\subsection{Initial System}
+Before introducing any extensions, we need to rewrite the initial implementation for \dsl shown in Figure~\ref{}:
 
-\lstinputlisting[language=haskell,linerange=2-5]{./code/shallowCircuit.hs}%APPLY:CTYPE
-\emph{fan n} contains \emph{n} vertical wires with the first wire connected to
-all the remaining wires from top to bottom; \emph{beside c1 c2} joins two circuits
-horizontally; \emph{stretch ns c} insertes additional wires into the circuit
-\emph{c} by summing up \emph{ns}.
-For example, a circuit constructed with these three operator \emph{stretch [2,2,2] (fan 3) `beside` fan 1} is visualized in Figure~\ref{}.
-The semantics of the language is given below:
-
-\lstinputlisting[language=haskell,linerange=9-12]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
-which calculates the width of a circuit, i.e. the number of vertical wires in a circuit.
-The corresponding Java implementation is shown in Figure~\ref{}.
-
-\lstinputlisting[linerange=9-9]{../src/paper/Circuit.java}%APPLY:CIRCUIT
-\lstinputlisting[linerange=13-16]{../src/paper/Circuit.java}%APPLY:FAN
-\lstinputlisting[linerange=20-26]{../src/paper/Circuit.java}%APPLY:STRETCH
-\lstinputlisting[linerange=30-36]{../src/paper/Circuit.java}%APPLY:BESIDE
-The translation is straightforward. The only difference is that classes are
-replaced with interfaces and fields become unimplemented getter methods. This
-change is vital for extensibility, which will be discussed later in this section.
+\lstinputlisting[linerange=11-26]{../src/paper/Circuit.java}%APPLY:INIT
+We change the implementation language constructs from classes to interfaces and
+their fields to unimplemented getter methods. The purpose of this modification
+is to allow types of the fields to be refined in future, which is vital for
+retaining extensibility.
 
 \subsection{Adding New Syntax}
-Shallow embedding makes it easy to \emph{modularly} add new syntax both in FP and OOP.
-Suppose that we would like to add a primitive \emph{identity n} which contains
-\emph{n} isolated wires and a combinator \emph{above c1 c2} which combines two
-circuits of the same width vertically.
+Shallow embedding makes it easy to add new syntax, both in FP and OOP.
+Suppose that we would like to add two new constructs to the language:
+the first is \emph{stretch ns c}, which inserts additional wires into the circuit \emph{c} by summing up \emph{ns};
+the second is $above c_1 c_2$, which combines two circuits of the same width vertically.
+With these new constructs, more complex circuit can be constructed.
+For example, Figure~\ref{} shows the circuit constructed by \emph{stretch [2,2,2] (fan 3) `beside` fan 1}.
 
-In Haskell, we can define two more cases for the semantic function \texttt{identity} and
-\texttt{above} like this:
-\lstinputlisting[linerange=51-52]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
-It is also trivial in Java. We just need to define two new interfaces
-\texttt{Identity} and \texttt{Above} that both extend \texttt{Circuit} and
-implement the \texttt{width} method:
+To accomplish this goal in Haskell, we can simply define two more cases,
+\texttt{stretch} and \texttt{above}, for the semantic function:
+\lstinputlisting[linerange=59-60]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
+Similarly, defining two new interfaces
+\texttt{Stretch} and \texttt{Above} that both extend \texttt{Circuit} and
+implement the \texttt{width} method is all we need to do in Java:
 
-\lstinputlisting[linerange=40-43]{../src/paper/Circuit.java}%APPLY:ID
-\lstinputlisting[linerange=47-51]{../src/paper/Circuit.java}%APPLY:ABOVE
-
+\lstinputlisting[linerange=29-40]{../src/paper/Circuit.java}%APPLY:SYNTAX
 
 \subsection{Adding New Semantics}
-Adding new semantics, however, becomes hard.
-For example, we would like to have an operation that checks
-whether the circuit is of correct size. We say a circuit is \emph{well-sized}
-only if: 1) for \emph{fan n}, \emph{n} is a positive number; 2) for
-\emph{beside c2}, both \emph{c1} and \emph{c2} are well-sized; 3) for
-\emph{stretch ns c} \emph{c} is well-sized and its width is the same as the
-length of \emph{ns}.
+The new combinators, however, can not apply to arbitrary circuits - they have
+some invariants in their definitions.
+To make sure that a circuit is constructed correctly, we need to expand the
+semantics of the language for doing such checks.
 
-Gibbons and Wu solved this problem similar to how we add \texttt{peval} to
-\texttt{Exp}, where they used a pair instead of a record to capture the new
-semantic domain, then defined the two semantic functions simultaneously for each
-case and split the definitions through projections on the tuple in the end.
+Adding new semantics, however, becomes hard for shallow embedding.
+Gibbons and Wu worked around this problem in the following way:
+\lstinputlisting[linerange=47-51]{../src/paper/Circuit.java}%APPLY:HS_SEMANTICS
+
+which is similar to how we add \texttt{desugar} to the implementation in Section~\ref{}.
+The difference is that they use a tuple instead of a record to merge the
+semantic domains, then define the two semantic functions simultaneously for each
+case, and split the definitions through projections on the tuple in the end.
 This solution, however, modifies existing code, breaking the requirement of EP.
 
 Conversely, the support of covariant type-refinements and inheritance for OO
-languages allows us to add new semantics \emph{modularly}:
+languages allows us to add new semantics in a \emph{modular} way:
 %Different from records or tuples, interfaces are extensible.
-\lstinputlisting[linerange=56-58]{../src/paper/Circuit.java}%APPLY:CIRCUITWS
-\lstinputlisting[linerange=62-64]{../src/paper/Circuit.java}%APPLY:FANWS
-\lstinputlisting[linerange=68-73]{../src/paper/Circuit.java}%APPLY:STRETCHWS
-\lstinputlisting[linerange=77-83]{../src/paper/Circuit.java}%APPLY:BESIDEWS
+\lstinputlisting[linerange=47-75]{../src/paper/Circuit.java}%APPLY:SEMANTICS
 
 Interface \texttt{CircuitWS} extends the original interface and declare a new
 semantic function \texttt{wellSized} inside.
-Then all existing cases should extend this new interface with the semantic
-function implemented. Note that multiple inheritance is used for composing
-existing semantic functions and also for methods whose return type is
-\texttt{Circuit} should be refined to \texttt{CircuitWS} so that we can call
-\texttt{wellSized} method on such fields.
-
-extensibility.
-for return types. This is \ref{EPtrivially}
-(that is why we implement language constructs as interfaces rather than classes)
-
+Then all existing cases should extend both their corresponding original
+implementation and \texttt{CircuitWS} and implement the new method
+\texttt{wellSized}. Also, all the occurrences of \texttt{Circuit} are
+refined as \texttt{CircuitWS} so that we can call \texttt{wellSized} on inner circuits returned by getters.
+As Java does not support type-refinements on fields, we hence implement these
+constructs as interfaces rather than classes.
 
 \subsection{\name's Support}
-Although manually . It has some drawbacks.
-It is cubersome to .
-To retain extensibility, all should be kept as interfaces, which means that
-additional classes should be created for each of them so that objects can be constructed.
-Once new semantics is introduced, all the
-Programmers would not get warned may forget to implement
-Also, it is cubersome to express the dependencies boilerplate and do
-type-refinements manually.
+There exists some boilerplate for the Java solution presented above:
+\begin{itemize}
+  \item Interfaces that represent language constructs should be instantiated for
+    creating objects;
+  \item Type-refinements should be done manually
+  \item The inheritance relation needs to be repeatedly stated for all interfaces.
+\end{itemize}
+Also, programmers would not get warned if they forget to extend all the
+constructs with new semantics.
 
-\name addresses all these problems through code instrument.
-By using \name, we can rewrite the extensions in the way shown in Figure\ref{}.
+\name addresses all these problems through embracing family polymorphism and code instrument.
+By using \name, we can refactor the extensions in the way shown in Figure\ref{}.
+\lstinputlisting[linerange=80-83]{../src/paper/Circuit.java}%APPLY:FAMILY
+\lstinputlisting[linerange=112-122]{../src/paper/Circuit.java}%APPLY:FAMILY_SYNTAX
+\lstinputlisting[linerange=126-141]{../src/paper/Circuit.java}%APPLY:FAMILY_SEMANTICS
 
-Figure~\ref{} shows the \name's implementation of Circuit with extensions.
 Note that \name generates \texttt{of} method for class-like interfaces for
-constructing objects. Inside \texttt{of}, an anonymous class is created with all
-field-like methods implemented and its instance is returned.
+constructing objects. The static method \texttt{of} returns an instance of an anonymous class
+that implements the interface with all
+getters implemented and its instance is returned.
 Moreover, \name has a good support family polymorphism.
 Client users need only explicitly declared the dependencies on other families
 through (...). \name will re-declare all members from the base families in the extended family.
 And the dependencies between members of families are automatically deducted and
 implicitly expressed in member re-declaration.
+
+% Multiple interpretation
+% Dependent interpretation
+% Context-sensitive interpretation
