@@ -1,5 +1,79 @@
 \section{Code Generation}
 
-Haoyuan should write this part.
+%Haoyuan should write this part.
+%How to generate code for family polymorphism!
 
-How to generate code for family polymorphism!
+In this section, we present an overview of the code that \name generates. The syntax and type system are
+consistent with the Java language. We use translation functions to illustrate our code generation.
+To make it clearer, we split the process of code generation into two parts, in which case we introduce a
+new annotation \lstinline{@FamilyOf}, which is not defined in the source code but only helps to explain
+the translation. In our implementation, the annotation processing is a combination of \name
+and \lstinline{@FamilyOf}. Below are the translation functions:
+
+\begin{lstlisting}
+  (*$\llbracket$*)@Obj interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) (*$\overline{I}$*)}(*$\rrbracket$*)
+= @ObjOf interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth'}$*) (*$\overline{I'}$*)}
+\end{lstlisting}
+
+\subsection{@Obj}
+\lstinline{@Obj} builds the structure of family polymorphism for the annotated type. More specifically, \lstinline{@Obj} tackles two
+tasks: (1) building the dependencies (subtyping relations) between new family members and old ones; (2) refining field types. To this
+aim, \lstinline{@Obj} re-declares all member types and field methods from the base families. The detection runs recursively throughout
+the nested interfaces in base families. For member types with same names, the re-declaration in the annotated type is generated or modified
+with supertypes filled in for dependencies.
+
+\subsubsection{sameMembers}
+The auxiliary function \lstinline{sameMembers} generates the declaration of common member types from base families in the annotated type. It
+firstly checks if these members are homogeneous in their own hierarchies, and then fuses the old declarations into a new re-declaration, where
+all field types are automatically refined. Meanwhile, the code generation fills in the ``extends'' for the re-declaration, to build the inheritance
+relationship to the sources.
+\begin{itemize}
+\item $I_0\in$ \lstinline{sameMembers(}$\overline{I}$\lstinline{)}
+    \begin{itemize}
+    \item \lstinline{n = name(}$I_0$\lstinline{)}
+    \item $\overline{sup}$\lstinline{ = consistent(n, }$\overline{I}$\lstinline{)}
+    \item $I_0$\lstinline{ = fuse(n, }$\overline{sup}$\lstinline{, }$\overline{I}$\lstinline{)}
+    \end{itemize}
+\item $\overline{sup}$\lstinline{ = consistent(n, }$\overline{I}$\lstinline{)}
+    \begin{itemize}
+    \item \lstinline{I.n = interface n extends }$\overline{sup}$ \{...\} %style
+    \item $\forall$\lstinline{I.n}
+    \end{itemize}
+\item $I_0$\lstinline{ = fuse(n, }$\overline{sup}$\lstinline{, }$\overline{I}$\lstinline{)}
+    \begin{itemize}
+    \item $I_0$\lstinline{ = interface n extends }$\overline{sup}$ $\{\overline{meth}\ \ \overline{I_1}\}$ %style
+    \item $\overline{meth}$\lstinline{ = fuse(}$\overline{I.\overline{meth}}$\lstinline{)}
+    \item $\overline{I_1}$\lstinline{ = fuse(}$\overline{I.\overline{I_1}}$\lstinline{)}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{$\overline{I'}$}
+\begin{itemize}
+\item $\forall I_0\in$ \lstinline{sameMembers(}$\overline{I_s}$\lstinline{)}
+    \begin{itemize}
+    \item If $\exists I\in\overline{I}$, \lstinline{name(}$I_0$\lstinline{) = name(}$I$\lstinline{)}, then \lstinline{fuse2(}$I_0,I$\lstinline{)}$\in\overline{I'}$
+    \item Otherwise $I_0\in\overline{I'}$
+    \item More: generating \lstinline{extends}
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{$\overline{meth'}$}
+\begin{itemize}
+\item $\overline{meth'}$ = $\overline{meth}$\lstinline{ + copyFields}
+\end{itemize}
+
+\subsection{@ObjOf}
+The second part of annotation processing is abstracted here using the newly introduced annotation
+\lstinline{@ObjOf}. It recursively generates constructer methods \lstinline{of} for the annotated interface
+and all nested interfaces. Furthermore, \lstinline{@ObjOf} supports getters, void and fluent setters, withers and
+the general \lstinline{with} methods. That is to say, \lstinline{@ObjOf} generates a static \lstinline{of} method
+for a type, returning an instance of that type. Such an instance is implemented using an anonymous class with auto-generated
+implementations for all the methods it supports (stated above). On the other hand, users are expected to put underscores as the
+prefix of field methods, and consequently \lstinline{of} identifies these field methods and takes them as its arguments.
+
+\begin{itemize}
+\item Recursively
+\item Use ``\_'' to distinguish fields and non-field methods
+\item Getters, setters, withers, etc
+\item \lstinline{of()} method
+\end{itemize}
