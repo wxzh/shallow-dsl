@@ -1,17 +1,17 @@
-{-BEGIN_CTYPE
+{-BEGIN_CIRCUIT_TYPE
 type Circuit = ...
+END_CIRCUIT_TYPE-}
+--BEGIN_TYPES
 identity :: Int -> Circuit
 fan :: Int -> Circuit
 beside :: Circuit -> Circuit -> Circuit
-END_CTYPE-}
-
--- stretch :: [Int] -> Circuit -> Circuit
+--END_TYPES
 
 --BEGIN_CIRCUIT1
-type Circuit1 = Int
-identity1 n = n
-fan1 n = n
-beside1 c1 c2 = c1 + c2
+type Circuit = Int
+identity n = n
+fan n = n
+beside c1 c2 = c1 + c2
 
 width1 = id
 --END_CIRCUIT1
@@ -36,33 +36,12 @@ beside3 c1 c2 = Circuit3 {
 }
 --END_CIRCUIT3
 
---BEGIN_DESUGAR
-data Circuit = Circuit {
-  width :: Int,
-  desugar :: Circuit
-}
-identity n = Circuit {
-  width = width c,
-  desugar = c
-} where c = foldl1 beside $ replicate n (fan 1)
-fan n = Circuit {
-  width = n,
-  desugar = fan n
-}
-beside c1 c2 = Circuit {
-  width = width c1 + width c2,
-  desugar = beside (desugar c1) (desugar c2)
-}
---END_DESUGAR
+--BEGIN_SYNTAX_TYPES
+stretch :: [Int] -> Circuit -> Circuit
+above :: Circuit -> Circuit -> Circuit
+--END_SYNTAX_TYPES
 
 --BEGIN_SYNTAX_HS
---identity n = n
-above _ c2 = c2
+stretch ns c = sum ns
+above c1 c2 = c2
 --END_SYNTAX_HS
-
-
---BEGIN_SEMANTICS_HS
---fan2 n = (n, n > 0)
---beside2 c1 c2 = (fst c1 + fst c2, snd c1 && snd c2)
---stretch2 ns c = (sum ns, snd c && length ns == fst c)
---END_SEMANTICS_HS

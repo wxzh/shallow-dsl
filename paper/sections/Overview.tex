@@ -31,7 +31,7 @@ for defining modular extensions easily.
 \subsection{Initial System}
 Before introducing any extensions, we need to rewrite the initial implementation for \dsl shown in Figure~\ref{}:
 
-\lstinputlisting[linerange=11-26]{../src/paper/Circuit.java}%APPLY:INIT
+\lstinputlisting[linerange=11-26]{../src/paper/sec3/Circuit.java}%APPLY:INIT
 We change the implementation language constructs from classes to interfaces and
 their fields to unimplemented getter methods. The purpose of this modification
 is to allow types of the fields to be refined in future, which is vital for
@@ -40,19 +40,21 @@ retaining extensibility.
 \subsection{Adding New Syntax}
 Shallow embedding makes it easy to add new syntax, both in FP and OOP.
 Suppose that we would like to add two new constructs to the language:
-the first is \emph{stretch ns c}, which inserts additional wires into the circuit \emph{c} by summing up \emph{ns};
-the second is $above c_1 c_2$, which combines two circuits of the same width vertically.
-With these new constructs, more complex circuit can be constructed.
+
+\lstinputlisting[language=haskell,linerange=40-41]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
+summing up \emph{ns} and $above c_1 c_2$ combines two circuits of the same width vertically.
+With these new constructs, more complex circuits can be constructed.
 For example, Figure~\ref{} shows the circuit constructed by \emph{stretch [2,2,2] (fan 3) `beside` fan 1}.
 
-To accomplish this goal in Haskell, we can simply define two more cases,
+To accomplish this task in Haskell, we can simply define two more cases,
 \texttt{stretch} and \texttt{above}, for the semantic function:
-\lstinputlisting[linerange=59-60]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
+\lstinputlisting[language=haskell,linerange=45-46]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
 Similarly, defining two new interfaces
 \texttt{Stretch} and \texttt{Above} that both extend \texttt{Circuit} and
 implement the \texttt{width} method is all we need to do in Java:
 
-\lstinputlisting[linerange=29-40]{../src/paper/Circuit.java}%APPLY:SYNTAX
+\lstinputlisting[linerange=29-40]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
 
 \subsection{Adding New Semantics}
 The new combinators, however, can not apply to arbitrary circuits - they have
@@ -62,18 +64,17 @@ semantics of the language for doing such checks.
 
 Adding new semantics, however, becomes hard for shallow embedding.
 Gibbons and Wu worked around this problem in the following way:
-\lstinputlisting[linerange=47-51]{../src/paper/Circuit.java}%APPLY:HS_SEMANTICS
-
+\lstinputlisting[language=haskell,linerange=2-6]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
 which is similar to how we add \texttt{desugar} to the implementation in Section~\ref{}.
-The difference is that they use a tuple instead of a record to merge the
-semantic domains, then define the two semantic functions simultaneously for each
-case, and split the definitions through projections on the tuple in the end.
+The difference is that they use a tuple instead of a record to merge semantic
+domains, then define the two semantic functions simultaneously for each
+case, and split the semantic functions through projections on the tuple in the end.
 This solution, however, modifies existing code, breaking the requirement of EP.
 
 Conversely, the support of covariant type-refinements and inheritance for OO
 languages allows us to add new semantics in a \emph{modular} way:
 %Different from records or tuples, interfaces are extensible.
-\lstinputlisting[linerange=47-75]{../src/paper/Circuit.java}%APPLY:SEMANTICS
+\lstinputlisting[linerange=47-75]{../src/paper/sec3/Circuit.java}%APPLY:SEMANTICS
 
 Interface \texttt{CircuitWS} extends the original interface and declare a new
 semantic function \texttt{wellSized} inside.
@@ -89,27 +90,40 @@ There exists some boilerplate for the Java solution presented above:
 \begin{itemize}
   \item Interfaces that represent language constructs should be instantiated for
     creating objects;
-  \item Type-refinements should be done manually
-  \item The inheritance relation needs to be repeatedly stated for all interfaces.
+  \item Type-refinements should be done manually;
+  \item Similar inheritance relationships have to be repeatedly stated for all interfaces.
 \end{itemize}
-Also, programmers would not get warned if they forget to extend all the
+Worse still, programmers would not get warned if they forget to extend all the
 constructs with new semantics.
 
 \name addresses all these problems through embracing family polymorphism and code instrument.
 By using \name, we can refactor the extensions in the way shown in Figure\ref{}.
-\lstinputlisting[linerange=80-83]{../src/paper/Circuit.java}%APPLY:FAMILY
-\lstinputlisting[linerange=112-122]{../src/paper/Circuit.java}%APPLY:FAMILY_SYNTAX
-\lstinputlisting[linerange=126-141]{../src/paper/Circuit.java}%APPLY:FAMILY_SEMANTICS
+\lstinputlisting[linerange=80-82]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY
+\lstinputlisting[linerange=110-112]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SYNTAX
+\lstinputlisting[linerange=131-156]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SEMANTICS
 
-Note that \name generates \texttt{of} method for class-like interfaces for
-constructing objects. The static method \texttt{of} returns an instance of an anonymous class
-that implements the interface with all
-getters implemented and its instance is returned.
-Moreover, \name has a good support family polymorphism.
-Client users need only explicitly declared the dependencies on other families
-through (...). \name will re-declare all members from the base families in the extended family.
-And the dependencies between members of families are automatically deducted and
-implicitly expressed in member re-declaration.
+Note that initially all the definitions are put inside a \texttt{Family} interface.
+Extensions are defined inside another interface that extends base families.
+For syntax extension, we just move the definitions of new constructs into
+\texttt{SyntaxExt} interface.
+Semantic extension is more interesting, let us look at it in detail.
+Since all the definitions are nested interfaces, their names are local and can
+be reused in other families. The inheritance relationships is stated only once at family level, then \name can infer the inheritance relationships for members inside the family according to their names. Also, there is no need to
+manually refine the return type, as it is done by \name. Moreover, a static \texttt{of}
+method would be generated for class-like interfaces, serving as the constructor
+for the interface. For example, the \texttt{Beside} inside \texttt{Semantics} after code instrumentation will look like this:
+
+\lstinputlisting[linerange=164-176]{../src/paper/sec3/Circuit.java}%APPLY:INSTRUMENT
+% TODO: not implemented yet
+Family polymorphism on only gives more safety on the client code but also helps
+language implementers catch bug early.
+For example, if one forgets to implement, say cases from \texttt{Family}, in
+\texttt{Semantics}, she would get warned they have not implemented the
+\texttt{wellSized} method because class-like interfaces should not contain any
+unimplemented methods except for getters.
+These errors are captured by automatically re-declaring members with inheritance relationships.
+%The \texttt{of} method is  returns an instance of an anonymous class
+%that implements the interface with all getters implemented and its instance is returned.
 
 % Multiple interpretation
 % Dependent interpretation

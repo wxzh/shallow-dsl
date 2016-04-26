@@ -1,4 +1,4 @@
-package paper;
+package paper.sec3;
 
 import java.util.List;
 
@@ -36,13 +36,13 @@ interface Stretch extends Circuit {
 interface Above extends Circuit {
   Circuit _c1();
   Circuit _c2();
-  default int width() { return _c2().width(); }
+  default int width() { return _c1().width(); }
 }
 //END_SYNTAX
 }
 
 @Obj
-interface Semantics extends Init {
+interface SemanticsExt extends Init {
 //BEGIN_SEMANTICS
 interface CircuitWS extends Circuit {
   boolean wellSized();
@@ -78,24 +78,22 @@ interface AboveWS extends Beside, CircuitWS {
 /*
 //BEGIN_FAMILY
 @Obj interface Family {
-  // the same code in Figure .
-  ...
+  // same code of Figure ?
 }
 //END_FAMILY
 */
 @Obj interface Family {
   interface Circuit { int width(); }
-  interface Fan extends Circuit {
+  interface Identity extends Circuit {
     int _n();
     default int width() {
       return _n();
     }
   }
-  interface Stretch extends Circuit {
-    List<Integer> _ns();
-    Circuit _c();
+  interface Fan extends Circuit {
+    int _n();
     default int width() {
-      return _ns().stream().reduce(0, (a,b) -> a+b);
+      return _n();
     }
   }
   interface Beside extends Circuit {
@@ -107,12 +105,20 @@ interface AboveWS extends Beside, CircuitWS {
   }
 }
 
-
+/*
 //BEGIN_FAMILY_SYNTAX
-@Obj interface SyntaxExt extends Family {
-  interface Identity extends Circuit {
-    int _n();
-    default int width() { return _n(); }
+@Obj interface Syntax extends Family {
+  // same code of Figure ?
+}
+//END_FAMILY_SYNTAX
+*/
+@Obj interface Syntax extends Family {
+  interface Stretch extends Circuit {
+    List<Integer> _ns();
+    Circuit _c();
+    default int width() {
+      return _ns().stream().reduce(0, (a,b) -> a+b);
+    }
   }
   interface Above extends Circuit {
     Circuit _c1();
@@ -120,23 +126,53 @@ interface AboveWS extends Beside, CircuitWS {
     default int width() { return _c2().width(); }
   }
 }
-//END_FAMILY_SYNTAX
 
 //BEGIN_FAMILY_SEMANTICS
-@Obj interface SemanticsExt extends Family {
-  interface Circuit { boolean wellSized(); }
-  interface Fan extends Circuit {
+@Obj interface Semantics extends Syntax {
+  interface Circuit {
+    boolean wellSized();
+  }
+  interface Identity {
     default boolean wellSized() { return true; }
   }
-  interface Stretch extends Circuit {
+  interface Fan {
+    default boolean wellSized() { return true; }
+  }
+  interface Beside {
+    default boolean wellSized() {
+      return _c1().wellSized() && _c2().wellSized();
+    }
+  }
+  interface Stretch {
     default boolean wellSized() {
       return _ns().size() == _c().width();
     }
   }
-  interface Beside extends Circuit {
+  interface Above {
     default boolean wellSized() {
       return _c1().wellSized() && _c2().wellSized();
     }
   }
 }
 //END_FAMILY_SEMANTICS
+interface Circuit {
+  boolean wellSized();
+}
+
+/*
+//BEGIN_INSTRUMENT
+interface Beside extends Syntax.Beside, Circuit {
+  Circuit _c1(); Circuit _c2();
+  default boolean wellSized() {
+    return _c1().wellSized() && _c2().wellSized();
+  }
+  static Circuit of(Circuit c1, Circuit c2) {
+    return new Beside() {
+      Circuit _c1 = c1; Circuit _c2 = c2;
+      public Circuit _c1() { return _c1; }
+      public Circuit _c2() { return _c2; }
+    };
+  }
+}
+//END_INSTRUMENT
+*/

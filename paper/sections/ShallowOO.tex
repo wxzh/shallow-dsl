@@ -61,7 +61,8 @@ abstract syntax of a language, shallow embedding defines a language
 directly through encoding its semantics. In the case of \dsl,
 the shallow embedding implementation of language should conform to the types given below:
 
-\lstinputlisting[language=haskell,linerange=2-5]{./code/shallowCircuit.hs}%APPLY:CTYPE
+\lstinputlisting[language=haskell,linerange=2-2]{./code/shallowCircuit.hs}%APPLY:CIRCUIT_TYPE
+\lstinputlisting[language=haskell,linerange=5-7]{./code/shallowCircuit.hs}%APPLY:TYPES
 where \texttt{Circuit} models the semantic domain and should be later filled in with a
 concrete type according to the semantics of the language.
 For example, if the semantics of \dsl is to calculate the width of a
@@ -87,7 +88,8 @@ translate it into an OO language like Java:
 The record type maps to an interface with its field declared as an abstract method.
 Each case corresponds to an class and its parameters become fields of the class.
 And the class implements the \texttt{Circuit} interface by giving \texttt{width}
-a definition. This implementation, in fact, is an instance of the \interp pattern.
+a definition. This whole implementation is, in fact, an instance of the \interp
+pattern and the combinator class \texttt{Beside} employs the \textsc{Composite} pattern.
 In other words, shallow embedding and the \interp are essentially the same thing.
 It may also worth mentioning that deep embedding is closely related to the
 \textsc{Visitor} pattern.
@@ -110,7 +112,7 @@ with \emph{beside}.
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
 
 We can implement this desugaring operation in Java:
-\lstinputlisting[language=haskell,linerange=29-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
+\lstinputlisting[linerange=29-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
 The return type of \texttt{desugar} is \texttt{Circuit} reflecting that it is a
 transformation. The implementation is straightforward: \emph{fan n} just returns
 itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wrap back
@@ -120,5 +122,5 @@ formula.
 \weixin{define a show function in the and show the result after desugaring?}
 Of course, defining \texttt{desugar} is also possible in Haskell:
 
-\lstinputlisting[language=haskell,linerange=40-55]{./code/shallowCircuit.hs}%APPLY:DESUGAR
+\lstinputlisting[language=haskell,linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
 The definition is a little bit tricky since it makes use of Haskell's laziness.
