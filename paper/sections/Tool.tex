@@ -22,46 +22,6 @@ aim, \lstinline{@Obj} re-declares all member types and field methods from the ba
 the nested interfaces in base families. For member types with same names, the re-declaration in the annotated type is generated or modified
 with supertypes filled in for dependencies.
 
-\subsubsection{sameMembers}
-The auxiliary function \lstinline{sameMembers} generates the declaration of common member types from base families in the annotated type. It
-firstly checks if these members are homogeneous in their own hierarchies, and then fuses the old declarations into a new re-declaration, where
-all field types are automatically refined. Meanwhile, the code generation fills in the ``extends'' for the re-declaration, to build the inheritance
-relationship to the sources.
-\begin{itemize}
-\item $I_0\in$ \lstinline{sameMembers(}$\overline{I}$\lstinline{)}
-    \begin{itemize}
-    \item \lstinline{n = name(}$I_0$\lstinline{)}
-    \item $\overline{sup}$\lstinline{ = consistent(n, }$\overline{I}$\lstinline{)}
-    \item $I_0$\lstinline{ = fuse(n, }$\overline{sup}$\lstinline{, }$\overline{I}$\lstinline{)}
-    \end{itemize}
-\item $\overline{sup}$\lstinline{ = consistent(n, }$\overline{I}$\lstinline{)}
-    \begin{itemize}
-    \item \lstinline{I.n = interface n extends }$\overline{sup}$ \{...\} %style
-    \item $\forall$\lstinline{I.n}
-    \end{itemize}
-\item $I_0$\lstinline{ = fuse(n, }$\overline{sup}$\lstinline{, }$\overline{I}$\lstinline{)}
-    \begin{itemize}
-    \item $I_0$\lstinline{ = interface n extends }$\overline{sup}$ $\{\overline{meth}\ \ \overline{I_1}\}$ %style
-    \item $\overline{meth}$\lstinline{ = fuse(}$\overline{I.\overline{meth}}$\lstinline{)}
-    \item $\overline{I_1}$\lstinline{ = fuse(}$\overline{I.\overline{I_1}}$\lstinline{)}
-    \end{itemize}
-\end{itemize}
-
-\subsubsection{$\overline{I'}$}
-\begin{itemize}
-\item $\forall I_0\in$ \lstinline{sameMembers(}$\overline{I_s}$\lstinline{)}
-    \begin{itemize}
-    \item If $\exists I\in\overline{I}$, \lstinline{name(}$I_0$\lstinline{) = name(}$I$\lstinline{)}, then \lstinline{fuse2(}$I_0,I$\lstinline{)}$\in\overline{I'}$
-    \item Otherwise $I_0\in\overline{I'}$
-    \item More: generating \lstinline{extends}
-    \end{itemize}
-\end{itemize}
-
-\subsubsection{$\overline{meth'}$}
-\begin{itemize}
-\item $\overline{meth'}$ = $\overline{meth}$\lstinline{ + copyFields}
-\end{itemize}
-
 \subsection{@ObjOf}
 The second part of annotation processing is abstracted here using the newly introduced annotation
 \lstinline{@ObjOf}. It recursively generates constructer methods \lstinline{of} for the annotated interface
@@ -71,9 +31,96 @@ for a type, returning an instance of that type. Such an instance is implemented 
 implementations for all the methods it supports (stated above). On the other hand, users are expected to put underscores as the
 prefix of field methods, and consequently \lstinline{of} identifies these field methods and takes them as its arguments.
 
-\begin{itemize}
-\item Recursively
-\item Use ``\_'' to distinguish fields and non-field methods
-\item Getters, setters, withers, etc
-\item \lstinline{of()} method
-\end{itemize}
+\begin{figure*}
+\begin{lstlisting}
+  (*$\llbracket$*)@Family interface (*$I_m$*) extends (*$I_1,\cdots,I_n$*) {(*$\overline{meth}$*) (*$\overline{I}$*)}(*$\rrbracket$*) = (*$\llbracket$*)@Obj interface (*$I_m$*) extends (*$I_1,\cdots,I_n$*) {(*$\overline{meth'}$*) (*$\overline{I'}$*)}(*$\rrbracket$*)
+\end{lstlisting}
+\hspace{.3in}where $\overline{meth'}=\overline{meth}\ \cup\ $\textsf{fieldMethods(}$I_1$\textsf{)}$\ \cup\cdots\cup\ $\textsf{fieldMethods(}$I_n$\textsf{)}, $\overline{I'}$ = \textsf{newChilds(}$I_1,\cdots,I_n,\overline{I}$\textsf{)}
+~\\~\\
+(1) $\overline{I'}$ = \textsf{newChilds(}$I_1,\cdots,I_n,\overline{I}$\textsf{)} \textcolor{red}{(definition of newChilds)}
+    \begin{itemize}
+    \item $\forall I_0\in\overline{I}$, if $\exists I'_0\in\ $\textsf{collectMembers(}$I_1,\cdots,I_n$\textsf{)} and \textsf{name(}$I_0$\textsf{)} = \textsf{name(}$I'_0$\textsf{)}, then \textsf{combine(}$I_0,I'_0$\textsf{)}$\ \in\overline{I'}$
+    \item Otherwise, $I_0\in\overline{I'}$
+    \end{itemize}
+(2) $\llbracket$\lstinline{@Family}\textsf{ interface }$I$\textsf{ extends }$\overline{I_s},\ \overline{I_t}$\textsf{ \{\}}$\rrbracket\ \in$ \textsf{collectMembers(}$I_1,\cdots,I_n$\textsf{)} \textcolor{red}{(definition of collectMembers)}
+    \begin{itemize}
+    \item $\forall i,$ s.t. $I\in$\textsf{ childs(}$I_i$\textsf{)},
+        \begin{itemize}
+        \item $\overline{I_s}$ = \textsf{suptypes(}$I_i.I$\textsf{)}
+        \item $I_i.I\in\overline{I_t}$
+        \end{itemize}
+    \end{itemize}
+(3) $\overline{I_0}$ = \textsf{childs(}$I$\textsf{)}, $\overline{I}$ = \textsf{suptypes(}$I$\textsf{)} \textcolor{red}{(definition of childs and suptypes)}
+    \begin{itemize}
+    \item \textsf{ibody(}$I$\textsf{)} = \textsf{interface }$I$\textsf{ extends }$\overline{I}$\textsf{ \{}$\overline{meth}\ \overline{I_0}$\textsf{\}}
+    \item \textcolor{red}{need to use ibody(I) to find the declaration. formalize?}
+    \end{itemize}
+(4) $meth\in\ $\textsf{fieldMethods(}$I$\textsf{)} \textcolor{red}{(definition of fieldMethods)}
+    \begin{itemize}
+    \item $meth\in\ $\textsf{childs(}$I$\textsf{)}
+    \item $meth$ = $I_0$\textsf{ m();}
+    \end{itemize}
+(5) \textsf{interface }$I$\textsf{ extends }$\overline{I_s}$\textsf{ \{}$\overline{meth}\ \overline{I}$\textsf{\}} = \textsf{combine(}$I_m,I_n$\textsf{)} \textcolor{red}{(definition of combine)}
+    \begin{itemize}
+    \item \textsf{ibody(}$I_m$\textsf{)} = \textsf{interface }$I$\textsf{ extends }$\overline{I_{s1}}$\textsf{ \{}$\overline{meth_1}\ \overline{I_1}$\textsf{\}}
+    \item \textsf{ibody(}$I_n$\textsf{)} = \textsf{interface }$I$\textsf{ extends }$\overline{I_{s2}}$\textsf{ \{}$\overline{meth_2}\ \overline{I_2}$\textsf{\}}
+    \item $\overline{I_s}$ = $\overline{I_{s1}}\ \cup\ \overline{I_{s2}}$
+    \item $\overline{meth}$ = $\overline{meth_1}\ \cup\ \overline{meth_2}$
+    \item If $\exists I_1\in\overline{I_1}, I_2\in\overline{I_2}$, \textsf{name(}$I_1$\textsf{)} = \textsf{name(}$I_2$\textsf{)}, then \textsf{combine(}$I_1,I_2$\textsf{)}$\ \in\overline{I}$
+    \item Otherwise $(I\in I_1\ \Delta\ I_2)$, $I\in\overline{I}$.
+    \end{itemize}
+\caption{Translation of \lstinline{@Family}.}
+\end{figure*}
+
+\begin{figure*}
+\begin{lstlisting}
+  (*$\llbracket$*)@Obj interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) (*$\overline{I}$*)}(*$\rrbracket$*) = (*$\llbracket$*)@ObjOf interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) (*$\overline{meth'}$*) (*$\overline{\llbracket\textsf{@Obj}\ I\rrbracket}$*)}(*$\rrbracket$*)
+\end{lstlisting}
+\hspace{.3in}where $\overline{meth'}$ = \textsf{refine(}$I_0,\overline{meth}$\textsf{)}
+\begin{lstlisting}
+  (*$\llbracket$*)@ObjOf interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) (*$\overline{I}$*)}(*$\rrbracket$*) = interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) ofMethod((*$I_0$*)) (*$\overline{I}$*)}
+\end{lstlisting}
+\hspace{.3in}with \textsf{valid(}$I_0$\textsf{)}, \textsf{of} $\notin$ \textsf{dom(}$I_0$\textsf{)}
+~\\~\\
+(1) $I_0$ \textsf{with}$\#m$\textsf{(}$I\ \_$\textsf{val);} $\in$ \textsf{refine(}$I_0,\overline{meth}$\textsf{)} \textcolor{red}{(part I definition of newChilds) fields with underscore, field and isField}
+    \begin{itemize}
+    \item \textsf{isWith(mbody(with}$\#m,I_0$\textsf{)}$,I_0$\textsf{)}
+    \item \textsf{with}$\#m$ $\notin$ \textsf{dom(}$\overline{meth}$\textsf{)}
+    \end{itemize}
+(2) $I_0\ \_m$\textsf{(}$I\ \_$\textsf{val);} $\in$ \textsf{refine(}$I_0,\overline{meth}$\textsf{)} \textcolor{red}{(part II definition of newChilds)}
+    \begin{itemize}
+    \item \textsf{isSetter(mbody(}$\_m,I_0$\textsf{)}$,I_0$\textsf{)}
+    \item $\_m$ $\notin$ \textsf{dom(}$\overline{meth}$\textsf{)}
+    \end{itemize}
+(3) \textsf{valid(}$I_0$\textsf{)} if $\forall m\ \in\ $\textsf{dom(}$I_0$\textsf{)}, let $meth$ = \textsf{mbody(}$m,I_0$\textsf{)}, one of the following cases is satisfied:  \textcolor{red}{(definition of valid)}
+    \begin{itemize}
+    \item \textsf{isField(}$meth$\textsf{)}, where \textsf{isField(}$I\ m$\textsf{();)} = not \textsf{special(}$m$\textsf{)}
+    \item \textsf{isWith(}$meth,I_0$\textsf{)}, where \textsf{isWith(}$I'$ \textsf{with}$\#m$\textsf{(}$I\ x$\textsf{);}$,I_0$\textsf{)} = $I_0 :< I'$, \textsf{mbody(}$m,I_0$\textsf{)} = $I\ m$\textsf{();} and not \textsf{special(}$m$\textsf{)}
+    \item \textsf{isSetter(}$meth,I_0$\textsf{)}, where \textsf{isSetter(}$I'$ $\_m$\textsf{(}$I\ x$\textsf{);}$,I_0$\textsf{)} = $I_0 :< I'$, \textsf{mbody(}$m,I_0$\textsf{)} = $I\ m$\textsf{();} and not \textsf{special(}$m$\textsf{)}
+    \end{itemize}
+(4) \textsf{ofMethod(}$I_0$\textsf{)} = \textsf{static }$I_0$\textsf{ of(}$I_1\ \_m_1,\cdots,I_n\ \_m_n$\textsf{) \{} \textcolor{red}{(definition of ofMethod)}
+    \\ \textsf{return new }$I_0$\textsf{() \{}
+    \\ $I_1\ m_1$ = $\_m_1$\textsf{;}$\cdots I_n\ m_n$ = $\_m_n$\textsf{;}
+    \\ $I_1\ m_1$\textsf{() \{return }$m_1$\textsf{;\}}$\cdots I_n\ m_n$\textsf{() \{return }$m_n$\textsf{;\}}
+    \\ \textsf{withMethod(}$I_1,m_1,I_0,\overline{e}_1$\textsf{)}$\cdots$\textsf{withMethod(}$I_n,m_n,I_0,\overline{e}_n$\textsf{)}
+    \\ \textsf{setterMethod(}$I_1,m_1,I_0$\textsf{)}$\cdots$\textsf{setterMethod(}$I_n,m_n,I_0$\textsf{)}
+    \\ \textsf{\};\}}
+    \begin{itemize}
+    \item $I_1\ m_1$\textsf{();}$\cdots I_n\ m_n$\textsf{();} = \textsf{fields(}$I_0$\textsf{)}
+    \item $\overline{e}_i$ = $m_1,\cdots,m_{i-1},\_$\textsf{val}$,m_{i+1},\cdots,m_n$
+    \end{itemize}
+(5) $meth$ $\in$ \textsf{fields(}$I_0$\textsf{)} \textcolor{red}{(definition of fields)}
+    \begin{itemize}
+    \item \textsf{isField(}$meth$\textsf{)}
+    \item $meth$ = \textsf{mbody(}$m^{meth},I_0$\textsf{)}
+    \end{itemize}
+(6) $I_0$ \textsf{with}$\#m$\textsf{(}$I\ \_$\textsf{val) \{return }$I_0$\textsf{.of(}$\overline{e}$\textsf{);\}} = \textsf{withMethod(}$I,m,I_0,\overline{e}$\textsf{)} \textcolor{red}{(definition of withMethod)}
+    \begin{itemize}
+    \item \textsf{mbody(with}$\#m,I_0$\textsf{)} has the form \textsf{mh;}
+    \end{itemize}
+(7) $I_0$ $\_m$\textsf{(}$I\ \_$\textsf{val) \{}$m$ = $\_$\textsf{val;return this;\}} = \textsf{setterMethod(}$I,m,I_0$\textsf{)} \textcolor{red}{(definition of setterMethod)}
+    \begin{itemize}
+    \item \textsf{mbody(}$\_m,I_0$\textsf{)} has the form \textsf{mh;}
+    \end{itemize}
+\caption{Translation of \lstinline{@Obj} and \lstinline{@ObjOf}.}
+\end{figure*}
