@@ -2,18 +2,31 @@
 
 Haoyuan writes this one.
 
-- Transformations and Binary methods (but argue that 
-these types of operations are not used in shallow DSLs 
+- Transformations and Binary methods (but argue that
+these types of operations are not used in shallow DSLs
 any way!).
 
-- Java syntax not great for DSLs. 
-operator overloding; infix operators (but this is a Java limitation; 
+- Java syntax not great for DSLs.
+operator overloding; infix operators (but this is a Java limitation;
 not a limitation of our approach).
 
-- Limitations of the tool: separate compiltions and ... 
+- Limitations of the tool: separate compiltions and ...
 generics not fully implemented.
 
-- How to apply our approach to other OO language 
+- How to apply our approach to other OO language
   - C\# has annotations, but can you do AST rewriting?
   - Scala has macros;
-  - Other languages? 
+  - Other languages?
+
+
+
+\paragraph{Transformations and binary methods} Some other patterns, however, are not captured by our approach.
+  
+\paragraph{Limitations} Our tool has certain limitations at a few aspects. As Lombok only provides experimental support
+for separate compilation, our \textsf{@Family} does not support separate compilation at this stage, so all the related
+interfaces should be included in a single Java file. As for generics, we provide comparatively nice support for generic interfaces
+and methods, however, only method typing of non-generic methods is captured, and that of generic ones is delegated to the Java compiler.
+
+On the other hand, it would be nice to have operator overloading and infix operators in Java syntax, so that the code could be
+written in a more concise and elegant way. Nevertheless, this is limited by the programming language, and we expect our approach to be oriented to
+other OO languages.

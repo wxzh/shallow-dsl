@@ -3,31 +3,32 @@
 %Haoyuan should write this part.
 %How to generate code for family polymorphism!
 
-In this section, we present an overview of the code that \name generates. The syntax and type system are
+In this section, we present an overview of the code that \lstinline{@Family} generates. The syntax and type system are
 consistent with the Java language. We use translation functions to illustrate our code generation.
-To make it clearer, we split the process of code generation into two parts, in which case we introduce a
-new annotation \lstinline{@FamilyOf}, which is not defined in the source code but only helps to explain
-the translation. In our implementation, the annotation processing is a combination of \name
-and \lstinline{@FamilyOf}. Below are the translation functions:
+To make it clearer, we split the process of code generation into three parts, in which case we introduce two
+new annotations \lstinline{@Obj} and \lstinline{@ObjOf}, which are not implemented in the source code but just help to explain
+the process of translation. In our implementation, the annotation processing is a combination of the three parts, corresponding to
+\lstinline{@Family}, \lstinline{@Obj} and \lstinline{@ObjOf} respectively. The translation rules are presented in Figure \ref{fig:trans1}
+and Figure \ref{fig:trans2}, together with some auxiliary functions.
 
-\begin{lstlisting}
-  (*$\llbracket$*)@Obj interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth}$*) (*$\overline{I}$*)}(*$\rrbracket$*)
-= @ObjOf interface (*$I_0$*) extends (*$\overline{I_s}$*) {(*$\overline{meth'}$*) (*$\overline{I'}$*)}
-\end{lstlisting}
-
-\subsection{@Obj}
-\lstinline{@Obj} builds the structure of family polymorphism for the annotated type. More specifically, \lstinline{@Obj} tackles two
+\subsection{\textsf{@Family}}
+\lstinline{@Family} builds the structure of family polymorphism for the annotated type. More specifically, \lstinline{@Family} tackles two
 tasks: (1) building the dependencies (subtyping relations) between new family members and old ones; (2) refining field types. To this
-aim, \lstinline{@Obj} re-declares all member types and field methods from the base families. The detection runs recursively throughout
-the nested interfaces in base families. For member types with same names, the re-declaration in the annotated type is generated or modified
-with supertypes filled in for dependencies.
+aim, \lstinline{@Family} re-declares all member types and field methods from the base families (see \textsf{collectMembers} and \textsf{fieldMethods} in Figure \ref{fig:trans1}). \lstinline{@Family} recognizes field methods by checking if they are non-void, no-argument methods, and if the name starts with an underscore ``\_''.  The function \textsf{collectMembers} finds all the direct member types from base families $I_1,\cdots,I_n$, creates new types with the same names for re-declaration, and builds the subtyping relations among them. The newly created types are also annotated with \lstinline{@Family}, leading to such a recursive process throughout the nested interfaces in base families. If users have already declared these member types in order to introduce new operations, behaviors or whatever, the function \textsf{combine} will integrate them to the re-declaration, by combining methods and supertypes following ``extends''.
 
-\subsection{@ObjOf}
+\subsection{\textsf{@Obj}}
 The second part of annotation processing is abstracted here using the newly introduced annotation
-\lstinline{@ObjOf}. It recursively generates constructer methods \lstinline{of} for the annotated interface
-and all nested interfaces. Furthermore, \lstinline{@ObjOf} supports getters, void and fluent setters, withers and
-the general \lstinline{with} methods. That is to say, \lstinline{@ObjOf} generates a static \lstinline{of} method
-for a type, returning an instance of that type. Such an instance is implemented using an anonymous class with auto-generated
+\lstinline{@Obj}. The translation of \lstinline{@Obj} is like a preprocessing of the third part \lstinline{@ObjOf},
+which generates constructor method \textsf{of} for the annotated type. Besides the generation of constructors, \lstinline{@ObjOf} also supports
+a series of field and non-field methods, including getters, void and fluent setters, \textsf{with}- methods and the general \textsf{with} method.
+\textcolor{red}{Haoyuan: Details on these operations? Can draw a table.} Among them, the fluent setters, \textsf{with}- methods and the general \textsf{with()} method all take the annotated type as their return types, and these types can be refined in some subtypes of the annotated type. What \lstinline{@Obj} precisely does is that it collects all these refinable methods from the super interfaces, and refines them to the annotated type, so that \lstinline{@ObjOf} will later provide a default implementation for them during the generation of constructor methods.
+
+In Figure \ref{fig:trans2}, the first translation function presents the processing of \lstinline{@Obj}. Besides delegating \lstinline{@Obj} to the member types in a recursive way, it invokes the function \textsf{refine} to handle the type refinements. The definition of \textsf{refine} is shown in (1) and (2), where return types of \textsf{with-} methods and fluent setters are refined respectively. They are both state operations, and for simplicity we omit the case for general \textsf{with} method in our translation rules.
+
+\subsection{\textsf{@ObjOf}}
+The third part of translation relies on \textsf{@ObjOf}, which directly generates the static \textsf{of} method, serving as a constructor method. So it returns an instance of the annotated type. This method takes one argument for each field method from the domain of the interface. Similarly, it recursively generates \lstinline{of} methods for the annotated interface and all nested interfaces.
+
+The translation function of \textsf{@ObjOf} is shown in the second rule of Figure \ref{fig:trans2}. It firstly uses \textsf{valid} to check whether all the abstract methods in the interface are valid; that is to say, any one of them is either a field (getter) method, a \textsf{with-} method or a setter method. We capture these patterns so that \textsf{@ObjOf} can provide default implementations for them. Then, if \textsf{valid} is satisfied, a static \textsf{of} method is generated in the interface to return an instance of it. Such an instance is implemented in the return statement using an anonymous class with auto-generated
 implementations for all the methods it supports (stated above). On the other hand, users are expected to put underscores as the
 prefix of field methods, and consequently \lstinline{of} identifies these field methods and takes them as its arguments.
 
@@ -53,12 +54,12 @@ prefix of field methods, and consequently \lstinline{of} identifies these field 
 (3) $\overline{I_0}$ = \textsf{childs(}$I$\textsf{)}, $\overline{I}$ = \textsf{suptypes(}$I$\textsf{)} \textcolor{red}{(definition of childs and suptypes)}
     \begin{itemize}
     \item \textsf{ibody(}$I$\textsf{)} = \textsf{interface }$I$\textsf{ extends }$\overline{I}$\textsf{ \{}$\overline{meth}\ \overline{I_0}$\textsf{\}}
-    \item \textcolor{red}{need to use ibody(I) to find the declaration. formalize?}
+    \item \textcolor{red}{need to use ibody and mbody. formalize?}
     \end{itemize}
 (4) $meth\in\ $\textsf{fieldMethods(}$I$\textsf{)} \textcolor{red}{(definition of fieldMethods)}
     \begin{itemize}
     \item $meth\in\ $\textsf{childs(}$I$\textsf{)}
-    \item $meth$ = $I_0$\textsf{ m();}
+    \item $meth$ = $I_0$\textsf{ \_m();}
     \end{itemize}
 (5) \textsf{interface }$I$\textsf{ extends }$\overline{I_s}$\textsf{ \{}$\overline{meth}\ \overline{I}$\textsf{\}} = \textsf{combine(}$I_m,I_n$\textsf{)} \textcolor{red}{(definition of combine)}
     \begin{itemize}
@@ -70,6 +71,7 @@ prefix of field methods, and consequently \lstinline{of} identifies these field 
     \item Otherwise $(I\in I_1\ \Delta\ I_2)$, $I\in\overline{I}$.
     \end{itemize}
 \caption{Translation of \lstinline{@Family}.}
+\label{fig:trans1}
 \end{figure*}
 
 \begin{figure*}
@@ -123,4 +125,5 @@ prefix of field methods, and consequently \lstinline{of} identifies these field 
     \item \textsf{mbody(}$\_m,I_0$\textsf{)} has the form \textsf{mh;}
     \end{itemize}
 \caption{Translation of \lstinline{@Obj} and \lstinline{@ObjOf}.}
+\label{fig:trans2}
 \end{figure*}
