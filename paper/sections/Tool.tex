@@ -9,12 +9,124 @@ To make it clearer, we split the process of code generation into three parts, in
 new annotations \lstinline{@Obj} and \lstinline{@ObjOf}, which are not implemented in the source code but just help to explain
 the process of translation. In our implementation, the annotation processing is a combination of the three parts, corresponding to
 \lstinline{@Family}, \lstinline{@Obj} and \lstinline{@ObjOf} respectively. The translation rules are presented in Figure \ref{fig:trans1}
-and Figure \ref{fig:trans2}, together with some auxiliary functions.
+and Figure \ref{fig:trans2}, together with some auxiliary functions. Note that in practice, our \textsf{@Family} supports simple
+generics without bounds, but for simplicity reason it is not included in the formalization.
+
+\begin{figure*}
+\begin{tabular}{|l|c|c|}
+\hline
+\begin{lstlisting}
+interface Base {
+	interface Exp {}
+	interface Lit extends Exp {
+		int i();
+		Lit withI(int val);
+	}
+	interface Add extends Exp {
+		Exp e1(); Exp e2();
+	}
+}
+\end{lstlisting} & & \\
+\hline
+\begin{lstlisting}
+@Family interface New extends Base {
+	interface Exp { int _eval(); }
+	interface Lit {
+		default int _eval() { return i(); }
+	}
+	interface Add {
+		default int _eval() {
+			return e1()._eval() + e2()._eval();
+		}
+	}
+}
+\end{lstlisting} & \begin{tabular}{c}$\Rightarrow$\\Family\\Desugaring\end{tabular} & \begin{lstlisting}
+@Obj interface New extends Base {
+	@Obj interface Exp extends Base.Exp {
+		int _eval();
+	}
+	@Obj interface Lit extends Exp, Base.Lit {
+		int i();
+		default int _eval() { return i(); }
+	}
+	@Obj interface Add extends Exp, Base.Add {
+		Exp e1(); Exp e2();
+		default int _eval() {
+			return e1()._eval() + e2()._eval();
+		}
+	}
+}
+\end{lstlisting} \\
+\hline
+& & $\Downarrow$ Obj Desugaring \\
+\hline
+\begin{lstlisting}
+interface New extends Base {
+	interface Exp extends Base.Exp {
+		int _eval();
+	}
+	interface Lit extends Exp, Base.Lit {
+		int i(); Lit withI(int val);
+		default int _eval() { return i(); }
+		static Lit of(int _i) {
+			return new Lit() {
+				int i = _i;
+				public int i() { return i; }
+				public Lit withI(int val) {
+					return Lit.of(val);
+				}
+			};
+		}
+	}
+	interface Add extends Exp, Base.Add {
+		Exp e1(); Exp e2();
+		default int _eval() {
+			return e1()._eval() + e2()._eval();
+		}
+		static Add of(Exp _e1, Exp _e2) {
+			return new Add() {
+				Exp e1 = _e1; Exp e2 = _e2;
+				public Exp e1() { return e1; }
+				public Exp e2() { return e2; }
+			};
+		}
+	}
+	static New of() { return new New(){}; }
+}
+\end{lstlisting} & \begin{tabular}{c}$\Leftarrow$\\ObjOf\\Desugaring\end{tabular} & \begin{tabular}{l}\begin{lstlisting}
+@ObjOf interface New extends Base {
+	@ObjOf interface Exp extends Base.Exp {
+		int _eval();
+	}
+	@ObjOf interface Lit extends Exp, Base.Lit {
+		int i();
+\end{lstlisting}\vspace{-.05in}\\ \begin{lstlisting}[basicstyle=\ttfamily\small\color{red}]
+		Lit withI(int val);
+\end{lstlisting}\\ \begin{lstlisting}
+		default int _eval() { return i(); }
+	}
+	@ObjOf interface Add extends Exp, Base.Add {
+		Exp e1(); Exp e2();
+		default int _eval() {
+			return e1()._eval() + e2()._eval();
+		}
+	}
+}
+\end{lstlisting}\end{tabular} \\
+\hline
+\end{tabular}
+\caption{An example showing the flow of translation. \textcolor{red}{Haoyuan: fields with underscore}}\label{fig:flow}
+\end{figure*}
+
+\subsection{Flow of Translation}
+Figure~\ref{fig:flow} illustrates the flow of translation with a simple example, showing intermediate results of desugaring. The base family \textsf{Base} contains three members, \textsf{Exp}, and its subtypes \textsf{Lit} and \textsf{Add}. \textsf{Lit} has a field method \textsf{i()} together with a wither method, where \textsf{Add} has two field methods \textsf{e1()} and \textsf{e2()}. At this time, another interface \textsf{New} is defined as the new family that extends the old one, where we add an operation \textsf{\_eval()} for the member types. In the client code, the user simply re-declares the three members with the addition of \textsf{\_eval()}, without building subtyping relations with the old members, and a simple annotation \textsf{@Family} will deal with all the stuff.
+
+In the first step of translation, namely family desugaring, \textsf{@Family} collects all the members from old families, and fills in the ``extends'' to build the inheritance relations. At the same time, it re-declares all the field methods, for example, although the type name of \textsf{e1()} is still \textsf{Exp}, it refers to the new member type, where we address field type refinements, and this new \textsf{e1()} has the operation \textsf{\_eval()}. Then it delegates the work to \textsf{@Obj}. In the second phase, \textsf{@Obj} detects fluent setters and withers from the supertypes, then refines their return types to have consistency with the annotated type. In our example, the wither method \textsf{withI} is refined to have the new \textsf{Lit} as its return type. In the last step of translation, \textsf{@ObjOf} generates constructor methods for all the interfaces, except \textsf{Exp}, where its \textsf{\_eval()} is an abstract method and we cannot provide a default implementation for it. In the following subsections we will respectively explain the three steps of translation in detail.
 
 \subsection{\textsf{@Family}}
 \lstinline{@Family} builds the structure of family polymorphism for the annotated type. More specifically, \lstinline{@Family} tackles two
 tasks: (1) building the dependencies (subtyping relations) between new family members and old ones; (2) refining field types. To this
-aim, \lstinline{@Family} re-declares all member types and field methods from the base families (see \textsf{collectMembers} and \textsf{fieldMethods} in Figure \ref{fig:trans1}). \lstinline{@Family} recognizes field methods by checking if they are non-void, no-argument methods, and if the name starts with an underscore ``\_''.  The function \textsf{collectMembers} finds all the direct member types from base families $I_1,\cdots,I_n$, creates new types with the same names for re-declaration, and builds the subtyping relations among them. The newly created types are also annotated with \lstinline{@Family}, leading to such a recursive process throughout the nested interfaces in base families. If users have already declared these member types in order to introduce new operations, behaviors or whatever, the function \textsf{combine} will integrate them to the re-declaration, by combining methods and supertypes following ``extends''.
+aim, \lstinline{@Family} re-declares all member types and field methods from the base families (see \textsf{collectMembers} and \textsf{fieldMethods} in Figure \ref{fig:trans1}). \lstinline{@Family} recognizes field methods by checking if they are non-void, no-argument methods, and if the name starts with an underscore ``\_''.  The function \textsf{collectMembers} finds all the direct member types from base families $I_1,\cdots,I_n$, creates new types with the same names for re-declaration, and builds the subtyping relations among them. The newly created types are also annotated with \lstinline{@Family}, leading to such a recursive process throughout the nested interfaces in base families. If users have already declared these member types in order to introduce new operations, behaviors or whatever, the function \textsf{combine} will integrate them to the re-declaration, by combining methods and supertypes following ``extends''. Note that we use $\textsf{ibody(}I_m$\textsf{)} to find the exact declaration body of interface $I_m$. \textcolor{red}{Haoyuan: Acutally in the implementation, \textsf{ibody} takes two arguments, one is the name of type reference (interface name $I_m$), and the other is the environment, or where the type reference $I_m$ locates.}
 
 \subsection{\textsf{@Obj}}
 The second part of annotation processing is abstracted here using the newly introduced annotation
@@ -23,7 +135,7 @@ which generates constructor method \textsf{of} for the annotated type. Besides t
 a series of field and non-field methods, including getters, void and fluent setters, \textsf{with}- methods and the general \textsf{with} method.
 \textcolor{red}{Haoyuan: Details on these operations? Can draw a table.} Among them, the fluent setters, \textsf{with}- methods and the general \textsf{with()} method all take the annotated type as their return types, and these types can be refined in some subtypes of the annotated type. What \lstinline{@Obj} precisely does is that it collects all these refinable methods from the super interfaces, and refines them to the annotated type, so that \lstinline{@ObjOf} will later provide a default implementation for them during the generation of constructor methods.
 
-In Figure \ref{fig:trans2}, the first translation function presents the processing of \lstinline{@Obj}. Besides delegating \lstinline{@Obj} to the member types in a recursive way, it invokes the function \textsf{refine} to handle the type refinements. The definition of \textsf{refine} is shown in (1) and (2), where return types of \textsf{with-} methods and fluent setters are refined respectively. They are both state operations, and for simplicity we omit the case for general \textsf{with} method in our translation rules.
+In Figure \ref{fig:trans2}, the first translation function presents the processing of \lstinline{@Obj}. Note that we use $\textsf{mbody(}m,I\textsf{)}$ to get the full declaration of method $m$ seen by $I$, such a method can either be directly defined in $I$ or inherited from its supertypes. Besides delegating \lstinline{@Obj} to the member types in a recursive way, it invokes the function \textsf{refine} to handle the type refinements. The definition of \textsf{refine} is shown in (1) and (2), where return types of \textsf{with-} methods and fluent setters are refined respectively. They are both state operations, and for simplicity we omit the case for general \textsf{with} method in our translation rules.
 
 \subsection{\textsf{@ObjOf}}
 The third part of translation relies on \textsf{@ObjOf}, which directly generates the static \textsf{of} method, serving as a constructor method. So it returns an instance of the annotated type. This method takes one argument for each field method from the domain of the interface. Similarly, it recursively generates \lstinline{of} methods for the annotated interface and all nested interfaces.
@@ -54,7 +166,6 @@ prefix of field methods, and consequently \lstinline{of} identifies these field 
 (3) $\overline{I_0}$ = \textsf{childs(}$I$\textsf{)}, $\overline{I}$ = \textsf{suptypes(}$I$\textsf{)} \textcolor{red}{(definition of childs and suptypes)}
     \begin{itemize}
     \item \textsf{ibody(}$I$\textsf{)} = \textsf{interface }$I$\textsf{ extends }$\overline{I}$\textsf{ \{}$\overline{meth}\ \overline{I_0}$\textsf{\}}
-    \item \textcolor{red}{need to use ibody and mbody. formalize?}
     \end{itemize}
 (4) $meth\in\ $\textsf{fieldMethods(}$I$\textsf{)} \textcolor{red}{(definition of fieldMethods)}
     \begin{itemize}

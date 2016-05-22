@@ -1,32 +1,54 @@
 \section{Discussion and Limitations}
 
-Haoyuan writes this one.
+%Haoyuan writes this one.
 
-- Transformations and Binary methods (but argue that
-these types of operations are not used in shallow DSLs
-any way!).
+%- Transformations and Binary methods (but argue that
+%these types of operations are not used in shallow DSLs
+%any way!).
 
-- Java syntax not great for DSLs.
-operator overloding; infix operators (but this is a Java limitation;
-not a limitation of our approach).
+%- Java syntax not great for DSLs.
+%operator overloding; infix operators (but this is a Java limitation;
+%not a limitation of our approach).
 
-- Limitations of the tool: separate compiltions and ...
-generics not fully implemented.
+%- Limitations of the tool: separate compiltions and ...
+%generics not fully implemented.
 
-- How to apply our approach to other OO language
-  - C\# has annotations, but can you do AST rewriting?
-  - Scala has macros;
-  - Other languages?
+%- How to apply our approach to other OO language
+%  - C\# has annotations, but can you do AST rewriting?
+%  - Scala has macros;
+%  - Other languages?
 
 
 
-\paragraph{Transformations and binary methods} Some other patterns, however, are not captured by our approach.
-  
-\paragraph{Limitations} Our tool has certain limitations at a few aspects. As Lombok only provides experimental support
+\paragraph{Transformations} Our approach tends to give a taste that shallow embeddings are convenient to
+use in object-oriented languages, and extensible with family polymorphism. Nevertheless, shallow embeddings are also under
+criticism in terms of its not supporting ASTs explicitly, leading to the fact that some operations like transformations
+cannot be easily used with shallow embeddings. In Section ?(2.3) we give an example of desugaring in Java using shallow
+embeddings, however when we try to apply family polymorphism for inheritance and extensibility, code duplication can be introduced.
+Suppose we firstly integrate the four members \textsf{Circuit}, \textsf{Fan}, \textsf{Beside} and \textsf{Identity} in a base family,
+and then define a new family that extends the base one, then inside the new member \textsf{Identity}, how can we implement the transformation \textsf{desugar()}? Certainly we cannot use \textsf{super} to call the old implementation, otherwise we are invoking old constructors of \textsf{Beside},
+leading to type errors afterwards. For sure we can just copy and paste the code for the old implementation, but too much
+code duplication would depress the users. Another solution is to use F-bounded polymorphism (\textcolor{red}{Haoyuan: refs. Need example?
+We do have an example in the Pretty Printer case study}),
+in that case code duplication is avoided, but accordingly, it arouses explosively heavy uses of types and parameterisations.
+
+\paragraph{Binary methods} Binary methods are indeed another sort of operations that prevent users from using shallow embeddings in Java
+comfortably. \textcolor{red}{Haoyuan: refs?} Java supports covariant return types, hence we can refine the types of field methods and 
+simple interpretations, but with binary methods like \textsf{equals}, method subtyping in inheritance is a big problem since the argument type
+is changed. In Scala, however, we can deal with binary methods with the help of ? \textcolor{red}{Haoyuan: Could you help Weixin?}.
+
+\paragraph{Shallow or deep embeddings?} We know the fact that our approach integrates shallow embeddings and simple family polymorphism, and that in some object-oriented languages like Java,
+some trouble is introduced when dealing with extensible transformations or binary methods. But on the other hand, these types of operations are not used in
+shallow DSLs anyway; with a single interpretation we use shallow embeddings, but since shallow embeddings do not represent abstract syntax trees,
+it is really hard to realize transformations, and similarly, with binary methods, users tend to use deep embeddings instead to build data hierarchies.
+
+\paragraph{Limitations} Our tool has its certain limitations at a few aspects. As Lombok only provides experimental support
 for separate compilation, our \textsf{@Family} does not support separate compilation at this stage, so all the related
-interfaces should be included in a single Java file. As for generics, we provide comparatively nice support for generic interfaces
-and methods, however, only method typing of non-generic methods is captured, and that of generic ones is delegated to the Java compiler.
+interfaces should be included in a single Java file. On generics, our implementation of \textsf{@Family} provides support
+for generic interfaces and methods without bounds, on the other hand, generic method typing is not explicitly captured
+by the annotation but delegated to the Java compiler. \textcolor{red}{Haoyuan: We still need to talk about Lombok in detail?
+Another limitation is that only Eclipse handler is supported.}
 
-On the other hand, it would be nice to have operator overloading and infix operators in Java syntax, so that the code could be
+Regarding syntax, it would be nice to have operator overloading and infix operators in Java, so that the code could be
 written in a more concise and elegant way. Nevertheless, this is limited by the programming language, and we expect our approach to be oriented to
-other OO languages.
+other OO languages. \textcolor{red}{Haoyuan: How to apply our approach to other OO language? C\# has annotations, but can you do AST rewriting? Scala has macros;  Other languages?}
