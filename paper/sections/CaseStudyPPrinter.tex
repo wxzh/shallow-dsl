@@ -1,0 +1,70 @@
+\subsection{A Prettier Printer}
+
+This case study refactors the Haskell code from \textcolor{red}{(Haoyuan: ref, a prettier printer)}
+which implements a functional pretty printer library with high efficiency. In the original code, two
+data structures are defined for documents. Here they are defined using shallow DSLs, and packaged into
+two base families with \textsf{@Family} annotation applied. These two families \textsf{Family\_Doc} and
+\textsf{Family\_Document} correspond to data types \textsf{Doc} and \textsf{DOC} respectively in original code.
+
+\begin{lstlisting}
+@Family interface Family_Doc {
+	interface Doc {}
+	interface Nil extends Doc {}
+	interface Text extends Doc {
+		String s(); Doc d();
+	}
+	interface Line extends Doc { int i(); Doc d(); }
+}
+
+@Family interface Family_Document {
+	interface Document {}
+	interface DNil extends Document {}
+	interface DConcat extends Document {
+		Document d1(); Document d2();
+	}
+	interface DNest extends Document {
+		int i(); Document d();
+	}
+	interface DText extends Document { String s(); }
+	interface DLine extends Document {}
+	interface DUnion extends Document {
+		Document d1(); Document d2();
+	}
+}
+\end{lstlisting}
+
+With the help of family polymorphism and \textsf{@Family}, we can easily add new operations and integrate them
+in child families. Below is an example of encoding two original functions \textsf{layout} and \textsf{fits} in
+the shallow embeddings. Note that with the annotation processing, verbose code for building inheritance relations is
+automatically generated.
+\begin{lstlisting}
+@Family interface Family_Doc_LayoutFits extends Family_Doc {
+	interface Doc {
+		String _layout(); boolean _fits(int w);
+	}
+	interface Nil {
+		default String _layout() { return ""; }
+		default boolean _fits(int w) {
+			return w >= 0;
+		}
+	}
+	...
+\end{lstlisting}
+Furthermore, some functions like \textsf{be} and \textsf{beaux} need refactoring before they are encoded in shallow embeddings.
+Finally we refactored the pretty printer library using a set of extensible families with shallow DSLs and operations, and our
+\textsf{@Family} annotation. However there is a special operation called \textsf{group}, which works like a transformation:
+\begin{lstlisting}
+@Family interface Family_Document_Flatten extends Family_Document {
+	interface Document {
+		Document _flatten();
+		default Document _group() {
+			return DUnion.of(this._flatten(), this);
+		}
+	}
+	...
+}
+\end{lstlisting}
+The method \textsf{\_group} calls the constructor method from \textsf{DUnion}, whereas such a member type will be updated in the
+child families, together with its constructors. To ensure type safety we are unable to reuse the code but just copy it and paste
+to the child families, and hence code duplication is introduced. The matter of extensible transformations will be further discussed
+in the next section.
