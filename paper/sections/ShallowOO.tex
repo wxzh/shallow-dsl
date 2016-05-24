@@ -22,12 +22,12 @@ Deep embedding visitor pattern
 \end{comment}
 
 In this section, we argue that \emph{shallow embedding} and straightforward OO
-programming are essentially the same thing. We use a subset
+programming are closely related. To demonstrate it, we use a subset
 of the DSL presented in Gibbons and Wu's paper~\cite{} as the running example.
-We first show how to use shallow embedding to define it and then gradually
-rewrite the definition into an ``OO style''. And we also show how to do
-transformations in shallow embedding, which is typically thought can only be
-done in deep embedding.
+We first give the original implementation of the language in shallow embedding
+and then gradually rewrite the definition into an ``OO style''. Also, we show how to do
+transformations in shallow embedding, which is typically thought to be the
+strength of deep embedding.
 
 \subsection{A DSL for Parallel Prefix Circuits}
 Consider an DSL named \dsl that models parallel circuits.
@@ -47,11 +47,16 @@ $$
 % bnf
 \weixin{the bnf grammar needs polishing}
 
+% BNF grammar should not contain left recursion and left factor, rewrite it
+% using descent recursion
+
+
+
 There are three constructs - two primitives
-\emph{fan} and \emph{identity} and one combinator \emph{beside} whose
+\emph{identity} and \emph{fan} and one combinator \emph{beside}, whose
 meanings are: \emph{identity n} contains \emph{n} isolated vertical wires;
 \emph{fan n} contains \emph{n} vertical wires and the first wire connects to
-all the remaining ones from top to bottom; $beside\ c_1\ c_2$ joins two circuits
+all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuits
 $c_1$ and $c_2$ horizontally.
 For example, the circuit \emph{fan 3 beside identity 3} can be visualized in Figure~\ref{}.
 
@@ -59,68 +64,68 @@ For example, the circuit \emph{fan 3 beside identity 3} can be visualized in Fig
 Different from deep embedding, which uses a data structure to represent the
 abstract syntax of a language, shallow embedding defines a language
 directly through encoding its semantics. In the case of \dsl,
-the shallow embedding implementation of language should conform to the types given below:
+the shallow embedding implementation should conform to the following types:
 
 \lstinputlisting[language=haskell,linerange=2-2]{./code/shallowCircuit.hs}%APPLY:CIRCUIT_TYPE
 \lstinputlisting[language=haskell,linerange=5-7]{./code/shallowCircuit.hs}%APPLY:TYPES
-where \texttt{Circuit} models the semantic domain and should be later filled in with a
-concrete type according to the semantics of the language.
+The type \texttt{Circuit}, representing the semantic domain, is not defined yet
+and should be filled in later with a concrete type according to the semantics.
 For example, if the semantics of \dsl is to calculate the width of a
-circuit, the definition would be:
+circuit, the semantic function would be:
 \lstinputlisting[language=haskell,linerange=11-16]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
-
 As shallow embedding is semantics-oriented, it is already an integer after
-constructing a circuit. For example, we will immediately get $6$ for
+constructing a circuit and hence \texttt{width1} is an identity function.
+For example, we will immediately get $6$ for
 \texttt{fan 3 `beside` identity 3} and hence \texttt{width1} is just an identity function.
 
 The above implementation can be rewritten by wrapping the result into an
-datatype and get back the value by pattern matching:
+datatype and get back the value through pattern matching:
 \lstinputlisting[language=haskell,linerange=20-26]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
-A question then arises - is this implementation shallow or deep?
+Then circuit construction gives back a \texttt{Circuit2} which contains an
+integer value representing the width and \texttt{width2} extracts out the value.
+%One may be curious whether this variant implementation is still shallow embedding or not. The answer is yes because ... % why it is shallow
 
-We continue rewriting the definition. This time, we use a record to represent
-the result and give it a name:
+The rewrite goes on by using a record with a sole field to represent the result:
 \lstinputlisting[language=haskell,linerange=31-36]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
-The implementation is apparently shallow since it is no different from the last version.
-At this stage, however, the definition looks so like an OO program that we can easily
+We no longer need a separate \texttt{width3} function as the field name is the extractor.
+The implementation is still shallow since essentially it is nothing different
+from the last one.
+However, the definition already approaches an OO program such that we can easily
 translate it into an OO language like Java:
-\lstinputlisting[linerange=5-24]{../src/paper/sec2/Circuit.java}%APPLY:CIRCUIT_OO
-The record type maps to an interface with its field declared as an abstract method.
-Each case corresponds to an class and its parameters become fields of the class.
-And the class implements the \texttt{Circuit} interface by giving \texttt{width}
-a definition. This whole implementation is, in fact, an instance of the \interp
-pattern and the combinator class \texttt{Beside} employs the \textsc{Composite} pattern.
-In other words, shallow embedding and the \interp are essentially the same thing.
-It may also worth mentioning that deep embedding is closely related to the
-\textsc{Visitor} pattern.
+\lstinputlisting[linerange=7-26]{../src/paper/sec2/Circuit.java}%APPLY:CIRCUIT_OO
+where the datatype maps to the abstract class \texttt{Circuit} with its field declared as an abstract method.
+Each case in the semantic function corresponds to an class and its parameters become fields of the class.
+And all the classes extends \texttt{Circuit} by giving \texttt{width} a definition.
+
+This implementation is exactly how we model \dsl in an OO language for the first
+place, following the \interp pattern.
+In other words, shallow embedding and straightforward OO programming are closely
+related (deep embedding is closely related to the \textsc{Visitor} pattern).
 
 \subsection{Transformations in Shallow Embedding}
 One of the main criticism of shallow embedding is that how to define transformations
-becomes unclear since there is not a structure representing the Abstract Syntax Tree (AST).
+becomes unclear since there is not a data structure representing the Abstract Syntax Tree (AST).
 %In fact, transformations can still be defined in shallow embedding.
-For example, there usually are some language constructs that do not extend the
-expressive power of the language but ease programming in the language.
-Then, in implementation, we define a core language with less constructs and
-define a transformation that rewrites the AST to use core constructs.
 
-The \emph{identity n} construct in \dsl is a syntactic sugar, which can
-be rewritten using the following formula:
-$$identity\ n = (fan\ 1) \overbrace{`beside`\ (fan\ 1)}^{n-1}\ (n \geq 1)$$
-which states that \emph{identity n} equals to \emph{n} of \emph{fan 1} combined
-with \emph{beside}.
+An instance of this kind of operations could be desugaring, which eliminates some
+language constructs that could be expressed by other language constructs without
+sacrificing the expressiveness of the language.
+In \dsl, the \emph{identity n} construct is such a syntactic sugar that can
+be rewritten via the following formula:
+$$identity\ n = (fan\ 1) \overbrace{\ beside\ (fan\ 1)}^{n-1}\ (n > 0)$$
+which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
 %Using the above formula, we can define a transformation that desugars every
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
 
-We can implement this desugaring operation in Java:
-\lstinputlisting[linerange=29-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
-The return type of \texttt{desugar} is \texttt{Circuit} reflecting that it is a
-transformation. The implementation is straightforward: \emph{fan n} just returns
-itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wrap back
-their results into an instance of \texttt{Beside}; \emph{identity n} encodes the above
+Implementing the desugaring method in Java could be:
+\lstinputlisting[linerange=31-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
+The newly introduced method \texttt{desugar} in \texttt{Circuit} returns a \texttt{Circuit} reflecting that it is a transformation. The implementation of \texttt{desugar} for each case is
+straightforward: \emph{fan n} just returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
+their results into an instance of \texttt{Beside}; \emph{identity n} mimics the
 formula.
 
 \weixin{define a show function in the and show the result after desugaring?}
-Of course, defining \texttt{desugar} is also possible in Haskell:
+Inspired by the Java implementation, we can also define \texttt{desugar} in Haskell:
 
 \lstinputlisting[language=haskell,linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
-The definition is a little bit tricky since it makes use of Haskell's laziness.
+The definition relies on the laziness of Haskell.

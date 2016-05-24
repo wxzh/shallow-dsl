@@ -8,9 +8,9 @@ data Circuit = Circuit {
   desugar :: Circuit
 }
 identity n = Circuit {
-  width = width c,
-  desugar = c
-} where c = foldl1 beside $ replicate n (fan 1)
+  width = n,
+  desugar = foldr1 beside $ replicate n (fan 1)
+}
 fan n = Circuit {
   width = n,
   desugar = fan n

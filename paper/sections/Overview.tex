@@ -1,5 +1,4 @@
-\section{Overview}
-\weixin{title: Evolution on DSLs?}
+\section{Evolution on DSLs with \name}
 
 \begin{comment}
 Weixin writes this one.
@@ -15,27 +14,193 @@ or introducing before with some other examples?
 \end{comment}
 
 %As language evolves, the need of new syntax often arises.
-As DSLs evolve along the time, the demand for new syntax and and semantics may arise.
+As DSLs evolve along the time, the demand for new syntax and new semantics may arise.
 It would be good if we can introduce these new features to the DSL \emph{modularly}.
 %This is actually a hard problem, known as the Expression Problem (EP)~\cite{wadler}, which
-This, however, requires the host language equipped with two dimensions of
-extensibility.
-In this section, we argue that from extensibility perspective, OO languages are
-better candidates as host languages than FP languages.
-To demonstrate this, we try to extend \dsl with new syntax and new semantics in
-the setting of shallow embedding. Adding new syntax is both easy for both FP
-and OOP. Adding new semantics, however, is hard in FP. Although it is possible
-in OOP, the solution requires some boilerplate code. We hence developed \name
-for defining modular extensions easily.
+%This, however, requires the host language equipped with two dimensions of extensibility.
+For shallow embedding, adding new syntax is trivial - just adding new cases in
+the semantic function. On the other hand, adding new semantics becomes hard as it allows
+only one definition for each case. Gibbons and Wu summarized how to define
+various type of semantic functions (interpretations) in shallow embedding by
+applying \emph{fold theory}. However, the encoding is based on tuples, which is
+not modular extensible. Though they also presented modular solution based on
+datatype a lar carte\cite{}. But such solution changes the encoding style
+dramatically and may be too complex to use practically.
+In contrast, the OO approach allows all kinds of
+interpretations to be defined in an modular intuitive way.
+In this section, we will show how various types of interpretations can be
+defined using the OO way with the help of \name. Along the way,
+some features of \name will be introduced, which simplify our implementation significantly.
+
+%argue that from extensibility perspective, OO languages are
+%better candidates as host languages than FP languages.
+%To demonstrate this, we try to extend \dsl with new syntax and new semantics in
+%the setting of shallow embedding. Adding new syntax is both easy for both FP
+%and OOP. Adding new semantics, however, is hard in FP. Although it is possible
+%in OOP, the solution requires some boilerplate code. We hence developed \name
+%for defining modular extensions easily.
 
 \subsection{Initial System}
-Before introducing any extensions, we need to rewrite the initial implementation for \dsl shown in Figure~\ref{}:
+Recall the \dsl language discussed in Section~\ref{}.
+We redefine it with \name:
 
-\lstinputlisting[linerange=11-26]{../src/paper/sec3/Circuit.java}%APPLY:INIT
-We change the implementation language constructs from classes to interfaces and
-their fields to unimplemented getter methods. The purpose of this modification
-is to allow types of the fields to be refined in future, which is vital for
-retaining extensibility.
+\lstinputlisting[linerange=19-35]{../src/paper/sec3/Circuit.java}%APPLY:INIT
+
+There are three main changes:
+1) All the original implementations are moved inside an interface \texttt{Init}; and
+2) The constructor classes are now interfaces for the purpose of employing
+multiple interface inheritance of Java;
+3) Fields of the classes become getter methods (starting with an underscore) so that their types can be refined for retaining extensibility~\cite{}.
+
+% introduce of method
+As classes are now interfaces, how can we create objects on them?
+\name automatically generates a \emph{static} \texttt{of} method for each
+class-like interface, i.e. an interface that contains only getters, for creating objects.
+For instance, the \texttt{of} method for \texttt{Beside} is:
+\begin{lstlisting}
+static Beside of(Circuit c1, Circuit c2) {
+  return new Beside() {
+    Circuit _c1 = c1; Circuit _c2 = c2;
+    public Circuit _c1() { return c1; }
+    public Circuit _c2() { return c2; }
+  }
+}
+\end{lstlisting}
+Inside the \texttt{of} method, an anonymous class that implements
+\texttt{Beside} is created and its instance is returned.
+
+\subsection{Multiple Interpretations}
+Defining additional interpretations is not so trivial for shallow embedding,
+especially for functional languages.
+Suppose that we want to have a function that checks whether a circuit is constructed correctly.
+
+Here comes the solution from Gibbons and Wu.
+\lstinputlisting[language=haskell,linerange=2-8]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
+where tuples are used to aggregate multiple interpretations in one definition.
+The way to introduce \texttt{desugar} in previous section is similar to this
+approach, where we use records instead.
+However, neither tuples nor records are extensible - whenever we need a new
+interpretation, we have to revise the original code, either expanding the arith of the
+tuple or inserting a new field in the record.
+
+Conversely, the OO approach allows us to define multiple interpretations in a
+\emph{modular} way through extending existing code:
+\lstinputlisting[linerange=39-52]{../src/paper/sec3/Circuit.java}%APPLY:MULTIPLE
+We expand the semantics in an extended family \texttt{Multiple}.
+Inside \texttt{Multiple}, the \texttt{Circuit} is re-declared
+with a new method \texttt{wellSized} and the \texttt{Circuit} hierarchy
+implements the \texttt{wellSized} method.
+Through extending the \texttt{Init} family, the \texttt{width} method is
+inherited without duplicating its definition. This way we modularly extend the
+semantics.
+
+Note that we do not explicitly write down \texttt{extends} clauses in the
+extended family.
+Instead, they are inferred by \name according to their
+names and the inheritance relationship between families.
+After instrumentation done by \name, the definitions of \texttt{Circuit} and \texttt{Beside}
+would be:
+
+\begin{lstlisting}
+interface Circuit extends Init.Circuit {
+  ... // wellSized declaration
+}
+interface Beside extends Circuit, Init.Beside {
+  Circuit _c1(); Circuit _c2(); // type refinements
+  ... // wellSized implementation
+}
+\end{lstlisting}
+Interfaces from base families of the same name will be put after \texttt{extends} clause and the
+interface hierarchy of \texttt{Circuit} is preserved in the extended family.
+Moreover, \name re-declare getters from the base \texttt{Beside} in the extended
+\texttt{Beside} so that their return types are refined to be the new
+\texttt{Circuit}.
+
+\subsection{Dependent Interpretations}
+Interpretations which depend on other interpretations are called \emph{dependent
+  interpretation}. %They are hard to express modularly in traditional shallow embedding.
+Before we introduce an example of such interpretations, we first add two new
+constructs to our language:
+\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
+summing up \emph{ns} and $above\ c_1\ c_2$ combines two circuits of the same width vertically.
+Their types are given below:
+\lstinputlisting[language=haskell,linerange=40-41]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+
+
+%\lstinputlisting[linerange=56-69]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
+%With these new constructs, more complex circuits can be constructed.
+%For example, Figure~\ref{} shows the circuit constructed by \emph{stretch
+%  [2,2,2] (fan 3) `beside` fan 1}.
+
+To add these two new constructs to \dsl, we can declare two class-like interfaces \texttt{Above} and
+\texttt{Stretch} that extends \texttt{Circuit} with \texttt{width} and
+\texttt{wellSized} implemented
+
+\lstinputlisting[linerange=56-76]{../src/paper/sec3/Circuit.java}%APPLY:DEPENDENT
+Definitions of \texttt{wellSized} for the new cases make it a dependent interpretation, as they
+rely on the \texttt{width} method for calculating the width of a circuit.
+
+%Since \texttt{Circuit} in \texttt{Dependent} family extends the one from
+%\texttt{Init}, we can simply call \texttt{width} method on a
+%\texttt{Circuit} object when the width of a circuit is needed in the definition
+%of \texttt{wellSized}.
+
+\subsection{Context-sensitive Interpretations}
+% add tlayout
+Connections between vertical wires of a circuit can be modeled by dividing the
+circuit into different layers, with local connections only go rightwards from
+one layer to the next. Each layer is a collection of pairs $(i,j)$ denoting a
+connection from wire $i$ on this layer to wire $j$ on the next. The circuit shown in
+Figure\ref{} has the following connections:
+
+$$[[(0,1),(2,3)],[(1,3)],[(1,2)]]$$
+
+The above shows that the circuit has 3 layers: the first layer has connections
+from the first wire to the second, and from the second to the third; the second
+layer has only one connection from the first wire to the third wire; while the
+third layer has a connection from the first wire to the second.
+
+The method \texttt{tlayout} deduce the connections of a circuit. It additionally
+takes a parameter \texttt{}.
+
+\lstinputlisting[linerange=98-130]{../src/paper/sec3/Circuit.java}%APPLY:CONTEXT_SENSITIVE
+
+\texttt{tlayout} takes a transformation over \texttt{IntUnaryOperator} is considered as the context which might be changed.
+The accumulating argument \texttt{f} is a transformation function over the indices of wires in a circuit.
+
+Some definitions of helper methods are omitted for space reason.
+Their functionalities are: \texttt{lzw} stands for 'long zip with', which takes two lists and a binary operator for
+combining elements on the same position; if one list is shorter then the
+remaining elements of the other are appended to the result list; \texttt{concat}
+concatenates two lists with the first tail connected the second head;
+The indices of wires are calculated by accumulating the sum of the list \texttt{\_ns} using the \texttt{scanl1}.
+
+% in \texttt{CtxSensitive}
+
+\subsection{Interpretation Combination}
+One appealing feature that \name approach provides is that we can modularly
+merge interpretations defined for the same data structure together.
+This is done through from different families
+together using multiple interface inheritance.
+
+For example, we can merge the interpretations we have defined so far in this way:
+
+\lstinputlisting[linerange=161-163]{../src/paper/sec3/Circuit.java}%APPLY:MERGE
+Simply defining a new family \texttt{Merge} that extends other families we want
+to combine. \name will implicitly re-declare all the interfaces and inject the
+inheritance relationships. For example, the implicit redeclaration of
+\texttt{Circuit} looks like this:
+
+\begin{lstlisting}
+interface Circuit extends Multiple.Circuit, Dependent.Circuit, CtxSensitive.Circuit {}
+\end{lstlisting}
+
+So do other interfaces.
+
+\begin{comment}
+\subsection{Parametrized interpretations}
+\subsection{Implicitly Parametrized interpretations}
+\subsection{Modular Interpretations}
 
 \subsection{Adding New Syntax}
 Shallow embedding makes it easy to add new syntax, both in FP and OOP.
@@ -54,7 +219,7 @@ Similarly, defining two new interfaces
 \texttt{Stretch} and \texttt{Above} that both extend \texttt{Circuit} and
 implement the \texttt{width} method is all we need to do in Java:
 
-\lstinputlisting[linerange=29-40]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
+\lstinputlisting[linerange=56-69]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
 
 \subsection{Adding New Semantics}
 The new combinators, however, can not apply to arbitrary circuits - they have
@@ -64,7 +229,7 @@ semantics of the language for doing such checks.
 
 Adding new semantics, however, becomes hard for shallow embedding.
 Gibbons and Wu worked around this problem in the following way:
-\lstinputlisting[language=haskell,linerange=2-6]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
+\lstinputlisting[language=haskell,linerange=2-8]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
 which is similar to how we add \texttt{desugar} to the implementation in Section~\ref{}.
 The difference is that they use a tuple instead of a record to merge semantic
 domains, then define the two semantic functions simultaneously for each
@@ -98,9 +263,9 @@ constructs with new semantics.
 
 \name addresses all these problems through embracing family polymorphism and code instrument.
 By using \name, we can refactor the extensions in the way shown in Figure\ref{}.
-\lstinputlisting[linerange=80-82]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY
-\lstinputlisting[linerange=110-112]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SYNTAX
-\lstinputlisting[linerange=131-156]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SEMANTICS
+\lstinputlisting[linerange=46-48]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY
+\lstinputlisting[linerange=76-78]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SYNTAX
+\lstinputlisting[linerange=97-122]{../src/paper/sec3/Circuit.java}%APPLY:FAMILY_SEMANTICS
 
 Note that initially all the definitions are put inside a \texttt{Family} interface.
 Extensions are defined inside another interface that extends base families.
@@ -113,7 +278,7 @@ manually refine the return type, as it is done by \name. Moreover, a static \tex
 method would be generated for class-like interfaces, serving as the constructor
 for the interface. For example, the \texttt{Beside} inside \texttt{Semantics} after code instrumentation will look like this:
 
-\lstinputlisting[linerange=164-176]{../src/paper/sec3/Circuit.java}%APPLY:INSTRUMENT
+\lstinputlisting[linerange=168-180]{../src/paper/sec3/Circuit.java}%APPLY:INSTRUMENT
 % TODO: not implemented yet
 Family polymorphism on only gives more safety on the client code but also helps
 language implementers catch bug early.
@@ -124,7 +289,4 @@ unimplemented methods except for getters.
 These errors are captured by automatically re-declaring members with inheritance relationships.
 %The \texttt{of} method is  returns an instance of an anonymous class
 %that implements the interface with all getters implemented and its instance is returned.
-
-% Multiple interpretation
-% Dependent interpretation
-% Context-sensitive interpretation
+\end{comment}
