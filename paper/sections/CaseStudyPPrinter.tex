@@ -1,34 +1,46 @@
 \subsection{A Prettier Printer}
 
 This case study refactors the Haskell code from \textcolor{red}{(Haoyuan: ref, a prettier printer)}
-which implements a functional pretty printer library with high efficiency. In the original code, two
-data structures are defined for documents. Here they are defined using shallow DSLs, and packaged into
+which uses deep embeddings to implement a functional pretty printer library with high efficiency. In the original code, two
+data structures are defined for documents:
+\begin{lstlisting}[keywords={data,Int,String}]
+data DOC = NIL
+            | DOC :<> DOC
+            | NEST Int DOC
+            | TEXT String
+            | LINE
+            | DOC :<> DOC
+data Doc = Nil
+            | String `Text` Doc
+            | Int `Line` Doc
+\end{lstlisting}
+Here they are encoded with shallow DSLs, and packaged into
 two base families with \textsf{@Family} annotation applied. These two families \textsf{Family\_Doc} and
-\textsf{Family\_Document} correspond to data types \textsf{Doc} and \textsf{DOC} respectively in original code.
+\textsf{Family\_Document} correspond to data types \textsf{Doc} and \textsf{DOC} respectively.
 
 \begin{lstlisting}
 @Family interface Family_Doc {
 	interface Doc {}
 	interface Nil extends Doc {}
 	interface Text extends Doc {
-		String s(); Doc d();
+		String _s(); Doc _d();
 	}
-	interface Line extends Doc { int i(); Doc d(); }
+	interface Line extends Doc { int _i(); Doc _d(); }
 }
 
 @Family interface Family_Document {
 	interface Document {}
 	interface DNil extends Document {}
 	interface DConcat extends Document {
-		Document d1(); Document d2();
+		Document _d1(); Document _d2();
 	}
 	interface DNest extends Document {
-		int i(); Document d();
+		int _i(); Document _d();
 	}
-	interface DText extends Document { String s(); }
+	interface DText extends Document { String _s(); }
 	interface DLine extends Document {}
 	interface DUnion extends Document {
-		Document d1(); Document d2();
+		Document _d1(); Document _d2();
 	}
 }
 \end{lstlisting}
@@ -40,31 +52,57 @@ automatically generated.
 \begin{lstlisting}
 @Family interface Family_Doc_LayoutFits extends Family_Doc {
 	interface Doc {
-		String _layout(); boolean _fits(int w);
+		String layout(); boolean fits(int w);
 	}
 	interface Nil {
-		default String _layout() { return ""; }
-		default boolean _fits(int w) {
+		default String layout() { return ""; }
+		default boolean fits(int w) {
 			return w >= 0;
 		}
 	}
 	...
 \end{lstlisting}
-Furthermore, some functions like \textsf{be} and \textsf{beaux} need refactoring before they are encoded in shallow embeddings.
-Finally we refactored the pretty printer library using a set of extensible families with shallow DSLs and operations, and our
+Furthermore, the function \textsf{be} needs refactoring before it is encoded in shallow embeddings.
+The original \textsf{be} is defined as follows:
+\begin{lstlisting}
+be w k [] = Nil
+be w k ((i,NIL):z) = be w k z
+be w k ((i,x :<> y):z) = be w k ((i,x):(i,y):z)
+be w k ((i,NEST j x):z) = be w k ((i+j,x):z)
+be w k ((i,TEXT s):z) = s `Text` be w (k+length s) z
+be w k ((i,LINE):z) = i `Line` be w i z
+be w k ((i,x :<|> y):z) = better w k (be w k ((i,x):z)) (be w k ((i,y):z))
+\end{lstlisting}
+We refactor it by introducing a helper function \textsf{beaux}:
+\begin{lstlisting}
+beaux w k i NIL z = be w k z
+beaux w k i (x :<> y) z = be w k ((i,x):(i,y):z)
+beaux w k i (NEST j x) z = be w k ((i+j,x):z)
+beaux w k i (TEXT s) z = s `Text` be w (k+length s) z
+beaux w k i LINE z = i `Line` be w i z
+beaux w k i (x :<|> y) z = better w k (be w k ((i,x):z)) (be w k ((i,y):z))
+
+be w k [] = Nil
+be w k ((i,x):z) = beaux w k i x z
+\end{lstlisting}
+In this case, \textsf{beaux} can be defined as an operation method \lstinline{beaux(int, int, int, List<Pair<int, Document>>)} inside the type \textsf{Document}, and
+its pattern matching corresponds to the default implementations in different member types (like \textsf{DNil}, \textsf{DConcat}, etc). On the other hand, \textsf{be} is implemented as a static method 
+\lstinline{be(int, int, List<Pair<int, Document>>)} outside the member types.
+
+Finally we finished the refactoring of the pretty printer library using a set of extensible families with shallow DSLs and operations, and our
 \textsf{@Family} annotation. However there is a special operation called \textsf{group}, which works like a transformation:
 \begin{lstlisting}
 @Family interface Family_Document_Flatten extends Family_Document {
 	interface Document {
-		Document _flatten();
-		default Document _group() {
-			return DUnion.of(this._flatten(), this);
+		Document flatten();
+		default Document group() {
+			return DUnion.of(this.flatten(), this);
 		}
 	}
 	...
 }
 \end{lstlisting}
-The method \textsf{\_group} calls the constructor method from \textsf{DUnion}, whereas such a member type will be updated in the
+The method \textsf{group} calls the constructor method from \textsf{DUnion}, whereas such a member type will be updated in the
 child families, together with its constructors. To ensure type safety we are unable to reuse the code but just copy it and paste
 to the child families, and hence code duplication is introduced. The matter of extensible transformations will be further discussed
 in the next section.

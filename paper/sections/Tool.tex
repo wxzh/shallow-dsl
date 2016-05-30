@@ -12,116 +12,103 @@ the process of translation. In our implementation, the annotation processing is 
 and Figure \ref{fig:trans2}, together with some auxiliary functions. Note that in practice, our \textsf{@Family} supports simple
 generics without bounds, but for simplicity reason it is not included in the formalization.
 
-\begin{figure*}
-\begin{tabular}{|l|c|c|}
-\hline
-\begin{lstlisting}
-interface Base {
-	interface Exp {}
-	interface Lit extends Exp {
-		int i();
-		Lit withI(int val);
-	}
-	interface Add extends Exp {
-		Exp e1(); Exp e2();
-	}
-}
-\end{lstlisting} & & \\
+\begin{figure}
+\begin{tabular}{|l|}
 \hline
 \begin{lstlisting}
 @Family interface New extends Base {
-	interface Exp { int _eval(); }
-	interface Lit {
-		default int _eval() { return i(); }
-	}
-	interface Add {
-		default int _eval() {
-			return e1()._eval() + e2()._eval();
-		}
-	}
-}
-\end{lstlisting} & \begin{tabular}{c}$\Rightarrow$\\Family\\Desugaring\end{tabular} & \begin{lstlisting}
-@Obj interface New extends Base {
-	@Obj interface Exp extends Base.Exp {
-		int _eval();
-	}
-	@Obj interface Lit extends Exp, Base.Lit {
-		int i();
-		default int _eval() { return i(); }
-	}
-	@Obj interface Add extends Exp, Base.Add {
-		Exp e1(); Exp e2();
-		default int _eval() {
-			return e1()._eval() + e2()._eval();
+	interface Circuit { int width(); }
+	interface Beside {
+		default int width() {
+			return _c1().width() + _c2().width();
 		}
 	}
 }
 \end{lstlisting} \\
 \hline
-& & $\Downarrow$ Obj Desugaring \\
+$\Downarrow$ Family desugaring \\
+\hline
+\begin{lstlisting}
+@Obj interface New extends Base {
+	@Obj interface Circuit extends Base.Circuit {
+		int width();
+	}
+	@Obj interface Beside extends
+			Circuit, Base.Beside {
+		Circuit _c1(); Circuit _c2();
+		default int width() {
+			return _c1().width() + _c2().width();
+		}
+	}
+}
+\end{lstlisting} \\
+\hline
+$\Downarrow$ Obj desugaring \\
+\hline
+\begin{lstlisting}
+@ObjOf interface New extends Base {
+	@ObjOf interface Circuit extends Base.Circuit {
+		int width();
+	}
+	@ObjOf interface Beside extends
+			Circuit, Base.Beside {
+		Circuit _c1(); Circuit _c2();
+\end{lstlisting}\vspace{-.05in}\\ \begin{lstlisting}[basicstyle=\ttfamily\small\color{red}]
+		Beside withC1(Circuit val);
+\end{lstlisting}\\ \begin{lstlisting}
+		default int width() {
+			return _c1().width() + _c2().width();
+		}
+	}
+}
+\end{lstlisting} \\
+\hline
+$\Downarrow$ ObjOf desugaring \\
 \hline
 \begin{lstlisting}
 interface New extends Base {
-	interface Exp extends Base.Exp {
-		int _eval();
+	interface Circuit extends Base.Circuit {
+		int width();
 	}
-	interface Lit extends Exp, Base.Lit {
-		int i(); Lit withI(int val);
-		default int _eval() { return i(); }
-		static Lit of(int _i) {
-			return new Lit() {
-				int i = _i;
-				public int i() { return i; }
-				public Lit withI(int val) {
-					return Lit.of(val);
+	interface Beside extends Circuit, Base.Beside {
+		Circuit _c1(); Circuit _c2();
+		Beside withC1(Circuit val);
+		default int width() {
+			return _c1().width() + _c2().width();
+		}
+		static Beside of(Circuit _c1, Circuit _c2) {
+			return new Beside() {
+				Circuit c1 = _c1; Circuit c2 = _c2;
+				public Circuit _c1() { return c1; }
+				public Circuit _c2() { return c2; }
+				public Beside withC1(Circuit val) {
+					return Beside.of(val, this._c2());
 				}
-			};
-		}
-	}
-	interface Add extends Exp, Base.Add {
-		Exp e1(); Exp e2();
-		default int _eval() {
-			return e1()._eval() + e2()._eval();
-		}
-		static Add of(Exp _e1, Exp _e2) {
-			return new Add() {
-				Exp e1 = _e1; Exp e2 = _e2;
-				public Exp e1() { return e1; }
-				public Exp e2() { return e2; }
 			};
 		}
 	}
 	static New of() { return new New(){}; }
 }
-\end{lstlisting} & \begin{tabular}{c}$\Leftarrow$\\ObjOf\\Desugaring\end{tabular} & \begin{tabular}{l}\begin{lstlisting}
-@ObjOf interface New extends Base {
-	@ObjOf interface Exp extends Base.Exp {
-		int _eval();
-	}
-	@ObjOf interface Lit extends Exp, Base.Lit {
-		int i();
-\end{lstlisting}\vspace{-.05in}\\ \begin{lstlisting}[basicstyle=\ttfamily\small\color{red}]
-		Lit withI(int val);
-\end{lstlisting}\\ \begin{lstlisting}
-		default int _eval() { return i(); }
-	}
-	@ObjOf interface Add extends Exp, Base.Add {
-		Exp e1(); Exp e2();
-		default int _eval() {
-			return e1()._eval() + e2()._eval();
-		}
-	}
-}
-\end{lstlisting}\end{tabular} \\
+\end{lstlisting} \\
 \hline
 \end{tabular}
-\caption{An example showing the flow of translation. \textcolor{red}{Haoyuan: fields with underscore}}\label{fig:flow}
-\end{figure*}
+\caption{An example showing the flow of translation.}\label{fig:flow}
+\end{figure}
 
 \subsection{Flow of Translation}
-Figure~\ref{fig:flow} illustrates the flow of translation with a simple example, showing intermediate results of desugaring. The base family \textsf{Base} contains three members, \textsf{Exp}, and its subtypes \textsf{Lit} and \textsf{Add}. \textsf{Lit} has a field method \textsf{i()} together with a wither method, where \textsf{Add} has two field methods \textsf{e1()} and \textsf{e2()}. At this time, another interface \textsf{New} is defined as the new family that extends the old one, where we add an operation \textsf{\_eval()} for the member types. In the client code, the user simply re-declares the three members with the addition of \textsf{\_eval()}, without building subtyping relations with the old members, and a simple annotation \textsf{@Family} will deal with all the stuff.
+Figure~\ref{fig:flow} illustrates the flow of translation using a simplified version of the Scans example, with intermediate results of desugaring shown. A base family \textsf{Base} is predefined as follows:
+\begin{lstlisting}
+interface Base {
+	interface Circuit {}
+	interface Beside extends Circuit {
+		Circuit _c1(); Circuit _c2();
+		Beside withC1(Circuit val);
+	}
+}
+\end{lstlisting}
+\textsf{Base} contains two members, \textsf{Circuit}, and its subtype \textsf{Beside}. \textsf{Beside} has two field methods \textsf{\_c1()} and \textsf{\_c2()} together with a wither method \textsf{withC1}. At this time, another interface \textsf{New} is defined as the new family that extends the old one, where we add an operation \textsf{width()} to the member types. This is precisely the interface that we are going to translate. In the client code, the user simply re-declares the two members with the addition of \textsf{width()}, without building subtyping relations among new and old members, and a simple annotation \textsf{@Family} will deal with all the stuff.
 
-In the first step of translation, namely family desugaring, \textsf{@Family} collects all the members from old families, and fills in the ``extends'' to build the inheritance relations. At the same time, it re-declares all the field methods, for example, although the type name of \textsf{e1()} is still \textsf{Exp}, it refers to the new member type, where we address field type refinements, and this new \textsf{e1()} has the operation \textsf{\_eval()}. Then it delegates the work to \textsf{@Obj}. In the second phase, \textsf{@Obj} detects fluent setters and withers from the supertypes, then refines their return types to have consistency with the annotated type. In our example, the wither method \textsf{withI} is refined to have the new \textsf{Lit} as its return type. In the last step of translation, \textsf{@ObjOf} generates constructor methods for all the interfaces, except \textsf{Exp}, where its \textsf{\_eval()} is an abstract method and we cannot provide a default implementation for it. In the following subsections we will respectively explain the three steps of translation in detail.
+In the first step of translation, namely family desugaring, \textsf{@Family} collects all the members from old families, and fills in the ``extends'' to build the inheritance relations. At the same time, it re-declares all the field methods, for example, although the type name of \textsf{\_c1()} is still \textsf{Circuit}, it refers to the new member type, where we address field type refinements, and hence this new \textsf{\_c1()} has the operation \textsf{width()}. Then it delegates the work to \textsf{@Obj}. In the second phase, \textsf{@Obj} detects fluent setters and withers from the supertypes, then refines their return types to have consistency with the annotated type. In our example, the wither method \textsf{withC1} is refined to have the new \textsf{Beside} as its return type. In the last step of translation, \textsf{@ObjOf} generates constructor methods for all the interfaces, except \textsf{Circuit}, where its \textsf{width()} is an abstract method and we cannot provide a default implementation for it. In the following subsections we will respectively explain the three steps of translation in detail.
 
 \subsection{\textsf{@Family}}
 \lstinline{@Family} builds the structure of family polymorphism for the annotated type. More specifically, \lstinline{@Family} tackles two
