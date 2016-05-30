@@ -1,5 +1,6 @@
 package diagrams;
 
+import static diagrams.ListUtilities.concat;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -10,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import diagrams.Debug.Above;
@@ -28,6 +31,7 @@ import diagrams.Debug.Red;
 import diagrams.Debug.Shape;
 import diagrams.Debug.StrokeColor;
 import diagrams.Debug.StrokeWidth;
+import diagrams.Debug.StyleSheet;
 import diagrams.Debug.Styling;
 import diagrams.Debug.Triangle;
 import lombok.Obj;
@@ -91,6 +95,21 @@ interface Family {
     /**
      * Styling
      */
+    interface StyleSheet {
+        List<? extends Styling> _stylings();
+        default List<Attr> _toAttrs() {
+            boolean hasFill = false;
+            List<Attr> attrs = new ArrayList<>();
+            for (Styling s : _stylings()) {
+                Attr attr = s.toAttr();
+                if (attr._name().equals("fill")) hasFill = true;
+                attrs.add(attr);
+            }
+            if (!hasFill) attrs.add(Attr.of("fill", "none"));
+            return attrs;
+        }
+    }
+
     interface Styling {
         Attr toAttr();
     }
@@ -214,12 +233,52 @@ interface Family {
         }
     }
 
+    interface Drawing {
+        List<? extends Transform> _transforms();
+        List<? extends Shape> _shapes();
+        List<? extends StyleSheet> _styles();
+
+        default Extent toExtent() {
+            return IntStream.range(0, _shapes().size())
+                .mapToObj(i -> _shapes().get(i).toExtent().transform(_transforms().get(i)))
+                .reduce(Extent::union)
+                .get();
+        }
+        default Drawing transform(Transform trans) {
+            return Drawing.of(_shapes(), _styles(), _transforms().stream().map(t1 -> Compose.of(trans, t1)).collect(Collectors.toList()));
+        }
+        default Drawing merge(Drawing other) {
+            return Drawing.of(concat(_shapes(), other._shapes()), concat(_styles(), other._styles()), concat(_transforms(), other._transforms()));
+        }
+        default XML toXML() {
+            int scale = 10;
+            Extent e = toExtent();
+            Pos p1 = e._p1();
+            Pos p2 = e._p2();
+            Pos p = Pos.of(p2._1()-p1._1(), p2._2()-p1._2()).resize(scale);
+            List<Attr> svgAttrs = new ArrayList<>(p.toAttrs("width", "height"));
+            svgAttrs.add(Attr.of("viewBox", p1.resize(scale).show() + "," + p.show()));
+            svgAttrs.add(Attr.of("xmlns", "http://www.w3.org/2000/svg"));
+            svgAttrs.add(Attr.of("version", "1.1"));
+
+            List<XML> shapeXMLs = IntStream.range(0, _shapes().size())
+                    .mapToObj(i -> _shapes().get(i).toXML(_styles().get(i)._toAttrs(), _transforms().get(i)))
+                    .collect(Collectors.toList());
+            return XML.of(svgAttrs, "svg", singletonList(XML.of(singletonList(Attr.of("transform", "scale(" + Pos.of(1,-1).resize(scale).show() + ")")), "g", shapeXMLs)));
+        }
+
+    }
 }
 
 @Obj interface Debug extends Family {
-    interface Shape {
+    interface Show { // bug: can not be extracted?
         String show();
+        static String showList(List<? extends Show> xs) {
+            return xs.stream().map(x -> x.show()).collect(Collectors.joining(",", "[", "]"));
+        }
     }
+
+    interface Shape extends Show {}
 
     interface Rectangle {
         @Override default String show() {
@@ -238,25 +297,101 @@ interface Family {
         }
     }
 
-    interface Picture {
-        String show();
+    interface Picture extends Show {
+        Drawing draw(); // bug: no refinement
     }
 
     interface Place {
         @Override default String show() {
-            return "(place " + _s().show() + ")";
+            return "(place " + _s().show() + " " + _ss().show() + ")";
+        }
+        @Override default Drawing draw() {
+          return Drawing.of(singletonList(_s()), singletonList(_ss()), singletonList(Identity.of()));
         }
     }
 
     interface Beside {
+        Picture _p1();
         @Override default String show() {
             return "(beside " + _p1().show() + " " + _p2().show() + ")";
+        }
+        @Override default Drawing draw() {
+            Drawing d1 = _p1().draw();
+            Drawing d2 = _p2().draw();
+            Drawing t1 = d1.transform(Translate.of(Pos.of(d2.toExtent()._p1()._1(), 0)));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(d1.toExtent()._p2()._1(), 0)));
+            return t1.merge(t2);
         }
     }
 
     interface Above {
         @Override default String show() {
             return "(above " + _p1().show() + " " + _p2().show() + ")";
+        }
+        @Override default Drawing draw() {
+            Drawing d1 = _p1().draw();
+            Drawing d2 = _p2().draw();
+            Extent e1 = d1.toExtent();
+            Extent e2 = d2.toExtent();
+            Drawing t1 = d1.transform(Translate.of(Pos.of(0, e2._p2()._2())));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(0, e1._p1()._2())));
+            return t1.merge(t2);
+        }
+    }
+
+    interface StyleSheet extends Show {
+        @Override default String show() {
+            return Show.showList(_stylings());
+        }
+    }
+
+    interface Styling extends Show {}
+
+    interface StrokeColor {
+        @Override default String show() {
+            return "StrokeColor " + _color().show();
+        }
+    }
+    interface StrokeWidth {
+        @Override default String show() {
+            return "StrokeWidth " + _width();
+        }
+    }
+    interface FillColor {
+        @Override default String show() {
+            return "FillColor " + _color().show();
+        }
+    }
+
+    interface Transform extends Show {}
+    interface Identity {
+        @Override default String show() {
+            return "identity";
+        }
+    }
+    interface Compose {
+        @Override default String show() {
+            return "(" + _t1().show() + "," + _t2().show() + ")";
+        }
+    }
+    interface Translate {
+        @Override default String show() {
+            return "translate " + _pos().show();
+        }
+    }
+
+    interface Drawing extends Show {
+        @Override default String show() {
+            return "shapes: " + Show.showList(_shapes()) + "\n"
+                    + "style sheets: " + Show.showList(_styles()) + "\n"
+                    + "transforms: " + Show.showList(_transforms()) + "\n";
+        }
+
+        default Drawing transform(Transform trans) {
+            return Drawing.of(_shapes(), _styles(), _transforms().stream().map(t1 -> Compose.of(trans, t1)).collect(Collectors.toList()));
+        }
+        default Drawing merge(Drawing other) {
+            return Drawing.of(concat(_shapes(), other._shapes()), concat(_styles(), other._styles()), concat(_transforms(), other._transforms()));
         }
     }
 }
@@ -331,6 +466,7 @@ public class Diagrams {
     public static void main(String[] args) {
         Path file = Paths.get("human.svg");
         System.out.println(human().show());
+        System.out.println(human().draw().show());
         XML xml = human().draw().toXML();
         try {
             Files.write(file, asList(xml.show()));

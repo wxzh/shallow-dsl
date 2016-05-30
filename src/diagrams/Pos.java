@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Obj;
 
 @Obj
-interface Pos {
+interface Pos { // extends Show { bug?
     double _1();
     double _2();
     default Pos add(Pos other) {
