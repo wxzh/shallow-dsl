@@ -7,4 +7,145 @@ Talk about the 3 case studies
 Talk about Pretty Printer case study last and discuss issues with
 extensible transformations.
 
+\subsection{Scans}
+% statistics, pictures, implementation
+Section~\ref{} is based on our first case study, hence we discuss it briefly here.
+In the case study, we strictly follows the flow of the paper and implement all kinds of
+interpretations modularly, including \texttt{depth} and \texttt{layout} that are
+not discussed in Section~\ref{}.
+
+Starting from a data structure that describes the five constructs without any interpretations, we gradually add
+\texttt{depth}, \texttt{width}, \texttt{wellSized}, \texttt{layout} and
+\texttt{tlayout} through extending the family.
+
+To make our DSL more user-friendly, we defined some wrappers for constructing
+circuits conveniently. Afterwards, we can construct a circuit this way:
+\begin{lstlisting}
+Circuit circuit =
+  fan(2).beside(fan(2))
+  .above(fan(2).stretch(2,2))
+  .above(id(1).beside(fan(2)).beside(id(1)));
+\end{lstlisting}
+For primitives like \texttt{fan}, we define a static method and for binary
+combinators like \texttt{above}, we define a default method on the \texttt{Circuit}.
+
+Additionally, we extend the language with a \texttt{draw} method which renders a
+circuit using Java Swing.
+Calling \texttt{circuit.draw()} on the \texttt{circuit} we just defined will
+display what Figure~\ref{} shows.
+
+% show Java swing output
+\begin{figure}
+\end{figure}
+
 \input{sections/CaseStudyPPrinter.tex}
+
+
+
+\subsection{Diagrams}
+\emph{Diagrams}~\cite{} is a powerful, flexible, declarative Haskell DSL for creating vector graphics.
+This case study implements a simplified version of \emph{Diagrams} from
+Gibbons's lecture notes ~\cite{}.
+The DSL consists of three simpler sub-languages for describing shapes, colors, styles.
+% Haskell code
+\begin{lstlisting}[language=haskell]
+data Shape
+  = Rectangle Double Double
+  | Ellipse Double Double
+  | Triangle Double
+
+type StyleSheet = [Styling]
+data Styling
+  = FillColour Col
+  | StrokeColour Col
+  | StrokeWidth Double
+
+data Col = Red | Blue | Bisque | Black | Green | Yellow | Brown
+
+data Picture
+  = Place StyleSheet Shape
+  | Above Picture Picture
+  | Beside Picture Picture
+\end{lstlisting}
+
+\paragraph{Shapes}
+There are three primitive shapes - rectangle, ellipse and triangle.
+
+\begin{lstlisting}
+interface Shape {}
+interface Rectangle extends Shape {
+    double _x(); double _y();
+}
+interface Ellipse extends Shape {
+    double _rx(); double _ry();
+}
+interface Triangle extends Shape {
+    double _l();
+}
+\end{lstlisting}
+
+\paragraph{Styles}
+A shape can be decorated with drawing styles. A \texttt{StyleSheet} contains a
+list of \texttt{Stylings} where fill color, stroke color or stroke width can be specified.
+\begin{lstlisting}
+interface StyleSheet {
+    List<? extends Styling> _stylings();
+}
+interface Styling {}
+interface FillColor extends Styling {
+    Col _color();
+}
+interface StrokeColor extends Styling {
+    Col _color();
+}
+interface StrokeWidth extends Styling {
+    double _width();
+}
+\end{lstlisting}
+\texttt{Col} is also a data structure that describes the supported colors.
+\begin{lstlisting}
+interface Col {}
+interface Red extends Col {}
+interface Blue extends Col {}
+interface Green extends Col {}
+interface Yellow extends Col {}
+interface Bisque extends Col {}
+interface Black extends Col {}
+\end{lstlisting}
+
+\paragraph{Pictures}
+\begin{lstlisting}
+interface Picture {}
+interface Place extends Picture {
+    Shape _s(); StyleSheet _ss();
+}
+interface Above extends Picture {
+    Picture _p1(); Picture _p2();
+}
+interface Beside extends Picture {
+    Picture _p1(); Picture _p2();
+}
+\end{lstlisting}
+
+Provided with a \texttt{StyleSheet}, a shape can be lifted to a picture using
+\texttt{Place}. And pictures can be merged using \texttt{Above} or
+\texttt{Beside}: the former combines two pictures vertically whereas the latter
+combines two pictures horizontally.
+
+With these three main data structure, we can draw a picture.
+
+\subsubsection{Rendering}
+We render our fancy picture using scalable vector graphics (SVG) as our backend.
+To do so, we need to flatten the picture which is recursively constructed.
+
+SVG is based on XML and hence we define to model a XML file.
+
+\paragraph{Transformations}
+
+\subsubsection{Extensions}
+\cite{} contains exercises about extensions on the language, e.g.
+adding new shapes. The deep embedding approach in Haskell requires modifications on the ADTs
+whereas our approach can modularly introduce new language constructs.
+.
+Each sub-language retains independent extensibility.
+For example, we can add a \texttt{show} method for the purpose of debugging.
