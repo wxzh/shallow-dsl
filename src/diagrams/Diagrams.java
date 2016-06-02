@@ -4,12 +4,14 @@ import static diagrams.ListUtilities.concat;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -36,6 +38,72 @@ import diagrams.Debug.Styling;
 import diagrams.Debug.Triangle;
 import lombok.Obj;
 
+
+interface Show {
+    String show();
+    static String showList(List<? extends Show> xs) {
+        return xs.stream().map(x -> x.show()).collect(Collectors.joining(",", "[", "]"));
+    }
+}
+
+@Obj
+interface Attr extends Show {
+    String _name();
+    String _value();
+    default String show() {
+        return _name() + "=\"" + _value() + "\"";
+    }
+}
+
+@Obj
+interface Extent extends Show {
+    Pos _p1();
+    Pos _p2();
+    default Extent union(Extent e) {
+        return Extent.of(Pos.of(Math.min(_p1()._1(), e._p1()._1()), Math.min(_p1()._2(), e._p1()._2())),
+                Pos.of(Math.max(_p2()._1(), e._p2()._1()), Math.max(_p2()._2(), e._p2()._2())));
+    }
+    default String show() {
+        return "(" + _p1().show() + "," + _p2().show() + ")";
+    }
+}
+
+@Obj
+interface XML extends Show {
+    String _tag();
+    List<Attr> _attrs();
+    List<XML> _xmls();
+
+    default String show() {
+        String attrs = " " + _attrs().stream().map(Attr::show).collect(joining(" "));
+        if (_xmls().size() == 0)
+            return "<" + _tag() + attrs + "/>";
+        else
+            return "<" + _tag() + attrs + ">\n" +
+                _xmls().stream().map(XML::show).collect(joining("\n")) + "\n</" + _tag() + ">";
+    }
+}
+
+@Obj
+interface Pos extends Show {
+    double _1();
+    double _2();
+    default Pos add(Pos other) {
+        return Pos.of(_1() + other._1(), _2() + other._2());
+    }
+    default Pos resize(double scale) {
+        return Pos.of(scale*_1(), scale*_2());
+    }
+    default String show() {
+        return _1() + "," + _2();
+    }
+    default List<Attr> toAttrs(String x, String y) {
+        return Arrays.asList(Attr.of(x, ""+_1()), Attr.of(y, ""+_2()));
+    }
+    default Pos conjugate() {
+        return Pos.of(_1(), -_2());
+    }
+}
 @Obj
 interface Family {
     /**
@@ -240,7 +308,10 @@ interface Family {
 
         default Extent toExtent() {
             return IntStream.range(0, _shapes().size())
-                .mapToObj(i -> _shapes().get(i).toExtent().transform(_transforms().get(i)))
+                .mapToObj(i -> {
+                  Extent e = _shapes().get(i).toExtent();
+                  Transform trans = _transforms().get(i);
+                  return Extent.of(trans.transform(e._p1()), trans.transform(e._p2())); })
                 .reduce(Extent::union)
                 .get();
         }
@@ -271,13 +342,6 @@ interface Family {
 }
 
 @Obj interface Debug extends Family {
-    interface Show { // bug: can not be extracted?
-        String show();
-        static String showList(List<? extends Show> xs) {
-            return xs.stream().map(x -> x.show()).collect(Collectors.joining(",", "[", "]"));
-        }
-    }
-
     interface Shape extends Show {}
 
     interface Rectangle {
@@ -298,7 +362,7 @@ interface Family {
     }
 
     interface Picture extends Show {
-        Drawing draw(); // bug: no refinement
+        @Override Drawing draw(); // bug: no refinement
     }
 
     interface Place {
@@ -432,8 +496,8 @@ public class Diagrams {
         return StrokeColor.of(col);
     }
 
-    static Picture place(Shape shape, StyleSheet styleSheet) {
-        return Place.of(shape, styleSheet);
+    static Picture place(Shape shape, Styling... styleSheet) {
+        return Place.of(shape, styleSheet(styleSheet));
     }
 
     static Picture beside(Picture p1, Picture p2) {
@@ -450,24 +514,22 @@ public class Diagrams {
     static Col red = Red.of();
     static Col green = Green.of();
 
-    static Picture human() {
-        StyleSheet sheet = styleSheet(fillColor(blue), strokeWidth(0));
-        Picture head = place(ellipse(3, 3), styleSheet(strokeWidth(0.1), strokeColor(black), fillColor(bisque)));
-        Picture arms = place(rectangle(10, 1), styleSheet(fillColor(red), strokeWidth(0)));
-        Picture upper = place(triangle(10), styleSheet(fillColor(red), strokeWidth(0)));
-        Picture leg = place(rectangle(1, 5), sheet);
-        Picture foot = place(rectangle(2, 1), sheet);
-        Picture legs = beside(beside(leg, place(rectangle(2, 5), styleSheet(strokeWidth(0)))), leg);
-        Picture foots = beside(beside(foot, place(rectangle(2, 1), styleSheet(strokeWidth(0)))), foot);
-        Picture human = above(above(above(above(head, arms), upper), legs), foots);
-        return human;
+    static Picture woman() {
+        Picture head = place(ellipse(3,3), strokeWidth(0.1), strokeColor(black), fillColor(bisque));
+        Picture arms = place(rectangle(10,1), fillColor(red), strokeWidth(0));
+        Picture upper = place(triangle(10), fillColor(red), strokeWidth(0));
+        Picture leg = place(rectangle(1,5), fillColor(blue), strokeWidth(0));
+        Picture foot = place(rectangle(2,1), fillColor(blue), strokeWidth(0));
+        return above(head, above(arms, above(upper,above(
+                beside(leg, beside(place(rectangle(2,5), strokeWidth(0)), leg)),
+                beside(foot, beside(place(rectangle(2,1), strokeWidth(0)), foot))))));
+
     }
 
     public static void main(String[] args) {
-        Path file = Paths.get("human.svg");
-        System.out.println(human().show());
-        System.out.println(human().draw().show());
-        XML xml = human().draw().toXML();
+        Path file = Paths.get("woman.svg");
+        System.out.println(woman().draw().show());
+        XML xml = woman().draw().toXML();
         try {
             Files.write(file, asList(xml.show()));
         } catch (IOException e) {
