@@ -86,7 +86,7 @@ be w k [] = Nil
 be w k ((i,x):z) = beaux w k i x z
 \end{lstlisting}
 In this case, \textsf{beaux} can be defined as an operation method \lstinline{beaux(int, int, int, List<Pair<int, Document>>)} inside the type \textsf{Document}, and
-its pattern matching corresponds to the default implementations in different member types (like \textsf{DNil}, \textsf{DConcat}, etc). On the other hand, \textsf{be} is implemented as a static method 
+its pattern matching corresponds to the default implementations in different member types (like \textsf{DNil}, \textsf{DConcat}, etc). On the other hand, \textsf{be} is implemented as a static method
 \lstinline{be(int, int, List<Pair<int, Document>>)} outside the member types.
 
 Finally we finished the refactoring of the pretty printer library using a set of extensible families with shallow DSLs and operations, and our
@@ -104,5 +104,5 @@ Finally we finished the refactoring of the pretty printer library using a set of
 \end{lstlisting}
 The method \textsf{group} calls the constructor method from \textsf{DUnion}, whereas such a member type will be updated in the
 child families, together with its constructors. To ensure type safety we are unable to reuse the code but just copy it and paste
-to the child families, and hence code duplication is introduced. The matter of extensible transformations will be further discussed
-in the next section.
+to the child families, and hence code duplication is introduced by the use of factory methods. The matter of extensible
+transformations will be further discussed in the next section.
