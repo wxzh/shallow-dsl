@@ -64,6 +64,28 @@ that depend on existing interpretations modularly like our approach.
 
 \paragraph{Family Polymorphism}
 
+There has been a lot of related work on family polymorphism[1], including various lightweight encodings[2,3,4,5]. In the original
+paper[1], nested classes are represented as attributes of an object, which involves a dependent type system. In [4], Saito and Igarashi
+proposed a lightweight variant of family polymorphism, which uses classes rather than objects to represent families. Later work in [4]
+proposes a simple extension to Featherweight Generic Java[6], introducing self-type variables. There are also some existing languages,
+like Scala, which supports symmetric mixin compositions and self-type annotations, hence can provide better support for encoding family
+polymorphism. Our lightweight encoding relies entirely on the existing Java language without language extensions, and certainly some features from
+the original paper are sacrificed, including the mismatching problem of recursive class definitions (also known as binary methods).
+
+On the other hand, our approach uses nested interfaces to build the relationship among families and members, which is different from
+path-dependent types in [1]. The work in [8] inspires us with the concept of higher-order hierarchies, and hence our \textsf{@Family} annotation
+provides support for nested families. Furthermore, our lightweight encoding of family polymorphism is polished with the help of annotation processing
+to generate constructor methods automatically.
+
+[1] family polymorphism
+[2] Lightweight scalable components
+[3] The essence of lightweight family polymorphism
+[4] Lightweight family polymorphism
+[5] Lightweight dependent classes
+[6] Featherweight Java
+[7] On binary method
+[8] Higher-order hierarchies
+
 \paragraph{ThisType}
 
 \paragraph{Multiple Inheritance}
