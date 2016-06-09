@@ -9,45 +9,53 @@ extensible transformations.
 
 \subsection{Scans}
 % statistics, pictures, implementation
-Section~\ref{} is based on our first case study, hence we discuss it briefly here.
-In the case study, we strictly follows the flow of the paper and implement all kinds of
-interpretations modularly, including \texttt{depth} and \texttt{layout} that are
-not discussed in Section~\ref{}.
-
-Starting from a data structure that describes the five constructs without any interpretations, we gradually add
+The first case study re-implements \dsl, which is discussed quite thoroughly in
+Section~\ref{}.
+We strictly follows the flow of the paper and introduce all kinds of
+interpretations modularly.
+Starting from a plain AST without any interpretations in the base family, we gradually add
 \texttt{depth}, \texttt{width}, \texttt{wellSized}, \texttt{layout} and
-\texttt{tlayout} through extending the family.
+\texttt{tlayout} methods through extending the family.
 
-To make our DSL more user-friendly, we defined some wrappers for constructing
-circuits conveniently. Afterwards, we can construct a circuit this way:
+The following shows the client code:
 \begin{lstlisting}
 Circuit circuit =
-  fan(2).beside(fan(2))
-  .above(fan(2).stretch(2,2))
-  .above(id(1).beside(fan(2)).beside(id(1)));
+  above(beside(fan(2), fan(2)),
+  above(stretch(fan(2),2,2),
+  beside(id(1), beside(fan(2), id(1)))));
 \end{lstlisting}
-For primitives like \texttt{fan}, we define a static method and for binary
-combinators like \texttt{above}, we define a default method on the \texttt{Circuit}.
 
-Additionally, we extend the language with a \texttt{draw} method which renders a
+To simplify client code, we defined wrappers around \texttt{of} methods
+for conveniently constructing circuits. For instance, the wrapper for
+\texttt{Fan} is defined as follows:
+\begin{lstlisting}
+static Fan fan(int n) {
+  return Fan.of(n);
+}
+\end{lstlisting}
+The \texttt{circuit} object supports all the methods stated above.
+Additionally, we introduce a \texttt{draw} method which renders a
 circuit using Java Swing.
-Calling \texttt{circuit.draw()} on the \texttt{circuit} we just defined will
-display what Figure~\ref{} shows.
+Calling \texttt{circuit.draw()} on the \texttt{circuit} will
+display what Figure~\ref{sec:} shows.
 
-% show Java swing output
+% show Java Swing figure
 \begin{figure}
 \end{figure}
 
 \input{sections/CaseStudyPPrinter.tex}
 
-
-
 \subsection{Diagrams}
-\emph{Diagrams}~\cite{} is a powerful, flexible, declarative Haskell DSL for creating vector graphics.
-This case study implements a simplified version of \emph{Diagrams} from
-Gibbons's lecture notes ~\cite{}.
-The DSL consists of three simpler sub-languages for describing shapes, colors, styles.
+\emph{diagrams}~\cite{yates2015diagrams} is a declarative Haskell EDSL for creating vector graphics.
+This case study implements a simplified version of \emph{diagrams} from
+Gibbons's lecture notes~\cite{gibbonsexercises}.
+
+\subsubsection{The Language}
+The DSL consists of three simpler sub-languages for describing shapes, styles
+and pictures. Note that all these definitions are put inside a base family.
+
 % Haskell code
+\begin{comment}
 \begin{lstlisting}[language=haskell]
 data Shape
   = Rectangle Double Double
@@ -67,85 +75,145 @@ data Picture
   | Above Picture Picture
   | Beside Picture Picture
 \end{lstlisting}
+\end{comment}
 
 \paragraph{Shapes}
-There are three primitive shapes - rectangle, ellipse and triangle.
+Shapes are fundamental components of a picture. The sub-language provides three
+primitives for constructing rectangles, ellipses and triangles:
 
-\begin{lstlisting}
-interface Shape {}
-interface Rectangle extends Shape {
-    double _x(); double _y();
-}
-interface Ellipse extends Shape {
-    double _rx(); double _ry();
-}
-interface Triangle extends Shape {
-    double _l();
-}
-\end{lstlisting}
+\lstinputlisting[linerange=111-120]{../src/diagrams/Diagrams.java}%APPLY:SHAPE
 
 \paragraph{Styles}
 A shape can be decorated with drawing styles. A \texttt{StyleSheet} contains a
-list of \texttt{Stylings} where fill color, stroke color or stroke width can be specified.
-\begin{lstlisting}
-interface StyleSheet {
-    List<? extends Styling> _stylings();
-}
-interface Styling {}
-interface FillColor extends Styling {
-    Col _color();
-}
-interface StrokeColor extends Styling {
-    Col _color();
-}
-interface StrokeWidth extends Styling {
-    double _width();
-}
-\end{lstlisting}
-\texttt{Col} is also a data structure that describes the supported colors.
-\begin{lstlisting}
-interface Col {}
-interface Red extends Col {}
-interface Blue extends Col {}
-interface Green extends Col {}
-interface Yellow extends Col {}
-interface Bisque extends Col {}
-interface Black extends Col {}
-\end{lstlisting}
+list of \texttt{Stylings} for specifying fill color, stroke color or stroke width:
+
+\lstinputlisting[linerange=124-136]{../src/diagrams/Diagrams.java}%APPLY:STYLE
+\lstinputlisting[linerange=140-145]{../src/diagrams/Diagrams.java}%APPLY:COLOR
+
+The definition of \texttt{StyleSheet} reveals how to deal with lists or more generally
+collection types in \name. We capture the element type using a wildcard with an upper
+bound (\texttt{? extends Styling}) to model covariant lists. This allows the
+upper bound to be refined with its subtype in extensions. As a result, we are
+able to invoke new interpretations on elements of the list.
+
 
 \paragraph{Pictures}
+Provided with a \texttt{StyleSheet}, a \texttt{Shape} can be lifted to a
+\texttt{Picture} using \texttt{Place}. Meanwhile, two pictures can be
+combined together vertically or horizontally via binary combinator
+\texttt{Above} and \texttt{Beside} respectively:
+
+\lstinputlisting[linerange=151-160]{../src/diagrams/Diagrams.java}%APPLY:PICTURE
+
+We can already draw simple pictures based on existing definitions.
+For example, Figure~\ref{woman} (with auxiliary wrappers defined) shows
+a woman in a red dress and blue stockings.
+To actually visualize the picture as shown in the right hand side of
+Figure~\ref{woman}, we give semantics to the language for accomplishing this goal.
+
+\begin{figure*}
+  \begin{tabular}{lr}
+\begin{minipage}[t]{.9\textwidth}
+\lstinputlisting[linerange=530-537]{../src/diagrams/Diagrams.java}%APPLY:WOMAN
+\end{minipage}
+&
+\begin{minipage}[t]{.1\textwidth}
+  \vspace{0.2em}
+\includegraphics[width=1.3cm]{woman.png}
+\end{minipage} \\
+\end{tabular}
+\caption{A woman drawn in \emph{diagrams}}
+\label{woman}
+\end{figure*}
+
+\subsubsection{Animation}
+We use scalable vector graphics (SVG) as the backend for rendering
+pictures.
+SVG aligns styled shapes by center, which requires us to determine a center
+point of a picture as the origin of coordinate, and calculate
+positions of all the shapes inside the picture accordingly.
+To represent a position in the coordinates we define \texttt{Pos}:
 \begin{lstlisting}
-interface Picture {}
-interface Place extends Picture {
-    Shape _s(); StyleSheet _ss();
+@Obj interface Pos {
+    double _x(); double _y();
 }
-interface Above extends Picture {
-    Picture _p1(); Picture _p2();
+\end{lstlisting}
+The position of a shape can then be determined by a pair of \texttt{Pos}, called
+an extent,
+locating the lower left and upper right conners:
+\begin{lstlisting}
+@Obj interface Extent {
+    Pos _p1(); Pos _p2();
 }
-interface Beside extends Picture {
-    Picture _p1(); Picture _p2();
+\end{lstlisting}
+Their definitions are stable so we put them out of the family and annotated
+with \texttt{@Obj}.
+
+Given an individual shape, its extent can be calculated according to its type.
+We therefore extend \texttt{Shape} with a \texttt{toExtent} method:
+
+\begin{lstlisting}
+    interface Shape {
+        Extent toExtent();
+    }
+\end{lstlisting}
+
+When pictures are combined together, the center point is changed and hence the
+positions of shapes in both pictures should all be recalculated.
+The transformation sub-language records how to adjust those positions,
+which includes identity transformation, translations, and compositions of the two:
+
+\lstinputlisting[linerange=300-319]{../src/diagrams/Diagrams.java}%APPLY:TRANSFORM
+
+\paragraph{Drawing}
+To easily translate a \texttt{Picture} into SVG format, we flatten the recursively structured pictures into a non-empty
+sequence of transformed styled shapes.
+\texttt{Drawing} contains three lists of the same length carrying all the
+information needed for generating a SVG file:
+
+\begin{lstlisting}
+interface Drawing {
+    List<? extends Shape> _shapes();
+    List<? extends StyleSheet> _styles();
+    List<? extends Transform> _transforms();
 }
 \end{lstlisting}
 
-Provided with a \texttt{StyleSheet}, a shape can be lifted to a picture using
-\texttt{Place}. And pictures can be merged using \texttt{Above} or
-\texttt{Beside}: the former combines two pictures vertically whereas the latter
-combines two pictures horizontally.
+% Step 1: Picture to Drawing
+To generate a \texttt{Drawing} from a \texttt{Picture}, we extend the
+\texttt{Picture} hierarchy with a \texttt{draw} method:
+\lstinputlisting[linerange=268-270]{../src/diagrams/Diagrams.java}%APPLY:DRAW
+For Place,
 
-With these three main data structure, we can draw a picture.
 
-\subsubsection{Rendering}
-We render our fancy picture using scalable vector graphics (SVG) as our backend.
-To do so, we need to flatten the picture which is recursively constructed.
+% The implementation for each case is omitted here for space reasons.
 
-SVG is based on XML and hence we define to model a XML file.
+% Step 2: Drawing to XML
+SVG is based on XML and the structure of an XML file can be captured by following definitions:
+\begin{lstlisting}
+@Obj interface XML {
+    String _tag();
+    List<Attr> _attrs();
+    List<XML> _xmls();
+}
+@Obj interface Attr {
+    String _name();
+    String _value();
+}
+\end{lstlisting}
+We then define \texttt{toXML} method both in \texttt{Drawing} and \texttt{Shape}.
+\texttt{Drawing} builds up a complete XML by calling the \texttt{toXML} on each
+\texttt{Shape}.
 
-\paragraph{Transformations}
+The final step is to pretty print the content of an \texttt{XML} object and
+write it to an file with extension
+\emph{.svg}.
+Then open the file using a modern browser, you will see the right side of
+Figure~\ref{woman} appear on the screen.
 
-\subsubsection{Extensions}
+\subsubsection{Discussion}
 \cite{} contains exercises about extensions on the language, e.g.
 adding new shapes. The deep embedding approach in Haskell requires modifications on the ADTs
 whereas our approach can modularly introduce new language constructs.
-.
 Each sub-language retains independent extensibility.
 For example, we can add a \texttt{show} method for the purpose of debugging.

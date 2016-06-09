@@ -1,4 +1,4 @@
-\section{Shallow Object-Oriented Programming}
+\section{Shallow Object-Oriented Programming}\label{sec:oo}
 
 \begin{comment}
 Weixin writes this part.
@@ -16,9 +16,6 @@ programs.
 
 Show the correponding Java programs and the Java program 
 with transformation that we can port back to Haskell.
-
-Shallow embedding interpreter pattern
-Deep embedding visitor pattern
 \end{comment}
 
 In this section, we argue that \emph{shallow embedding} and straightforward OO
@@ -27,7 +24,7 @@ of the DSL presented in Gibbons and Wu's paper~\cite{} as the running example.
 We first give the original implementation of the language in shallow embedding
 and then gradually rewrite the definition into an ``OO style''. Also, we show how to do
 transformations in shallow embedding, which is typically thought to be the
-strength of deep embedding.
+privilege of deep embedding.
 
 \subsection{A DSL for Parallel Prefix Circuits}
 Consider an DSL named \dsl that models parallel circuits.
@@ -49,8 +46,6 @@ $$
 
 % BNF grammar should not contain left recursion and left factor, rewrite it
 % using descent recursion
-
-
 
 There are three constructs - two primitives
 \emph{identity} and \emph{fan} and one combinator \emph{beside}, whose
@@ -93,7 +88,8 @@ from the last one.
 However, the definition already approaches an OO program such that we can easily
 translate it into an OO language like Java:
 \lstinputlisting[linerange=7-26]{../src/paper/sec2/Circuit.java}%APPLY:CIRCUIT_OO
-where the datatype maps to the abstract class \texttt{Circuit} with its field declared as an abstract method.
+where the record type maps to the abstract class \texttt{Circuit} and field
+declaration becomes method declaration.
 Each case in the semantic function corresponds to an class and its parameters become fields of the class.
 And all the classes extends \texttt{Circuit} by giving \texttt{width} a definition.
 
@@ -112,7 +108,7 @@ language constructs that could be expressed by other language constructs without
 sacrificing the expressiveness of the language.
 In \dsl, the \emph{identity n} construct is such a syntactic sugar that can
 be rewritten via the following formula:
-$$identity\ n = (fan\ 1) \overbrace{\ beside\ (fan\ 1)}^{n-1}\ (n > 0)$$
+$$identity\ n = (fan\ 1) \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (n > 0)$$
 which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
 %Using the above formula, we can define a transformation that desugars every
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.

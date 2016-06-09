@@ -57,14 +57,14 @@ interface Attr extends Show {
 
 @Obj
 interface Extent extends Show {
-    Pos _p1();
-    Pos _p2();
+    Pos _l();
+    Pos _r();
     default Extent union(Extent e) {
-        return Extent.of(Pos.of(Math.min(_p1()._1(), e._p1()._1()), Math.min(_p1()._2(), e._p1()._2())),
-                Pos.of(Math.max(_p2()._1(), e._p2()._1()), Math.max(_p2()._2(), e._p2()._2())));
+        return Extent.of(Pos.of(Math.min(_l()._x(), e._l()._x()), Math.min(_l()._y(), e._l()._y())),
+                Pos.of(Math.max(_r()._x(), e._r()._x()), Math.max(_r()._y(), e._r()._y())));
     }
     default String show() {
-        return "(" + _p1().show() + "," + _p2().show() + ")";
+        return "(" + _l().show() + "," + _r().show() + ")";
     }
 }
 
@@ -86,37 +86,89 @@ interface XML extends Show {
 
 @Obj
 interface Pos extends Show {
-    double _1();
-    double _2();
+    double _x();
+    double _y();
     default Pos add(Pos other) {
-        return Pos.of(_1() + other._1(), _2() + other._2());
+        return Pos.of(_x() + other._x(), _y() + other._y());
     }
     default Pos resize(double scale) {
-        return Pos.of(scale*_1(), scale*_2());
+        return Pos.of(scale*_x(), scale*_y());
     }
     default String show() {
-        return _1() + "," + _2();
+        return _x() + "," + _y();
     }
     default List<Attr> toAttrs(String x, String y) {
-        return Arrays.asList(Attr.of(x, ""+_1()), Attr.of(y, ""+_2()));
+        return Arrays.asList(Attr.of(x, ""+_x()), Attr.of(y, ""+_y()));
     }
     default Pos conjugate() {
-        return Pos.of(_1(), -_2());
+        return Pos.of(_x(), -_y());
     }
 }
+
 @Obj
-interface Family {
-    /**
-     * Shape
-     */
+interface AST {
+    //BEGIN_SHAPE
+    interface Shape { }
+    interface Rectangle extends Shape {
+        double _x(); double _y();
+    }
+    interface Ellipse extends Shape {
+        double _rx(); double _ry();
+    }
+    interface Triangle extends Shape {
+        double _l();
+    }
+    //END_SHAPE
+
+    //BEGIN_STYLE
+    interface StyleSheet {
+        List<? extends Styling> _stylings();
+    }
+    interface Styling {}
+    interface FillColor extends Styling {
+        Col _color();
+    }
+    interface StrokeColor extends Styling {
+        Col _color();
+    }
+    interface StrokeWidth extends Styling {
+        double _width();
+    }
+    //END_STYLE
+
+    //BEGIN_COLOR
+
+    interface Col {}
+    interface Red extends Col {}
+    interface Blue extends Col {}
+    interface Bisque extends Col {}
+    interface Black extends Col {}
+    //END_COLOR
+    interface Green extends Col {}
+    interface Yellow extends Col {}
+
+    //BEGIN_PICTURE
+    interface Picture {}
+    interface Place extends Picture {
+        Shape _s(); StyleSheet _ss();
+    }
+    interface Above extends Picture {
+        Picture _p1(); Picture _p2();
+    }
+    interface Beside extends Picture {
+        Picture _p1(); Picture _p2();
+    }
+    //END_PICTURE
+}
+
+@Obj
+interface SVG extends AST {
     interface Shape {
         Extent toExtent();
         XML toXML(List<Attr> styleAttrs, Transform trans);
     }
 
-    interface Rectangle extends Shape {
-        double _x();
-        double _y();
+    interface Rectangle {
         @Override default Extent toExtent() {
             return Extent.of(Pos.of(_x(), _y()).resize(-0.5), Pos.of(_x(), _y()).resize(0.5));
         }
@@ -128,11 +180,8 @@ interface Family {
         }
     }
 
-    interface Ellipse extends Shape {
-        double _rx();
-        double _ry();
-        @Override
-        default Extent toExtent() {
+    interface Ellipse {
+        @Override default Extent toExtent() {
             return Extent.of(Pos.of(-_rx(), -_ry()), Pos.of(_rx(), _ry()));
         }
         @Override default XML toXML(List<Attr> styleAttrs, Transform trans) {
@@ -143,8 +192,7 @@ interface Family {
         }
     }
 
-    interface Triangle extends Shape {
-        double _l();
+    interface Triangle {
         @Override default Extent toExtent() {
             double y = Math.sqrt(3)/4 * _l();
             return Extent.of(Pos.of(-_l()/2, -y), Pos.of(_l()/2, y));
@@ -160,11 +208,7 @@ interface Family {
         }
     }
 
-    /**
-     * Styling
-     */
     interface StyleSheet {
-        List<? extends Styling> _stylings();
         default List<Attr> _toAttrs() {
             boolean hasFill = false;
             List<Attr> attrs = new ArrayList<>();
@@ -182,124 +226,98 @@ interface Family {
         Attr toAttr();
     }
 
-    interface FillColor extends Styling {
-        Col _color();
+    interface FillColor {
         default Attr toAttr() {
             return Attr.of("fill", _color().show());
         }
     }
 
-    interface StrokeColor extends Styling {
-        Col _color();
+    interface StrokeColor {
         default Attr toAttr() {
             return Attr.of("stroke", _color().show());
         }
     }
 
-    interface StrokeWidth extends Styling {
-        double _width();
+    interface StrokeWidth {
         default Attr toAttr() {
             return Attr.of("stroke-width", ""+_width());
         }
     }
 
-    /**
-     * Color
-     */
-    interface Col {
-        String show();
-    }
-
-    interface Red extends Col {
+    interface Col extends Show {}
+    interface Red {
         @Override default String show() { return "red"; }
     }
-
-    interface Blue extends Col {
+    interface Blue {
         @Override default String show() { return "blue"; }
     }
-
-    interface Green extends Col {
+    interface Green {
         @Override default String show() { return "green"; }
     }
-
-    interface Yellow extends Col {
+    interface Yellow {
         @Override default String show() { return "yellow"; }
     }
-    interface Bisque extends Col {
+    interface Bisque {
         @Override default String show() { return "bisque"; }
     }
-    interface Black extends Col {
+    interface Black {
         @Override default String show() { return "black"; }
     }
 
-    /**
-     *  Picture
-     */
+    //BEGIN_DRAW
     interface Picture {
         Drawing draw();
     }
+    //END_DRAW
 
-    interface Place extends Picture {
-        Shape _s();
-        StyleSheet _ss();
+    interface Place {
         @Override default Drawing draw() {
           return Drawing.of(singletonList(_s()), singletonList(_ss()), singletonList(Identity.of()));
         }
     }
-
-    interface Above extends Picture {
-        Picture _p1();
-        Picture _p2();
+    interface Above {
         @Override default Drawing draw() {
             Drawing d1 = _p1().draw();
             Drawing d2 = _p2().draw();
             Extent e1 = d1.toExtent();
             Extent e2 = d2.toExtent();
-            Drawing t1 = d1.transform(Translate.of(Pos.of(0, e2._p2()._2())));
-            Drawing t2 = d2.transform(Translate.of(Pos.of(0, e1._p1()._2())));
+            Drawing t1 = d1.transform(Translate.of(Pos.of(0, e2._r()._y())));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(0, e1._l()._y())));
             return t1.merge(t2);
         }
     }
-
-    interface Beside extends Picture {
-        Picture _p1();
-        Picture _p2();
+    interface Beside {
         @Override default Drawing draw() {
             Drawing d1 = _p1().draw();
             Drawing d2 = _p2().draw();
-            Drawing t1 = d1.transform(Translate.of(Pos.of(d2.toExtent()._p1()._1(), 0)));
-            Drawing t2 = d2.transform(Translate.of(Pos.of(d1.toExtent()._p2()._1(), 0)));
+            Drawing t1 = d1.transform(Translate.of(Pos.of(d2.toExtent()._l()._x(), 0)));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(d1.toExtent()._r()._x(), 0)));
             return t1.merge(t2);
         }
     }
 
-    /**
-     * Transform
-     */
+    //BEGIN_TRANSFORM
     interface Transform {
-        Pos transform(Pos pos);
+        Pos transform(Pos p);
     }
-
     interface Identity extends Transform {
-        @Override default Pos transform(Pos pos) {
-            return pos;
+        @Override default Pos transform(Pos p) {
+            return p;
         }
     }
-
     interface Translate extends Transform {
-        Pos _pos();
-        @Override default Pos transform(Pos pos) {
-            return _pos().add(pos);
+        Pos _p();
+        @Override default Pos transform(Pos p) {
+            return _p().add(p);
         }
     }
-
     interface Compose extends Transform {
-        Transform _t1();
-        Transform _t2();
-        @Override default Pos transform(Pos pos) {
-            return _t1().transform(_t2().transform(pos));
+        Transform _t1(); Transform _t2();
+        @Override default Pos transform(Pos p) {
+            return _t1().transform(_t2().transform(p));
         }
     }
+    //END_TRANSFORM
 
     interface Drawing {
         List<? extends Transform> _transforms();
@@ -311,7 +329,7 @@ interface Family {
                 .mapToObj(i -> {
                   Extent e = _shapes().get(i).toExtent();
                   Transform trans = _transforms().get(i);
-                  return Extent.of(trans.transform(e._p1()), trans.transform(e._p2())); })
+                  return Extent.of(trans.transform(e._l()), trans.transform(e._r())); })
                 .reduce(Extent::union)
                 .get();
         }
@@ -324,9 +342,9 @@ interface Family {
         default XML toXML() {
             int scale = 10;
             Extent e = toExtent();
-            Pos p1 = e._p1();
-            Pos p2 = e._p2();
-            Pos p = Pos.of(p2._1()-p1._1(), p2._2()-p1._2()).resize(scale);
+            Pos p1 = e._l();
+            Pos p2 = e._r();
+            Pos p = Pos.of(p2._x()-p1._x(), p2._y()-p1._y()).resize(scale);
             List<Attr> svgAttrs = new ArrayList<>(p.toAttrs("width", "height"));
             svgAttrs.add(Attr.of("viewBox", p1.resize(scale).show() + "," + p.show()));
             svgAttrs.add(Attr.of("xmlns", "http://www.w3.org/2000/svg"));
@@ -341,9 +359,8 @@ interface Family {
     }
 }
 
-@Obj interface Debug extends Family {
+@Obj interface Debug extends SVG {
     interface Shape extends Show {}
-
     interface Rectangle {
         @Override default String show() {
             return "(rectangle " + _x() + " " + _y() + ")";
@@ -354,7 +371,6 @@ interface Family {
             return "(ellipse " + _rx() + " " + _ry() + ")";
         }
     }
-
     interface Triangle {
         @Override default String show() {
             return "(triangle " + _l() + ")";
@@ -364,8 +380,8 @@ interface Family {
     interface Picture extends Show {
         @Override Drawing draw(); // bug: no refinement
     }
-
     interface Place {
+        Place with_s(Shape s);
         @Override default String show() {
             return "(place " + _s().show() + " " + _ss().show() + ")";
         }
@@ -373,7 +389,6 @@ interface Family {
           return Drawing.of(singletonList(_s()), singletonList(_ss()), singletonList(Identity.of()));
         }
     }
-
     interface Beside {
         Picture _p1();
         @Override default String show() {
@@ -382,12 +397,11 @@ interface Family {
         @Override default Drawing draw() {
             Drawing d1 = _p1().draw();
             Drawing d2 = _p2().draw();
-            Drawing t1 = d1.transform(Translate.of(Pos.of(d2.toExtent()._p1()._1(), 0)));
-            Drawing t2 = d2.transform(Translate.of(Pos.of(d1.toExtent()._p2()._1(), 0)));
+            Drawing t1 = d1.transform(Translate.of(Pos.of(d2.toExtent()._l()._x(), 0)));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(d1.toExtent()._r()._x(), 0)));
             return t1.merge(t2);
         }
     }
-
     interface Above {
         @Override default String show() {
             return "(above " + _p1().show() + " " + _p2().show() + ")";
@@ -397,8 +411,8 @@ interface Family {
             Drawing d2 = _p2().draw();
             Extent e1 = d1.toExtent();
             Extent e2 = d2.toExtent();
-            Drawing t1 = d1.transform(Translate.of(Pos.of(0, e2._p2()._2())));
-            Drawing t2 = d2.transform(Translate.of(Pos.of(0, e1._p1()._2())));
+            Drawing t1 = d1.transform(Translate.of(Pos.of(0, e2._r()._y())));
+            Drawing t2 = d2.transform(Translate.of(Pos.of(0, e1._l()._y())));
             return t1.merge(t2);
         }
     }
@@ -408,9 +422,7 @@ interface Family {
             return Show.showList(_stylings());
         }
     }
-
     interface Styling extends Show {}
-
     interface StrokeColor {
         @Override default String show() {
             return "StrokeColor " + _color().show();
@@ -440,7 +452,7 @@ interface Family {
     }
     interface Translate {
         @Override default String show() {
-            return "translate " + _pos().show();
+            return "translate " + _p().show();
         }
     }
 
@@ -450,7 +462,6 @@ interface Family {
                     + "style sheets: " + Show.showList(_styles()) + "\n"
                     + "transforms: " + Show.showList(_transforms()) + "\n";
         }
-
         default Drawing transform(Transform trans) {
             return Drawing.of(_shapes(), _styles(), _transforms().stream().map(t1 -> Compose.of(trans, t1)).collect(Collectors.toList()));
         }
@@ -484,27 +495,27 @@ public class Diagrams {
         return StyleSheet.of(asList(stylings));
     }
 
-    static Styling fillColor(Col col) {
+    static FillColor fillColor(Col col) {
         return FillColor.of(col);
     }
 
-    static Styling strokeWidth(double w) {
+    static StrokeWidth strokeWidth(double w) {
         return StrokeWidth.of(w);
     }
 
-    static Styling strokeColor(Col col) {
+    static StrokeColor strokeColor(Col col) {
         return StrokeColor.of(col);
     }
 
-    static Picture place(Shape shape, Styling... styleSheet) {
+    static Place place(Shape shape, Styling... styleSheet) {
         return Place.of(shape, styleSheet(styleSheet));
     }
 
-    static Picture beside(Picture p1, Picture p2) {
+    static Beside beside(Picture p1, Picture p2) {
         return Beside.of(p1, p2);
     }
 
-    static Picture above(Picture p1, Picture p2) {
+    static Above above(Picture p1, Picture p2) {
         return Above.of(p1, p2);
     }
 
@@ -515,15 +526,17 @@ public class Diagrams {
     static Col green = Green.of();
 
     static Picture woman() {
-        Picture head = place(ellipse(3,3), strokeWidth(0.1), strokeColor(black), fillColor(bisque));
-        Picture arms = place(rectangle(10,1), fillColor(red), strokeWidth(0));
-        Picture upper = place(triangle(10), fillColor(red), strokeWidth(0));
-        Picture leg = place(rectangle(1,5), fillColor(blue), strokeWidth(0));
-        Picture foot = place(rectangle(2,1), fillColor(blue), strokeWidth(0));
-        return above(head, above(arms, above(upper,above(
+        //BEGIN_WOMAN
+        Place head = place(ellipse(3,3), strokeWidth(0.1), strokeColor(black), fillColor(bisque));
+        Place arms = place(rectangle(10,1), fillColor(red), strokeWidth(0));
+        Place upper = arms.with_s(triangle(10));
+        Place leg = place(rectangle(1,5), fillColor(blue), strokeWidth(0));
+        Place foot = leg.with_s(rectangle(2,1));
+        Above woman = above(head, above(arms, above(upper,above(
                 beside(leg, beside(place(rectangle(2,5), strokeWidth(0)), leg)),
                 beside(foot, beside(place(rectangle(2,1), strokeWidth(0)), foot))))));
-
+        //END_WOMAN
+        return woman;
     }
 
     public static void main(String[] args) {

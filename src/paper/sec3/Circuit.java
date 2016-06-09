@@ -52,22 +52,31 @@ import lombok.Obj;
 }
 //END_MULTIPLE
 
-//BEGIN_DEPENDENT
-@Obj interface Dependent extends Multiple {
-  interface Stretch {
+//BEGIN_SYNTAX
+@Obj interface Syntax extends Init {
+  interface Stretch extends Circuit {
     List<Integer> _ns();
     Circuit _c();
     default int width() {
       return _ns().stream()
         .mapToInt(Integer::intValue).sum();
     }
+  }
+  interface Above extends Circuit {
+    Circuit _c1(); Circuit _c2();
+    default int width() { return _c1().width(); }
+  }
+}
+//END_SYNTAX
+
+//BEGIN_DEPENDENT
+@Obj interface Dependent extends Syntax, Multiple {
+  interface Stretch {
     default boolean wellSized() {
       return _ns().size() == _c().width();
     }
   }
   interface Above {
-    Circuit _c1(); Circuit _c2();
-    default int width() { return _c1().width(); }
     default boolean wellSized() {
       return _c1().wellSized() && _c2().wellSized()
         && _c1().width() == _c2().width();

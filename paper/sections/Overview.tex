@@ -61,8 +61,8 @@ For instance, the \texttt{of} method for \texttt{Beside} is:
 static Beside of(Circuit c1, Circuit c2) {
   return new Beside() {
     Circuit _c1 = c1; Circuit _c2 = c2;
-    public Circuit _c1() { return c1; }
-    public Circuit _c2() { return c2; }
+    public Circuit _c1() { return _c1; }
+    public Circuit _c2() { return _c2; }
   }
 }
 \end{lstlisting}
@@ -74,10 +74,10 @@ Defining additional interpretations is not so trivial for shallow embedding,
 especially for functional languages.
 Suppose that we want to have a function that checks whether a circuit is constructed correctly.
 
-Here comes the solution from Gibbons and Wu.
+Here comes the solution from Gibbons and Wu:
 \lstinputlisting[language=haskell,linerange=2-8]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
 where tuples are used to aggregate multiple interpretations in one definition.
-The way to introduce \texttt{desugar} in previous section is similar to this
+The way to introduce \texttt{desugar} in Section~\ref{sec:oo} is similar to this
 approach, where we use records instead.
 However, neither tuples nor records are extensible - whenever we need a new
 interpretation, we have to revise the original code, either expanding the arith of the
@@ -94,10 +94,10 @@ Through extending the \texttt{Init} family, the \texttt{width} method is
 inherited without duplicating its definition. This way we modularly extend the
 semantics.
 
-Note that we do not explicitly write down \texttt{extends} clauses in the
+Note that we do not explicitly write down \texttt{extends} clauses for known members in the
 extended family.
-Instead, they are inferred by \name according to their
-names and the inheritance relationship between families.
+Instead, \texttt{extends} clauses are inferred by \name according to their
+names and the inheritance relationship stated between families.
 After instrumentation done by \name, the definitions of \texttt{Circuit} and \texttt{Beside}
 would be:
 
@@ -110,9 +110,9 @@ interface Beside extends Circuit, Init.Beside {
   ... // wellSized implementation
 }
 \end{lstlisting}
-Interfaces from base families of the same name will be put after \texttt{extends} clause and the
-interface hierarchy of \texttt{Circuit} is preserved in the extended family.
-Moreover, \name re-declare getters in the extended \texttt{Beside} so that their return types are refined to be the new \texttt{Circuit}.
+The corresponding definitions from \texttt{Init} are inherited. For class-like
+interfaces like \texttt{Beside}, the new \texttt{Circuit} is also extended.
+Moreover, \name re-declare its getters so that their return types are refined to be the new \texttt{Circuit}.
 
 \subsection{Dependent Interpretations}
 Interpretations which depend on other interpretations are called \emph{dependent
@@ -150,9 +150,9 @@ Definitions of \texttt{wellSized} for the extended cases make it a dependent int
 rely on another method defined on the \texttt{Circuit}, \texttt{width}, for calculating the width of a circuit.
 
 Here, we show yet another appealing feature of \name - interpretation combination.
+That is, we can modularly merge interpretations defined for the same data structure together.
 The \texttt{Dependent} family combines two base families
 
-merge interpretations defined for the same data structure together.
 %Since \texttt{Circuit} in \texttt{Dependent} family extends the one from
 %\texttt{Init}, we can simply call \texttt{width} method on a
 %\texttt{Circuit} object when the width of a circuit is needed in the definition
@@ -223,7 +223,7 @@ Suppose that we would like to add two new constructs to the language:
 \emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
 summing up \emph{ns} and $above c_1 c_2$ combines two circuits of the same width vertically.
 With these new constructs, more complex circuits can be constructed.
-For example, Figure~\ref{} shows the circuit constructed by \emph{stretch [2,2,2] (fan 3) `beside` fan 1}.
+For example, Figure~\ref{sec:oo} shows the circuit constructed by \emph{stretch [2,2,2] (fan 3) `beside` fan 1}.
 
 To accomplish this task in Haskell, we can simply define two more cases,
 \texttt{stretch} and \texttt{above}, for the semantic function:
