@@ -1,12 +1,66 @@
 \section{Related Work}
 
-Weixin and Haoyuan.
-
 \paragraph{Deep and Shallow Embeddings}
+When designing embedded DSLs, there always exists a choice between deep
+embedding and shallow embedding.
+However, either approach has its own strengths and weakness.
+Deep embedding uses an AST to represent programs, allowing
+analyses, optimizations or further translation on the programs.
+Nonetheless, the AST definition is typically not extensible, as a result
+adding new language constructs becomes difficult.
 
-\paragraph{Modularity of DSLs?}
-Data types a la Carte; Finally Tagless; 
-Object Algebras
+Shallow embedding directly encodes the source language using the semantics of
+the host language bypassing an AST, which yields flexible and concise implementations.
+The dual problem in shallow embedding is that the semantic domain is fixed,
+making it hard to introduce new interpretations.
+Although Gibbons and Wu ~\cite{gibbons} showed that it is possible to define multiple
+interpretations via tuples, the encoding requires modifications on existing code.
+
+To enjoy the benefits of both techniques, \cite{svenningsson2012combining}
+combines deep and shallow embedding together, which uses shallow embedding to
+encode the surface language and translates it to a deeply embedded core language.
+Similarly, Yin-Yang~\cite{Jovanovic:2014:YCD:2658761.2658771} allows user
+program written in shallow embedding and automatically generates the deeply
+embedded version through Scala macros. Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at
+the same time so that clients can choose for a
+particular interpretation.
+Our approach, however, can be viewed as a hybrid of shallow and deep embedding -
+the encoding looks like shallow embedding while preserving the AST.
+
+%Hudak 1. building DSL 2. modular DSL
+
+% Our approach. The simplicity . The AST is preserved, allowing transformations
+
+\paragraph{Modularity of DSLs}
+How to add variants (language constructs) as well as operations
+(interpretations) modularly, a.k.a the Expression Problem (EP), is a hot research
+topic. There are many solutions to EP. We discuss some of them in
+OOP and in FP respectively.
+
+In OOP, the Vistor pattern is widely used for modeling languages, which is
+well-known for adding new operations easily. Many works
+have been done for making it possible to extend variants~\cite{oliveira07genericity,oliveira09modular}.
+%In fact, the Visitor pattern has a strong connection with deep and shallow embedding.
+% Specifically, the internal variant corresponds to shallow embedding whereas the external variant is equivalent to deep embedding.
+Object Algebras~\cite{bruno12oa} simplifies the solution, which is an variant of
+internal visitor pattern.
+ % However, this approach requires heavy encoding and advanced type system features in Scala.
+Another line of work is on OO decomposition. ~\cite{zenger} capture recursive
+arguments using virtual types with bounds. Wang and Oliveira~\cite{eptrivially16}
+uses covariant types, a common feature available in most OO languages, to achieve the same goal which is available in most OO languages.
+Compared to the Visitor pattern, the OO decomposition approach is simpler and our encoding is based on ~\cite{eptrivially16}.
+
+In FP, the two main solutions are \emph{finally
+  tagless}~\cite{carette2009finally} and \emph{data types a la
+  carte}~\cite{swierstra2008data} (DTC).
+Finally tagless approach uses a type class to abstract over all interpretations
+of the language. Concrete interpretations are given through creating a data type and
+making it an instance of that type.
+DTC represents language constructs separately and composes them together using
+extensible sums. However, not like OO languages which come with subtyping, one
+has to manually implement the subtyping machinery for variants.
+Moreover, neither DTC nor finally tagless approach can add new interpretations
+that depend on existing interpretations modularly like our approach.
 
 \paragraph{Family Polymorphism}
 
