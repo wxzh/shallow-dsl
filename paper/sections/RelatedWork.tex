@@ -46,9 +46,12 @@ Object Algebras~\cite{bruno12oa} simplifies the solution, which is an variant of
 internal visitor pattern.
  % However, this approach requires heavy encoding and advanced type system features in Scala.
 Another line of work is on OO decomposition. ~\cite{zenger} capture recursive
-arguments using virtual types with bounds. Wang and Oliveira~\cite{eptrivially16}
-uses covariant types, a common feature available in most OO languages, to achieve the same goal which is available in most OO languages.
-Compared to the Visitor pattern, the OO decomposition approach is simpler and our encoding is based on ~\cite{eptrivially16}.
+arguments using virtual types with bounds using Scala. Wang and Oliveira~\cite{eptrivially16}
+uses covariant types, a common feature available in most OO languages, to
+achieve same goal, which is the basis of our approach.
+Compared to the Visitor pattern, the OO decomposition approach is simpler and
+our encoding is based on ~\cite{eptrivially16}. The
+naming problem for extensions is solved by family polymorphism.
 
 In FP, the two main solutions are \emph{finally
   tagless}~\cite{carette2009finally} and \emph{data types a la
@@ -59,8 +62,10 @@ making it an instance of that type.
 DTC represents language constructs separately and composes them together using
 extensible sums. However, not like OO languages which come with subtyping, one
 has to manually implement the subtyping machinery for variants.
-Moreover, neither DTC nor finally tagless approach can add new interpretations
-that depend on existing interpretations modularly like our approach.
+Moreover, both DTC and finally tagless approach force dependent interpretations
+to be defined along with what they depend on.
+This prevents new interpretation that depend on existing interpretations from
+being defined modularly while our approach does not have such requirement.
 
 \paragraph{Family Polymorphism}
 

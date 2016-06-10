@@ -159,6 +159,17 @@ interface AST {
         Picture _p1(); Picture _p2();
     }
     //END_PICTURE
+
+    //BEGIN_TRANSFORM
+    interface Transform {}
+    interface Identity extends Transform {}
+    interface Translate extends Transform {
+        Pos _p();
+    }
+    interface Compose extends Transform {
+        Transform _t1(); Transform _t2();
+    }
+    //END_TRANSFORM
 }
 
 @Obj
@@ -296,28 +307,24 @@ interface SVG extends AST {
         }
     }
 
-    //BEGIN_TRANSFORM
     interface Transform {
         Pos transform(Pos p);
     }
-    interface Identity extends Transform {
+    interface Identity {
         @Override default Pos transform(Pos p) {
             return p;
         }
     }
-    interface Translate extends Transform {
-        Pos _p();
+    interface Translate {
         @Override default Pos transform(Pos p) {
             return _p().add(p);
         }
     }
-    interface Compose extends Transform {
-        Transform _t1(); Transform _t2();
+    interface Compose {
         @Override default Pos transform(Pos p) {
             return _t1().transform(_t2().transform(p));
         }
     }
-    //END_TRANSFORM
 
     interface Drawing {
         List<? extends Transform> _transforms();

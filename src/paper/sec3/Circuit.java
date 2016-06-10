@@ -55,8 +55,7 @@ import lombok.Obj;
 //BEGIN_SYNTAX
 @Obj interface Syntax extends Init {
   interface Stretch extends Circuit {
-    List<Integer> _ns();
-    Circuit _c();
+    List<Integer> _ns(); Circuit _c();
     default int width() {
       return _ns().stream()
         .mapToInt(Integer::intValue).sum();

@@ -24,7 +24,7 @@ only one definition for each case. Gibbons and Wu summarized how to define
 various type of semantic functions (interpretations) in shallow embedding by
 applying \emph{fold theory}. However, the encoding is based on tuples, which is
 not modular extensible. Though they also presented modular solution based on
-datatype a lar carte\cite{}. But such solution changes the encoding style
+\emph{data types a la carte}\cite{swierstra2008data}. But such solution changes the encoding style
 dramatically and may be too complex to use practically.
 In contrast, the OO approach allows all kinds of
 interpretations to be defined in an modular intuitive way.
@@ -50,7 +50,7 @@ There are three main changes:
 1) All the original implementations are moved inside an interface \texttt{Init}; and
 2) The constructor classes are now interfaces for the purpose of employing
 multiple interface inheritance of Java;
-3) Fields of the classes become getter methods (starting with an underscore) so that their types can be refined for retaining extensibility~\cite{}.
+3) Fields of the classes become getter methods (starting with an underscore) so that their types can be refined for retaining extensibility~\cite{eptrivially16}.
 
 % introduce of method
 As classes are now interfaces, how can we create objects on them?
@@ -72,13 +72,11 @@ Inside the \texttt{of} method, an anonymous class that implements
 \subsection{Multiple Interpretations}
 Defining additional interpretations is not so trivial for shallow embedding,
 especially for functional languages.
-Suppose that we want to have a function that checks whether a circuit is constructed correctly.
-
-Here comes the solution from Gibbons and Wu:
+Suppose that we want to have a function that checks whether a circuit is constructed correctly. Here comes the solution from Gibbons and Wu:
 \lstinputlisting[language=haskell,linerange=2-8]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
-where tuples are used to aggregate multiple interpretations in one definition.
-The way to introduce \texttt{desugar} in Section~\ref{sec:oo} is similar to this
-approach, where we use records instead.
+Tuples are used to aggregate multiple interpretations in one definition.
+The way to introduce \texttt{desugar} demonstrated in Section~\ref{sec:oo} is similar to this
+approach, where records are used instead.
 However, neither tuples nor records are extensible - whenever we need a new
 interpretation, we have to revise the original code, either expanding the arith of the
 tuple or inserting a new field in the record.
@@ -117,22 +115,23 @@ Moreover, \name re-declare its getters so that their return types are refined to
 \subsection{Dependent Interpretations}
 Interpretations which depend on other interpretations are called \emph{dependent
   interpretation}. %They are hard to express modularly in traditional shallow embedding.
-Before we introduce an example of such interpretations, we first add two new
-constructs to our language:
-\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
-summing up \emph{ns} and $above\ c_1\ c_2$ combines two circuits of the same width vertically.
+Before we introduce an example of such interpretations, we first show how to add new
+constructs in \name.
+
+The new constructs are: \emph{stretch ns c} which inserts additional wires into the circuit \emph{c} by
+summing up \emph{ns} and $above\ c_1\ c_2$ which combines two circuits of the same width vertically.
 Their types are given below:
 \lstinputlisting[language=haskell,linerange=40-41]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
 
 
-%\lstinputlisting[linerange=56-69]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
+%\lstinputlisting[linerange=56-68]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
 %With these new constructs, more complex circuits can be constructed.
 %For example, Figure~\ref{} shows the circuit constructed by \emph{stretch
 %  [2,2,2] (fan 3) `beside` fan 1}.
 
-Adding new constructs in \name is easy: just we declare new class-like
+Adding new constructs in \name is easy - just we define new class-like
 interfaces in an extended family:
-\lstinputlisting[linerange=56-69]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
+\lstinputlisting[linerange=56-68]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
 Only definitions of the new constructs \texttt{Above} and \texttt{Stretch} are given.
 Their peer constructs and \texttt{Circuit} are implicitly re-declared by \name,
 e.g. \texttt{Fan}:
@@ -141,15 +140,20 @@ e.g. \texttt{Fan}:
 interface Fan extends Init.Fan {}
 \end{lstlisting}
 
-Not arbitrary circuits can be combined using \texttt{Above} and \texttt{Stretch}.
+Not arbitrary circuits can be combined using \texttt{Above} and \texttt{Stretch}
+as stated in their specifications.
 We hence define the \texttt{wellSized} method for these two new constructs to
 verify the constraints they imply:
-\lstinputlisting[linerange=73-85]{../src/paper/sec3/Circuit.java}%APPLY:DEPENDENT
+\lstinputlisting[linerange=72-84]{../src/paper/sec3/Circuit.java}%APPLY:DEPENDENT
 
 Definitions of \texttt{wellSized} for the extended cases make it a dependent interpretation, as they
 rely on another method defined on the \texttt{Circuit}, \texttt{width}, for calculating the width of a circuit.
+Most importantly, our approach do not force dependent interpretation to be
+defined together with what they depend on. In the case of \texttt{width} and
+\texttt{wellSized}, they can be defined in separate families as long as the
+signature of \texttt{width} is exposed to the definition of \texttt{wellSized}.
 
-Here, we show yet another appealing feature of \name - interpretation combination.
+The definition of \texttt{Dependent} shows yet another appealing feature of \name - interpretation combination.
 That is, we can modularly merge interpretations defined for the same data structure together.
 The \texttt{Dependent} family combines two base families
 
@@ -176,7 +180,7 @@ third layer has a connection from the first wire to the second.
 The method \texttt{tlayout} deduce the connections of a circuit. It additionally
 takes a parameter \texttt{}.
 
-\lstinputlisting[linerange=107-139]{../src/paper/sec3/Circuit.java}%APPLY:CONTEXT_SENSITIVE
+\lstinputlisting[linerange=106-138]{../src/paper/sec3/Circuit.java}%APPLY:CONTEXT_SENSITIVE
 
 \texttt{tlayout} takes a transformation over \texttt{IntUnaryOperator} is considered as the context which might be changed.
 The accumulating argument \texttt{f} is a transformation function over the indices of wires in a circuit.
@@ -199,7 +203,7 @@ together using multiple interface inheritance.
 
 For example, we can merge the interpretations we have defined so far in this way:
 
-\lstinputlisting[linerange=170-172]{../src/paper/sec3/Circuit.java}%APPLY:MERGE
+\lstinputlisting[linerange=169-171]{../src/paper/sec3/Circuit.java}%APPLY:MERGE
 Simply defining a new family \texttt{Merge} that extends other families we want
 to combine. \name will implicitly re-declare all the interfaces and inject the
 inheritance relationships. For example, the implicit redeclaration of
@@ -232,7 +236,7 @@ Similarly, defining two new interfaces
 \texttt{Stretch} and \texttt{Above} that both extend \texttt{Circuit} and
 implement the \texttt{width} method is all we need to do in Java:
 
-\lstinputlisting[linerange=56-69]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
+\lstinputlisting[linerange=56-68]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
 
 \subsection{Adding New Semantics}
 The new combinators, however, can not apply to arbitrary circuits - they have
@@ -291,7 +295,7 @@ manually refine the return type, as it is done by \name. Moreover, a static \tex
 method would be generated for class-like interfaces, serving as the constructor
 for the interface. For example, the \texttt{Beside} inside \texttt{Semantics} after code instrumentation will look like this:
 
-\lstinputlisting[linerange=177-189]{../src/paper/sec3/Circuit.java}%APPLY:INSTRUMENT
+\lstinputlisting[linerange=176-188]{../src/paper/sec3/Circuit.java}%APPLY:INSTRUMENT
 % TODO: not implemented yet
 Family polymorphism on only gives more safety on the client code but also helps
 language implementers catch bug early.

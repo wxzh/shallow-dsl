@@ -41,7 +41,7 @@ interface AST {
 }
 
 @Obj
-interface DepthFeature extends AST {
+interface Depth extends AST {
     interface Circuit {
         int depth();
     }
@@ -73,7 +73,7 @@ interface DepthFeature extends AST {
 }
 
 @Obj
-interface WidthFeature extends AST {
+interface Width extends AST {
     interface Circuit {
         int width();
     }
@@ -99,46 +99,46 @@ interface WidthFeature extends AST {
     }
     interface Stretch {
         default int width() {
-            return _ns().stream().reduce(0, (a, b) -> a + b);
+            return _ns().stream().reduce(0, Integer::sum);
         }
     }
 }
 
 
 @Obj
-interface WellSizeFeature extends WidthFeature, DepthFeature {
+interface WellSized extends Width, Depth {
     interface Circuit {
-        boolean wellSize();
+        boolean wellSized();
     }
     interface Identity {
-        default boolean wellSize() {
+        default boolean wellSized() {
             return true;
         }
     }
     interface Fan {
-        default boolean wellSize() {
+        default boolean wellSized() {
             return true;
         }
     }
     interface Above {
-        default boolean wellSize() {
-            return _c1().wellSize() && _c2().wellSize() && _c1().width() == _c2().width();
+        default boolean wellSized() {
+            return _c1().wellSized() && _c2().wellSized() && _c1().width() == _c2().width();
         }
     }
     interface Beside {
-        default boolean wellSize() {
-            return _c1().wellSize() && _c2().wellSize();
+        default boolean wellSized() {
+            return _c1().wellSized() && _c2().wellSized();
         }
     }
     interface Stretch {
-        default boolean wellSize() {
-            return _c().wellSize() && _ns().size() == _c().width();
+        default boolean wellSized() {
+            return _c().wellSized() && _ns().size() == _c().width();
         }
     }
 }
 
 @Obj
-interface ExtendedAST extends WellSizeFeature {
+interface ExtendedAST extends WellSized {
     interface RStretch extends Stretch {}
 }
 
@@ -169,13 +169,7 @@ interface LayoutFeature extends ExtendedAST {
     }
     interface Stretch {
         default Layout layout() {
-            int acc = 0;
-            List<Integer> _ns = new ArrayList<>();
-            for (int n : _ns()) {
-                _ns.add(n + acc - 1);
-                acc += n;
-            }
-            return _c().layout().map(i -> _ns.get(i));
+            return _c().layout().map(i -> scanl1(_ns(), Integer::sum).get(i) - 1);
         }
     }
     interface RStretch {
@@ -198,6 +192,19 @@ interface LayoutFeature extends ExtendedAST {
         int n = Math.min(l1.size(), l2.size());
         List<A> tail = l1.size() == n ? l2.subList(n, l2.size()) : l1.subList(n, l1.size());
         return concat(IntStream.range(0, n).mapToObj(i -> f.apply(l1.get(i), l2.get(i))).collect(toList()), tail);
+    }
+
+    static <E> List<E> scanl1(List<E> xs, BinaryOperator<E> f) {
+      E acc = xs.get(0);
+      List<E> res = new ArrayList<>();
+      res.add(acc);
+      E v;
+      for (int i = 1; i < xs.size(); i++) {
+        v = f.apply(xs.get(i), acc);
+        res.add(v);
+        acc = v;
+      }
+      return res;
     }
 }
 
@@ -275,14 +282,14 @@ public interface CircuitDSL extends TlayoutFeature {
                     frame.setTitle("Draw Circuit");
                     frame.setResizable(false);
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                    frame.getContentPane().add(new DrawCircuit(Circuit.this.tlayout(i -> i)));
+                    frame.getContentPane().add(new DrawCircuit(Circuit.this.tlayout(i->i)));
                     frame.pack();
                     frame.setVisible(true);
                 }
             );
         }
     }
-    static Circuit identity(int n) {
+    static Circuit id(int n) {
         return Identity.of(n);
     }
     static Circuit fan(int n) {

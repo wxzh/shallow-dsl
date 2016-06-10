@@ -36,7 +36,7 @@ static Fan fan(int n) {
 The \texttt{circuit} object supports all the methods stated above.
 Additionally, we introduce a \texttt{draw} method which renders a
 circuit using Java Swing.
-Calling \texttt{circuit.draw()} on the \texttt{circuit} will
+Calling \texttt{draw} on the \texttt{circuit} will
 display what Figure~\ref{sec:} shows.
 
 % show Java Swing figure
@@ -109,12 +109,12 @@ We can already draw simple pictures based on existing definitions.
 For example, Figure~\ref{woman} (with auxiliary wrappers defined) shows
 a woman in a red dress and blue stockings.
 To actually visualize the picture as shown in the right hand side of
-Figure~\ref{woman}, we give semantics to the language for accomplishing this goal.
+Figure~\ref{woman}, we need to give semantics to the language for animation.
 
 \begin{figure*}
   \begin{tabular}{lr}
 \begin{minipage}[t]{.9\textwidth}
-\lstinputlisting[linerange=530-537]{../src/diagrams/Diagrams.java}%APPLY:WOMAN
+\lstinputlisting[linerange=537-544]{../src/diagrams/Diagrams.java}%APPLY:WOMAN
 \end{minipage}
 &
 \begin{minipage}[t]{.1\textwidth}
@@ -146,7 +146,7 @@ locating the lower left and upper right conners:
     Pos _p1(); Pos _p2();
 }
 \end{lstlisting}
-Their definitions are stable so we put them out of the family and annotated
+These definitions are stable so we put them out of the family and annotated
 with \texttt{@Obj}.
 
 Given an individual shape, its extent can be calculated according to its type.
@@ -163,13 +163,11 @@ positions of shapes in both pictures should all be recalculated.
 The transformation sub-language records how to adjust those positions,
 which includes identity transformation, translations, and compositions of the two:
 
-\lstinputlisting[linerange=300-319]{../src/diagrams/Diagrams.java}%APPLY:TRANSFORM
+\lstinputlisting[linerange=164-171]{../src/diagrams/Diagrams.java}%APPLY:TRANSFORM
 
 \paragraph{Drawing}
 To easily translate a \texttt{Picture} into SVG format, we flatten the recursively structured pictures into a non-empty
-sequence of transformed styled shapes.
-\texttt{Drawing} contains three lists of the same length carrying all the
-information needed for generating a SVG file:
+sequence of transformed styled shapes, represented by \texttt{Drawing}:
 
 \begin{lstlisting}
 interface Drawing {
@@ -182,14 +180,13 @@ interface Drawing {
 % Step 1: Picture to Drawing
 To generate a \texttt{Drawing} from a \texttt{Picture}, we extend the
 \texttt{Picture} hierarchy with a \texttt{draw} method:
-\lstinputlisting[linerange=268-270]{../src/diagrams/Diagrams.java}%APPLY:DRAW
-For Place,
-
+\lstinputlisting[linerange=279-281]{../src/diagrams/Diagrams.java}%APPLY:DRAW
 
 % The implementation for each case is omitted here for space reasons.
 
 % Step 2: Drawing to XML
-SVG is based on XML and the structure of an XML file can be captured by following definitions:
+With all the necessary information contained in drawing, we can now generate the
+SVG file. SVG is based on XML and the structure of an XML file can be captured by following definitions:
 \begin{lstlisting}
 @Obj interface XML {
     String _tag();
@@ -197,23 +194,30 @@ SVG is based on XML and the structure of an XML file can be captured by followin
     List<XML> _xmls();
 }
 @Obj interface Attr {
-    String _name();
-    String _value();
+    String _name(); String _value();
 }
 \end{lstlisting}
-We then define \texttt{toXML} method both in \texttt{Drawing} and \texttt{Shape}.
-\texttt{Drawing} builds up a complete XML by calling the \texttt{toXML} on each
-\texttt{Shape}.
+We then extend a \texttt{toXML} method both in \texttt{Drawing} and \texttt{Shape}.
+\begin{lstlisting}
+interface Shape {
+  XML toXML(List<Attr> styleAttrs, Transform trans);
+}
+interface Drawing {
+  XML toXML();
+}
+\end{lstlisting}
+Calling \texttt{toXML} on a \texttt{Drawing} will builds up a complete XML by calling the \texttt{toXML} on each \texttt{Shape}.
 
 The final step is to pretty print the content of an \texttt{XML} object and
-write it to an file with extension
-\emph{.svg}.
-Then open the file using a modern browser, you will see the right side of
+save it to an file with the extension \emph{svg}.
+Then open the file with a modern browser, you will see the right side of
 Figure~\ref{woman} appear on the screen.
 
 \subsubsection{Discussion}
-\cite{} contains exercises about extensions on the language, e.g.
-adding new shapes. The deep embedding approach in Haskell requires modifications on the ADTs
-whereas our approach can modularly introduce new language constructs.
 Each sub-language retains independent extensibility.
+\cite{} contains exercises about extensions on the language, e.g.
+adding new shapes.
+The deep embedding approach in Haskell requires modifications on the ADTs
+whereas our approach can modularly introduce new language constructs.
+At the same time, new interpretations can be added modularly.
 For example, we can add a \texttt{show} method for the purpose of debugging.
