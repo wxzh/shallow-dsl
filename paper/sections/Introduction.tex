@@ -1,1 +1,78 @@
 \section{Introduction}
+
+Since Hudak's seminal paper on Embedded DSLs (EDSLs)~\cite{}, existing
+languages (such as Haskell) have been used to directly encode DSLs. Two common approaches to EDSLs are the
+so-called \emph{shallow} and \emph{deep} embeddings. The difference 
+between these two styles of embeddings is commonly described as 
+follows:
+
+\begin{quote}
+\emph{With a deep embedding, terms in the DSL are implemented simply to
+construct an abstract syntax tree (AST), which is subsequently
+transformed for optimization and traversed for evaluation. With a
+shallow embedding, terms in the DSL are implemented directly by
+their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons15folding}
+\end{quote}
+
+This definition seems to be widely accepted and similar definitions
+appear in many works~\cite{}. We believe that this definition is a
+vague and not very accurate, often leading to some contradicting
+claims. For example, in their work on EDSLs~\cite{}, Gibbons and Wu
+claim that deep embeddings (which encode ASTs using algebraic
+datatypes in Haskell) allow adding new DSL interpretations easily, but
+they make adding new language constructs difficult. In contrast
+Gibbons and Wu claim that shallow embeddings have dual modularity
+properties: new cases are easy to add, but new interpretations are
+hard.  A contradiction happens if instead of using Haskell and
+algebraic datatypes, one uses an OO language to encode an AST, for
+example with the {\sc Composite} pattern. In that case, according to
+definition of deep embedding above, the OO approach classifies as a
+deep embedding. Nevertheless, as the Expression Problem~\cite{} tell
+us, in the OO approach adding new cases is easy, but adding
+interpretations is hard. Thus we have a contradiction, since we have
+an AST representation (i.e. a deep embedding) with the modularity
+properties of shallow embeddings.
+
+We believe that the core of problem is that ASTs can be represented 
+in multiple ways. In particular, it is well know that functions alone 
+are enough to encode datastructures such as ASTs (via Church
+encodings~\cite{}). Distinguishing deep and shallow
+embeddings solely on whether a datastructure is being used 
+or whether functions are used to encode interpretations directly 
+falls short when the functions themselfves represent an AST. 
+
+In this paper we propose a different definition for deep and shallow
+embeddings, by distinguishing on what kind of data abstraction is used
+by each encoding. Deep embeddings use user-defined types
+(i.e. disjoint unions or algebraic datatypes), whereas shallow
+embeddings use procedural abstraction. This distinction is inspired by
+Reynolds 1975 paper~\cite{} on user-defined types and procedural
+abstraction being complementary approaches to data abstraction, which
+many view~\cite{} as the first documented discussion on the Expression
+Problem. 
+
+
+
+Shallow Embedded Domain Specific Languages (EDSLs) use
+\emph{procedural abstraction} to directly encode a Domain Specific
+Language into an existing host language. Procedural abstraction has
+been argued to be the essence of Object-Oriented Programming (OOP). Given
+that Object-Oriented Languages have evolved over more than 50 years 
+to improve the use of procedural abstraction, they ought to have some 
+advantages to encode shallow EDSLs. 
+
+This paper argues that OOP abstractions, including \emph{inheritance}
+and \emph{subtyping}, increase the modularity and reuse of shallow
+DSLs when compared to classical procedural abstraction. We make this
+argument by taking a recent paper by Gibbons and Wu, where procedural
+abstraction is used in Haskell to model a simple EDSL, and we recode
+that EDSL in Java. Although from the \emph{syntactical} point of view
+there are obvious disadvantages in the Java version, from the semantic
+and modularity point of view the Java version has clear advantages.
+To alleviate some of the syntactical disadvantages of Java, we create
+an annotation inspired by \emph{family polymorphism} and a recent
+solution to the Expression Problem. 
+The annotation uses transparent code generation techniques to
+automatically eliminate large portions of boilerplate code.
+To further illustrate the applicability of our tool and techniques, we conduct 
+several case studies using larger DSLs from the literature. 
