@@ -89,7 +89,7 @@ The implementation is still shallow since essentially it is nothing different
 from the last one.
 However, the definition already approaches an OO program such that we can easily
 translate it into an OO language like Java:
-\lstinputlisting[linerange=7-26]{../src/paper/sec2/Circuit.java}%APPLY:CIRCUIT_OO
+\lstinputlisting[linerange=2-13]{../src/scala/base/Circuit.scala}%APPLY:CIRCUIT_SCALA
 where the record type maps to the abstract class \texttt{Circuit} and field
 declaration becomes method declaration.
 Each case in the semantic function corresponds to an class and its parameters become fields of the class.
@@ -117,7 +117,7 @@ which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
 
 Implementing the desugaring method in Java could be:
-\lstinputlisting[linerange=31-61]{../src/paper/sec2/Circuit.java}%APPLY:DESUGAR_OO
+\lstinputlisting[linerange=3-20]{../src/scala/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
 The newly introduced method \texttt{desugar} in \texttt{Circuit} returns a \texttt{Circuit} reflecting that it is a transformation. The implementation of \texttt{desugar} for each case is
 straightforward: \emph{fan n} just returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
 their results into an instance of \texttt{Beside}; \emph{identity n} mimics the

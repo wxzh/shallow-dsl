@@ -48,8 +48,26 @@
 % \setlist[itemize]{noitemsep,nolistsep}
 % \setlist[enumerate]{noitemsep,nolistsep}
 
+\lstdefinelanguage{JavaScala}{
+  morekeywords={public,int,interface,implements,default,
+    abstract,case,void,catch,class,def,static,%
+    do,else,extends,false,final,finally,%
+    for,if,implicit,import,match,mixin,%
+    new,null,object,override,package,%
+    private,protected,requires,return,sealed,%
+    super,this,throw,trait,true,try,%
+    type,var,val,while,yield,with},
+  otherkeywords={=>,<-,<\%,<:,>:,\#,@},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[n]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+  morestring=[b]"""
+}
+
 \lstset{ %
-language=Java,                % choose the language of the code
+language=JavaScala,                % choose the language of the code
 columns=fullflexible,
 keepspaces=true,
 lineskip=-1pt,
