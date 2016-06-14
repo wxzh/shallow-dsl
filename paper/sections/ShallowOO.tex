@@ -20,11 +20,12 @@ with transformation that we can port back to Haskell.
 
 In this section, we argue that \emph{shallow embedding} and straightforward OO
 programming are closely related. To demonstrate it, we use a subset
-of the DSL presented in Gibbons and Wu's paper~\cite{} as the running example.
-We first give the original implementation of the language in shallow embedding
-and then gradually rewrite the definition into an ``OO style''. Also, we show how to do
-transformations in shallow embedding, which is typically thought to be the
-privilege of deep embedding.
+of the DSL presented in Gibbons and Wu's paper~\cite{gibbons2014folding} as the running example.
+We first give the original shallow embedded implementation of the language
+written in Haskell
+and gradually rewrite it approaching to an ``OO style''.
+Then translating the program into an OO version like Java becomes straightforward.
+We also illustrate how to do transformations in shallow embedding, which is typically regarded as the privilege of deep embedding.
 
 \subsection{A DSL for Parallel Prefix Circuits}
 Consider an DSL named \dsl that models parallel circuits.
@@ -53,7 +54,7 @@ meanings are: \emph{identity n} contains \emph{n} isolated vertical wires;
 \emph{fan n} contains \emph{n} vertical wires and the first wire connects to
 all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuits
 $c_1$ and $c_2$ horizontally.
-For example, the circuit \emph{fan 3 beside identity 3} can be visualized in Figure~\ref{}.
+For example, the circuit \emph{beside (fan 3) (identity 3)} can be visualized in Figure~\ref{}.
 
 \subsection{Shallow Embedding and Object-Oriented Programming}
 Different from deep embedding, which uses a data structure to represent the
@@ -67,21 +68,22 @@ The type \texttt{Circuit}, representing the semantic domain, is not defined yet
 and should be filled in later with a concrete type according to the semantics.
 For example, if the semantics of \dsl is to calculate the width of a
 circuit, the semantic function would be:
-\lstinputlisting[language=haskell,linerange=11-16]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
+\lstinputlisting[language=haskell,linerange=11-17]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
 As shallow embedding is semantics-oriented, it is already an integer after
 constructing a circuit and hence \texttt{width1} is an identity function.
 For example, we will immediately get $6$ for
-\texttt{fan 3 `beside` identity 3} and hence \texttt{width1} is just an identity function.
+\texttt{beside (fan 3) (identity 3)} and hence \texttt{width1} is just an identity function.
 
 The above implementation can be rewritten by wrapping the result into an
 datatype and get back the value through pattern matching:
-\lstinputlisting[language=haskell,linerange=20-26]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
-Then circuit construction gives back a \texttt{Circuit2} which contains an
-integer value representing the width and \texttt{width2} extracts out the value.
+\lstinputlisting[language=haskell,linerange=21-28]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
+% Then circuit construction gives back a \texttt{Circuit2} which contains an
+% integer value representing the width and \texttt{width2} extracts out the value.
+% Is this definition still shallow embedding?
 %One may be curious whether this variant implementation is still shallow embedding or not. The answer is yes because ... % why it is shallow
 
 The rewrite goes on by using a record with a sole field to represent the result:
-\lstinputlisting[language=haskell,linerange=31-36]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
+\lstinputlisting[language=haskell,linerange=33-38]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
 We no longer need a separate \texttt{width3} function as the field name is the extractor.
 The implementation is still shallow since essentially it is nothing different
 from the last one.
@@ -93,10 +95,11 @@ declaration becomes method declaration.
 Each case in the semantic function corresponds to an class and its parameters become fields of the class.
 And all the classes extends \texttt{Circuit} by giving \texttt{width} a definition.
 
-This implementation is exactly how we model \dsl in an OO language for the first
+This implementation is exactly how we would model \dsl in an OO language in the first
 place, following the \interp pattern.
 In other words, shallow embedding and straightforward OO programming are closely
-related (deep embedding is closely related to the \textsc{Visitor} pattern).
+related.
+It may worth mentioning that deep embedding is closely related to the \textsc{Visitor} pattern.
 
 \subsection{Transformations in Shallow Embedding}
 One of the main criticism of shallow embedding is that how to define transformations
@@ -108,7 +111,7 @@ language constructs that could be expressed by other language constructs without
 sacrificing the expressiveness of the language.
 In \dsl, the \emph{identity n} construct is such a syntactic sugar that can
 be rewritten via the following formula:
-$$identity\ n = (fan\ 1) \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (n > 0)$$
+$$identity\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)\ (n > 0)$$
 which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
 %Using the above formula, we can define a transformation that desugars every
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.

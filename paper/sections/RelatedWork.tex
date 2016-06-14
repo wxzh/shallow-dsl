@@ -16,16 +16,18 @@ making it hard to introduce new interpretations.
 Although Gibbons and Wu ~\cite{gibbons} showed that it is possible to define multiple
 interpretations via tuples, the encoding requires modifications on existing code.
 
-To enjoy the benefits of both techniques, \cite{svenningsson2012combining}
-combines deep and shallow embedding together, which uses shallow embedding to
+To enjoy the benefits of both techniques, Svenningsson and Axelsson~\cite{svenningsson2012combining}
+combine deep and shallow embedding together, which uses shallow embedding to
 encode the surface language and translates it to a deeply embedded core language.
-Similarly, Yin-Yang~\cite{Jovanovic:2014:YCD:2658761.2658771} allows user
+Similarly, \emph{Yin-Yang}~\cite{Jovanovic:2014:YCD:2658761.2658771} allows user
 program written in shallow embedding and automatically generates the deeply
 embedded version through Scala macros. Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at
-the same time so that clients can choose for a
-particular interpretation.
-Our approach, however, can be viewed as a hybrid of shallow and deep embedding -
-the encoding looks like shallow embedding while preserving the AST.
+the same time so that clients can choose for a particular interpretation.
+Scherr and Chiba~\cite{scherr2014implicit} uses \emph{implicit staging} to
+extract shallow EDSL part from a normal program and represent it in a form
+similar to AST, allowing optimizations to be performed.
+Our approach, however, supports transformations in the first place while retaining the
+simplicity of the shallow embedding.
 
 %Hudak 1. building DSL 2. modular DSL
 
@@ -45,10 +47,10 @@ have been done for making it possible to extend variants~\cite{oliveira07generic
 Object Algebras~\cite{bruno12oa} simplifies the solution, which is an variant of
 internal visitor pattern.
  % However, this approach requires heavy encoding and advanced type system features in Scala.
-Another line of work is on OO decomposition. ~\cite{zenger} capture recursive
+Another line of work is on OO decomposition. ~\cite{zenger05independentlyextensible} capture recursive
 arguments using virtual types with bounds using Scala. Wang and Oliveira~\cite{eptrivially16}
-uses covariant types, a common feature available in most OO languages, to
-achieve same goal, which is the basis of our approach.
+use covariant type refinements, a common feature available in conventional OO
+languages, to solve the EP, which is the basis of our approach.
 Compared to the Visitor pattern, the OO decomposition approach is simpler and
 our encoding is based on ~\cite{eptrivially16}. The
 naming problem for extensions is solved by family polymorphism.
@@ -65,7 +67,7 @@ has to manually implement the subtyping machinery for variants.
 Moreover, both DTC and finally tagless approach force dependent interpretations
 to be defined along with what they depend on.
 This prevents new interpretation that depend on existing interpretations from
-being defined modularly while our approach does not have such requirement.
+being defined modularly.
 
 \paragraph{Family Polymorphism}
 
