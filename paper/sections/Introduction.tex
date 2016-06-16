@@ -1,10 +1,10 @@
 \section{Introduction}
 
 Since Hudak's seminal paper on Embedded DSLs (EDSLs)~\cite{}, existing
-languages (such as Haskell) have been used to directly encode DSLs. Two common approaches to EDSLs are the
-so-called \emph{shallow} and \emph{deep} embeddings. The difference 
-between these two styles of embeddings is commonly described as 
-follows:
+languages (such as Haskell) have been used to directly encode
+DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
+and \emph{deep} embeddings. The difference between these two styles of
+embeddings is commonly described as follows:
 
 \begin{quote}
 \emph{With a deep embedding, terms in the DSL are implemented simply to
@@ -15,8 +15,8 @@ their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons
 \end{quote}
 
 This definition seems to be widely accepted and similar definitions
-appear in many works~\cite{}. We believe that this definition is a
-vague and not very accurate, often leading to some contradicting
+appear in many works~\cite{}. We believe that this definition is
+vague, and often leads to some contradicting
 claims. For example, in their work on EDSLs~\cite{}, Gibbons and Wu
 claim that deep embeddings (which encode ASTs using algebraic
 datatypes in Haskell) allow adding new DSL interpretations easily, but
@@ -33,15 +33,68 @@ interpretations is hard. Thus we have a contradiction, since we have
 an AST representation (i.e. a deep embedding) with the modularity
 properties of shallow embeddings.
 
-We believe that the core of problem is that ASTs can be represented 
-in multiple ways. In particular, it is well know that functions alone 
-are enough to encode datastructures such as ASTs (via Church
-encodings~\cite{}). Distinguishing deep and shallow
-embeddings solely on whether a datastructure is being used 
-or whether functions are used to encode interpretations directly 
-falls short when the functions themselfves represent an AST. 
+We believe that the core of problem is that ASTs can be represented in
+multiple ways. In particular, it is well know that functions alone are
+enough to encode datastructures such as ASTs (via Church
+encodings~\cite{}). Distinguishing deep and shallow embeddings based
+solely on whether a datastructure is being used or whether
+interpretation functions are used is misleading. Moreover, it gives
+the false impression that shallow embeddings are somewhat less
+expressive than deep embeddings, because they do not have access to
+the AST.
 
-In this paper we propose a different definition for deep and shallow
+In this paper we propose to distinguish EDSLs in terms of the data
+abstraction used to model the language constructs instead.  We follow
+Reynold's classification~\cite{} of data abstractions:
+\emph{procedural abstraction} and \emph{user-defined types}. It is
+clear that shallow embeddings use \emph{procedural
+  abstraction}~\cite{}: the DSLs are modelled by interpretation
+functions. Therefore, the other implementation option for EDSLs is to use
+\emph{user-defined types}. In Reynolds terminology user-defined types
+mean disjoint union types, which are nowadays commonly available in
+modern languages as \emph{algebraic datatypes}. Disjoint union types 
+can also be emulated in OOP using the {\sc Visitor} pattern.
+
+
+As Cook~\cite{} argued
+procedural abstraction is the essence of Object-Oriented
+Programming. If we accept Cook's view, the implementation of a shallow
+DSL in OOP languages should simply correspond to a standard
+object-oriented program. By identifying shallow EDSLs with procedural
+abstraction it is clear that an EDSL implemented in a functional
+language using an interpretation function is closely related to an
+Object-Oriented Program. The new interpretation of shallow EDSL
+removes the contradiction in Gibbons and Wu's work. Both the Haskell
+implementation of a shallow EDSL and the OOP program using the {\sc
+  Composite} pattern are now under the definition of shallow
+EDSL. Following Reynold's work on data abstraction~\cite{}, the other
+implementation option for EDSLs is to use \emph{user-defined
+  types}. In his original work user-defined types mean disjoint union
+types, which are nowadays commonly available in modern languages as
+\emph{algebraic datatypes}.
+
+
+By using the kind of data abstraction as a way to distinguish 
+between different implementations strategies for DSLs it is clear 
+that the OOP program and a correponding 
+
+
+Instead of shallow
+EDSLs, we prefer to talk about \emph{procedural} EDSLs. The new
+terminology is important for two reasons: 1) it is more precise; 
+2) procedural EDSLs emcompass a wider range 
+
+ not all procedural EDSLs  
+
+%However it is this, apparently harmless, translation step is
+%where the distinction between shallow and deep embeddings becomes
+%fuzzy, since it can be argued that the OO program represents an AST.
+
+
+
+Instead of deep embeddings, we prefer 
+
+propose a different definition for deep and shallow
 embeddings, by distinguishing on what kind of data abstraction is used
 by each encoding. Deep embeddings use user-defined types
 (i.e. disjoint unions or algebraic datatypes), whereas shallow
