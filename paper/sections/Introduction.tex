@@ -15,24 +15,48 @@ shallow embedding, terms in the DSL are implemented directly by
 their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons15folding}
 \end{quote}
 
+%\begin{comment}
 %This definition is widely accepted and similar definitions appear in
 %many other works~\cite{}. 
-We argue that this definition is vague,
-and often leads to some contradicting claims. For example, in their
-work on EDSLs~\cite{}, Gibbons and Wu claim that deep embeddings
-(which encode ASTs using algebraic datatypes in Haskell) allow adding
-new DSL interpretations easily, but they make adding new language
-constructs difficult. In contrast Gibbons and Wu claim that shallow
-embeddings have dual modularity properties: new cases are easy to add,
-but new interpretations are hard.  A contradiction happens if, instead
-of using Haskell and algebraic datatypes, one uses an OO language to
-encode an AST, for example with the {\sc Composite} pattern. In that
-case, \emph{according to definition of deep embedding above, the OO
-  approach classifies as a deep embedding}. Nevertheless, as the
-Expression Problem~\cite{} tell us, in the OO approach adding new
-language constructs is easy, but adding interpretations is hard. Thus
-we have a contradiction, since we have an AST representation (i.e. a
-deep embedding) with the modularity properties of shallow embeddings.
+%We argue that this definition is vague,
+%and often leads to some contradicting claims. 
+
+Although the above definition is quite reasonable and widely accepted,
+it leaves some space to (mis)interpretation. For example it is unclear 
+how to classify an EDSL using the {\sc Composite} or {\sc Interpreter} 
+patterns in OOP. Would this OO approach be
+classified as a shallow or deep embedding? We believe arguments can be
+made both ways. Since the {\sc Composite}
+pattern is normally accepted to be a way to encode ASTs, it would be
+reasonable to say that \emph{according to definition of deep embedding
+  above, the OO approach classifies as a deep
+  embedding}. However, as we shall argure in the remainder of the
+paper, another possible interpretation is that the OO approach is
+really a shallow embedding. At least some authors~\cite{} seem to agree with 
+the latter interpretation, but we believe that the current definition
+leaves some space open to interpretation.
+
+\begin{comment}
+For example, in their work
+on EDSLs~\cite{}, Gibbons and Wu claim that deep embeddings (which
+encode ASTs using algebraic datatypes in Haskell) allow adding new DSL
+interpretations easily, but they make adding new language constructs
+difficult. In contrast Gibbons and Wu claim that shallow embeddings
+have dual modularity properties: new cases are easy to add, but new
+interpretations are hard.  However what if, instead of using Haskell
+and algebraic datatypes, one uses an OO language to encode an AST, for
+example with the {\sc Composite} pattern.  Would this OO approach be
+classified as a shallow or deep embedding? We believe arguments can be
+made both ways. Since the {\sc Composite}
+pattern is normally accepted to be a way to encode ASTs, it would be
+reasonable to say that \emph{according to definition of deep embedding
+  above, the OO approach classifies as a deep
+  embedding}. Unfortunatelly this interpretation could be problematic.
+As the Expression Problem~\cite{} tell us,
+in the OO approach adding new language constructs is easy, but adding
+interpretations is hard. Thus this would contradict Gibbons and Wu's
+claims, since we have an AST representation (i.e. a deep embedding)
+with the modularity properties of shallow embeddings.
 
 We believe that the core of problem is that ASTs can be represented in
 multiple ways. In particular, it is well know that functions alone are
@@ -46,9 +70,10 @@ Gibbons and Wu themselves feel uneasy with the definition of shallow
 embeddings when they say:
 ``\emph{So it turns out that the syntax of the DSL is not really as ephemeral
 in a shallow embedding as Boulton's choice of terms suggests.}''
+\end{comment}
 
-
-A first goal in this paper is to propose distinguishing EDSLs in terms of the data
+To avoid confusion and make the terminology more precise, we first 
+propose distinguishing EDSLs in terms of the data
 abstraction used to model the language constructs instead.  We follow
 Reynold's classification~\cite{} of data abstractions:
 \emph{procedural abstraction} and \emph{user-defined types}. It is
@@ -59,14 +84,14 @@ functions. Therefore, the other implementation option for EDSLs is to use
 mean disjoint union types, which are nowadays commonly available in
 modern languages as \emph{algebraic datatypes}. Disjoint union types 
 can also be emulated in OOP using the {\sc Visitor} pattern. A
-distinction based on data abstraction provides a remedy for Gibbons 
-and Wu's contradiction. An EDSL implemented with algebraic
-datatypes falls into the category of user-defined types, 
+distinction based on data abstraction provides a remedy for possible
+misinterpretation. An EDSL implemented with algebraic
+datatypes falls into the category of user-defined types (deep embedding), 
 while a Composite-based OO implementation falls under procedural
-abstraction. For the rest of the paper we identify shallow EDSLs 
+abstraction (shallow embedding). For the rest of the paper we identify shallow EDSLs 
 with EDSLs implemented using procedural abstraction.
 
-The second and main goal of this paper is to show that OOP languages have
+This paper shows that OOP languages have
 advantages for the implementation of shallow embeddings.
 As Cook~\cite{} argued procedural abstraction is the essence of
 Object-Oriented Programming. If we accept Cook's view, the
