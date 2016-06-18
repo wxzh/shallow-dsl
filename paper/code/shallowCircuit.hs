@@ -24,7 +24,7 @@ fan2 n                              = Circuit2 n
 beside2 (Circuit2 c1) (Circuit2 c2) =
   Circuit2 $ c1 + c2
 
-width2              :: Circuit2 -> Int
+width2 :: Circuit2 -> Int
 width2 (Circuit2 n) = n
 --END_CIRCUIT2
 

@@ -1,0 +1,106 @@
+\section{Transformations in Shallow Embedding}
+Transformations are typically regarded as the privilege of deep embedding.
+Since there is not a data structure persisting the AST, how to define transformations
+becomes unclear, which becomes one of the main criticism of shallow embedding.
+It is not completely true especially for the OO setting.
+This section illustrates how to define various transformations in shallow embedding.
+%In fact, transformations can still be defined in shallow embedding.
+
+\subsection{Desugaring}
+Desugaring is one kind of transformations, which eliminates some
+language constructs that could be expressed by other constructs without
+sacrificing the expressiveness of the whole language.
+In \dsl, the \emph{identity n} construct is such a syntactic sugar that can
+be rewritten via the following formula:
+$$identity\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
+which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
+%Using the above formula, we can define a transformation that desugars every
+%occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
+
+Figure~\ref{code:desugar} shows how to implement desugaring in Scala.
+\begin{figure}
+\lstinputlisting[linerange=3-18]{../src/scala/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
+\caption{OO implementation of desugaring}
+\label{code:desugar}
+\end{figure}
+The newly introduced method \texttt{desugar} in \texttt{Circuit} returns a \texttt{Circuit} reflecting that it is a transformation. The implementation of \texttt{desugar} for each case is
+straightforward: \emph{fan n} just returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
+their results into an instance of \texttt{Beside}; \emph{identity n} mimics the
+formula.
+
+%\weixin{define a show function in the and show the result after desugaring?}
+Inspired by the Scala implementation, we can also define \texttt{desugar} in Haskell:
+
+\lstinputlisting[language=haskell,linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
+The definition relies on the laziness of Haskell.
+However, different from the Scala version, introducing \texttt{desugar} is done
+through modifying the original code by inserting a new field in the record.
+We will discuss modularity issues in detail in Section~\ref{}.
+
+\subsection{Sophisticated Optimizations}
+Sophisticated optimizations may need to inspect multiple internal
+representations of values.
+For example, we may want to merge consecutive vertical wires together:
+$$
+beside\ (identity\ m)\ (identity\ n) = identity\ (m + n)
+$$
+This rewrite rule applies only when both $c_1$ and $c_2$ of the $beside\ c_1\ c_2$
+are $identity$, which has to inspect the internal representation of $c_1$ and $c_2$ simultaneously.
+However, pattern matching can only be simulated only at the the top level, i.e. $beside$.
+There is no way to tell what the class types of $c_1$ and $c_2$ are.
+Fortunately, Scala has built-in support for pattern matching. Nevertheless, we
+can not simply decorate classes with \lstinline{case} modifier as
+it is not possible to have a case class that extends another case class.
+Alternatively, we define the \lstinline{unapply} method, a.k.a \emph{extractor}, in the companion object
+to tell the compiler how to destruct the object. Here comes the implementation
+of the above optimization:
+\lstinputlisting[linerange=2-20]{../src/scala/mergeIds/Circuit.scala}%APPLY:MERGEIDS_SCALA
+
+For other OO languages, it is still possible to simulate
+pattern matching through test methods or type test and type casts,
+although they may not be as elegant as extractors~\cite{emir2007matching}.
+Interested reader can refer to \ref{} for implementations using these approaches.
+
+\begin{comment}
+\paragraph{Test methods.}
+We can introduce some test methods to the hierarchy for determining the class
+type of object and extract information from it:
+\begin{lstlisting}
+  def fromId: Option[Int] = ...
+\end{lstlisting}
+Then
+\begin{lstlisting}
+(for {
+  i1 <- c1.fromId; i2 <- c2.fromId
+} yield new Id(i1+i2))
+.orElse(Some(new Beside(t1,t2))).get
+\end{lstlisting}
+
+\paragraph{Type test and type cast.}
+Each constructs is of different type. We can test its type and convert.
+\begin{lstlisting}
+(t1,t2) match {
+  case (i1: Id,i2: Id) => new Id(i1.n + i2.n)
+  case _ => new Beside(t1,t2)
+}
+\end{lstlisting}
+
+\paragraph{Extractors.}
+Scala supports pattern matching.
+one can manually implement an extractor, a.k.a \texttt{unapply}
+method, in the companion object to tell how to destruct an object.
+\begin{lstlisting}
+object Id {
+  def unapply(c: Identity) = Some(c.n)
+}
+
+(t1,t2) match {
+  case (Id(n1),Id(n2)) => Id(n1+n2)
+  case _ => Beside(t1,t2)
+}
+\end{lstlisting}
+
+Note that we can not simply decorate classes with \lstinline{case} modifier to
+automatically generate the \lstinline{unapply} method -
+it is not possible to have a case class that extends another case class.
+\end{comment}
