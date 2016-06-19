@@ -1,0 +1,138 @@
+\section{Modular EDSLs in OOP}
+This section shows that procedural abstraction mechanisms provided by OO
+languages improves the modularity and reusability of EDSLs, in particular
+subtyping and inheritance although most OO languages blend them together in one
+syntactic form.
+
+\subsection{Subtyping}
+Subtyping allows us separate interfaces and implementations, which
+encapsulates details of implementations and yields flexible design of EDSLs.
+Also, it forms the foundation of the \textsc{Composite} pattern,
+which enables us to composite instances of subtypes where a supertype is needed,
+following the Liskov substitution principle.
+
+Figure~\ref{code:base} illustrates the use of subtyping,
+where all the classes are subtype of the trait \lstinline{Circuit}.
+
+We can easily introduce new language constructs to \dsl by adding a new class to
+the hierarchy.
+For example, an \lstinline{above} combinator that combines two circuits vertically:
+\begin{lstlisting}
+class Above(val c1: Circuit, val c2: Circuit) extends Circuit {
+  def width = c1.width
+}
+\end{lstlisting}
+The new class works seamlessly with existing classes, as it is also a subtype of
+\lstinline{Circuit}. We can construct a circuit by a combination of old
+and new constructs:\\
+\lstinline{new Beside(new Above(new Fan(2),new Id(2)),new Id(3))}
+
+% type refinements
+% record subtyping.
+
+\subsection{Inheritance}
+Inheritance is critical for code reuse, which allows
+a class to obtain functionalities from other existing classes
+without duplicating the code.
+Moreover, the inherited functionality can be refined through method overriding
+and new functionalities can be introduced via defining new methods and
+fields.
+
+We have already shown how to reuse an EDSL through inheritance in Figure~\ref{code:desugar}.
+Instead of copying and pasting \lstinline{width} definition case by case
+from the old implementation to the new one, we define the new language through inheriting existing
+classes, e.g. \lstinline{class Fan extends base.Fan}.
+Additionally, we introduce a new method \lstinline{desugar} to the hierarchy.
+and gives a default implementation in \lstinline{Circuit} and override it when needed.
+Note that we do covariant type-refinements on fields of type \lstinline{Circuit} so that
+we can call \lstinline{desugar} method on them.
+
+% Overriding in FP
+One may argue that similar code reuse can be simulated in FP through reusing a record instance.
+In fact, it is more like composition than inheritance from the OO perspective.
+Inheritance plus dynamic dispatch maximize the code reuse for composition.
+Consider a simple example:
+
+\begin{lstlisting}[language=haskell]
+data T = T { f :: Int, g :: Int }
+a = T { f = g a, g = 0 }
+b = a { g = 1 }
+\end{lstlisting}
+Here, we want to reuse \lstinline{a} but ``override'' its \lstinline{g} field when defining \lstinline{b}.
+However, the expected result of calling \lstinline{f b} is 1 but it is indeed 0.
+The reason is that the \lstinline{f} field ``inherited'' from \lstinline{a} calls
+\lstinline{g} on the old instance rather than the new one.
+
+To make it clear, Figure~\ref{code:compare} give the corresponding OO implementation using composition
+and inheritance respectively.
+\begin{figure}
+\begin{tabular}{ll}
+\begin{minipage}{.25\textwidth}
+\begin{comment}
+\begin{lstlisting}
+trait T {
+  def f: Int
+  def g: Int
+}
+class A extends T {
+  def f = g
+  def g = 0
+}
+\end{lstlisting}
+\end{comment}
+\begin{lstlisting}
+object Composition {
+  class B(a: A) extends T {
+    def f = a.f
+    def g = 1
+  }
+  new B(new A).f // 0
+}
+\end{lstlisting}
+\end{minipage}
+&
+\begin{minipage}{.25\textwidth}
+\begin{lstlisting}
+object Inheritance {
+  class B extends A {
+    override def g = 1
+  }
+  (new B).f // 1
+}
+\end{lstlisting}
+\end{minipage}
+\end{tabular}
+\caption{Composition vs inheritance}
+\label{code:compare}
+\end{figure}
+In the case of inheritance, calling \lstinline{f} will execute the overridden \lstinline{g}
+as \lstinline{this} points to \lstinline{B} rather than \lstinline{A}.
+For compositions, a method can not be reused if when the implementation of what
+they depend on changes like \lstinline{f} in \lstinline{A}, even if the logic holds.
+OO languages provide these two options for reusing code.
+
+\subsection{Extensibility of EDSLs}
+As EDSLs evolve along the time, the need for new syntax and new semantics arises.
+This requires host languages equipped with extensibility mechanisms.
+OO languages give simple solution to the Expression Problem~\cite{eptrivially16}
+and hence are suitable host languages in terms of extensibility.
+
+We have already shown how to extend \dsl on these two dimensions modularly in an
+OO language: a new language construct \lstinline{Above} and a new interpretation function \lstinline{desugar}.
+
+Gibbons and Wu introduce new interpretations in a way similar to
+Figure~\ref{code:haskell} by appending the definition to a tuple,
+which requires revision on the original code.
+Though they also present a modular solution based on~\ref{swierstra2008data},
+the complexity of encoding increases significantly. Moreover, how to dependent
+interpretation modularly is not clear.
+
+\subsection{Discussion}
+There are certain kind of methods that are not reusable using the OO approach we
+presented, including transformations (or producer methods) and binary
+methods as discussed in~\ref{eptrivially16}.
+For transformations, we have to refine their return type in extensions and hence
+the original code can not be reused, resulting code duplications.
+For binary methods like equality, there is no way to refine the argument type.
+It is still possible to make it reusable by using virtual types in Scala to capture the type of \lstinline{this}~\ref{zenger}.
+However, this may significantly complicate the encoding.

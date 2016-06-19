@@ -23,17 +23,21 @@ Figure~\ref{code:desugar} shows how to implement desugaring in Scala.
 \caption{OO implementation of desugaring}
 \label{code:desugar}
 \end{figure}
-The newly introduced method \texttt{desugar} in \texttt{Circuit} returns a \texttt{Circuit} reflecting that it is a transformation. The implementation of \texttt{desugar} for each case is
+The newly introduced method \lstinline{desugar} in \lstinline{Circuit} returns a \lstinline{Circuit} reflecting that it is a transformation. The implementation of \lstinline{desugar} for each case is
 straightforward: \emph{fan n} just returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
-their results into an instance of \texttt{Beside}; \emph{identity n} mimics the
+their results into an instance of \lstinline{Beside}; \emph{identity n} mimics the
 formula.
 
 %\weixin{define a show function in the and show the result after desugaring?}
-Inspired by the Scala implementation, we can also define \texttt{desugar} in Haskell:
+Inspired by the Scala implementation, we can also define \lstinline{desugar} in Haskell:
 
+\begin{figure}
 \lstinputlisting[language=haskell,linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
+\caption{Haskell implementation of desugaring}
+\label{code:haskell}
+\end{figure}
 The definition relies on the laziness of Haskell.
-However, different from the Scala version, introducing \texttt{desugar} is done
+However, different from the Scala version, introducing \lstinline{desugar} is done
 through modifying the original code by inserting a new field in the record.
 We will discuss modularity issues in detail in Section~\ref{}.
 
@@ -87,7 +91,7 @@ Each constructs is of different type. We can test its type and convert.
 
 \paragraph{Extractors.}
 Scala supports pattern matching.
-one can manually implement an extractor, a.k.a \texttt{unapply}
+one can manually implement an extractor, a.k.a \lstinline{unapply}
 method, in the companion object to tell how to destruct an object.
 \begin{lstlisting}
 object Id {
