@@ -66,9 +66,8 @@ The reason is that the \lstinline{f} field ``inherited'' from \lstinline{a} call
 To make it clear, Figure~\ref{code:compare} give the corresponding OO implementation using composition
 and inheritance respectively.
 \begin{figure}
-\begin{tabular}{ll}
-\begin{minipage}{.25\textwidth}
-\begin{comment}
+\begin{tabular}{lll}
+\begin{minipage}{.17\textwidth}
 \begin{lstlisting}
 trait T {
   def f: Int
@@ -79,30 +78,28 @@ class A extends T {
   def g = 0
 }
 \end{lstlisting}
-\end{comment}
+\end{minipage}
+&
+\begin{minipage}{.17\textwidth}
 \begin{lstlisting}
-object Composition {
-  class B(a: A) extends T {
-    def f = a.f
-    def g = 1
-  }
-  new B(new A).f // 0
+class B(a: A) extends T {
+  def f = a.f
+  def g = 1
 }
+new B(new A).f// 0
 \end{lstlisting}
 \end{minipage}
 &
-\begin{minipage}{.25\textwidth}
+\begin{minipage}{.17\textwidth}
 \begin{lstlisting}
-object Inheritance {
-  class B extends A {
-    override def g = 1
-  }
-  (new B).f // 1
+class B extends A {
+  override def g = 1
 }
+(new B).f// 1
 \end{lstlisting}
 \end{minipage}
 \end{tabular}
-\caption{Composition vs inheritance}
+\caption{Composition (left) vs Inheritance (right)}
 \label{code:compare}
 \end{figure}
 In the case of inheritance, calling \lstinline{f} will execute the overridden \lstinline{g}
