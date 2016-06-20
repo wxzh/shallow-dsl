@@ -45,15 +45,11 @@ fileloc = {}
 beginpos = {}
 endpos = {}
 
-Dir['../src/*/*.java'].each do |file|
+Dir['../src/*/*.{java,scala}'].each do |file|
   scan(file, beginpos, endpos, fileloc)
 end
 
-Dir['../src/*/*/*.java'].each do |file|
-  scan(file, beginpos, endpos, fileloc)
-end
-
-Dir['../src/*/*/*.scala'].each do |file|
+Dir['../src/*/*/*.{java,scala}'].each do |file|
   scan(file, beginpos, endpos, fileloc)
 end
 
