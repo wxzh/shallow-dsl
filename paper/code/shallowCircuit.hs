@@ -18,23 +18,23 @@ width1 = id
 --END_CIRCUIT1
 
 --BEGIN_CIRCUIT2
-newtype Circuit2 = Circuit2 Int
-identity2 n                         = Circuit2 n
-fan2 n                              = Circuit2 n
-beside2 (Circuit2 c1) (Circuit2 c2) =
-  Circuit2 $ c1 + c2
+newtype Circuit3 = Circuit3 Int
+identity3 n                         = Circuit3 n
+fan3 n                              = Circuit3 n
+beside3 (Circuit3 c1) (Circuit3 c3) =
+  Circuit3 $ c1 + c3
 
-width2 :: Circuit2 -> Int
-width2 (Circuit2 n) = n
+width3 :: Circuit3 -> Int
+width3 (Circuit3 n) = n
 --END_CIRCUIT2
 
 
 --BEGIN_CIRCUIT3
-newtype Circuit3 = Circuit3 { width3 :: Int }
-identity3 n   = Circuit3 { width3 = n }
-fan3 n        = Circuit3 { width3 = n }
-beside3 c1 c2 = Circuit3 {
-  width3 = width3 c1 + width3 c2
+newtype Circuit2 = Circuit2 { width2 :: Int }
+identity2 n   = Circuit2 { width2 = n }
+fan2 n        = Circuit2 { width2 = n }
+beside2 c1 c2 = Circuit2 {
+  width2 = width2 c1 + width2 c2
 }
 --END_CIRCUIT3
 
