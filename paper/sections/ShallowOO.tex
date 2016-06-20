@@ -54,12 +54,12 @@ Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
 an shallow embedded implementation should conform to the following types:
 
-\lstinputlisting[language=haskell,linerange=2-2]{./code/shallowCircuit.hs}%APPLY:CIRCUIT_TYPE
-\lstinputlisting[language=haskell,linerange=5-7]{./code/shallowCircuit.hs}%APPLY:TYPES
+\lstinputlisting[linerange=2-2]{./code/shallowCircuit.hs}%APPLY:CIRCUIT_TYPE
+\lstinputlisting[linerange=5-7]{./code/shallowCircuit.hs}%APPLY:TYPES
 The type \lstinline{Circuit}, representing the semantic domain, is to be filled in with a concrete type according to the semantics.
 Suppose that the semantics of \dsl is to calculate the width of a
 circuit. The definitions would be:
-\lstinputlisting[language=haskell,linerange=11-17]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
+\lstinputlisting[linerange=11-17]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
 %As shallow embedding is semantics-oriented,
 \bruno{why is ``id'' in bold?}
 \lstinline{width1} is an identity function because \lstinline{Circuit} is a type
@@ -70,7 +70,7 @@ For example, we will immediately get $6$ for \lstinline{beside (fan 3) (identity
 
 A simple rewriting of the previous program is to wrap the result into an
 datatype, getting back the value through pattern matching:
-\lstinputlisting[language=haskell,linerange=21-28]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
+\lstinputlisting[linerange=21-28]{./code/shallowCircuit.hs}%APPLY:CIRCUIT2
 % Then circuit construction gives back a \lstinline{Circuit2} which contains an
 % integer value representing the width and \lstinline{width2} extracts out the value.
 % Is this definition still shallow embedding?
@@ -81,7 +81,7 @@ datatype, getting back the value through pattern matching:
 \paragraph{Towards OOP}
 A simple, \emph{semantics preserving}, rewriting of the above program 
 uses a record implemented as a newtype. The record has a sole field representing the result:
-\lstinputlisting[language=haskell,linerange=33-38]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
+\lstinputlisting[linerange=33-38]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
 \bruno{width3 should now be width2} 
 %We no longer need a separate \lstinline{width3} function as the field name is the extractor.
 The implementation is still shallow since essentially the same program
