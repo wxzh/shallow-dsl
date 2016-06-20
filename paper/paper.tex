@@ -50,7 +50,7 @@
 % \setlist[itemize]{noitemsep,nolistsep}
 % \setlist[enumerate]{noitemsep,nolistsep}
 
-\lstdefinelanguage{JavaScala}{
+\lstdefinelanguage{JavaScalaHaskell}{
   morekeywords={public,int,interface,implements,default,
     abstract,case,void,catch,class,def,static,%
     do,else,extends,false,final,finally,%
@@ -58,7 +58,7 @@
     new,null,object,override,package,%
     private,protected,requires,return,sealed,%
     super,this,throw,trait,true,try,%
-    type,var,val,while,yield,with},
+    type,var,val,while,yield,with,data,type,newtype},
   otherkeywords={=>,<-,<\%,<:,>:,\#,@},
   sensitive=true,
   morecomment=[l]{//},
@@ -69,7 +69,7 @@
 }
 
 \lstset{ %
-language=JavaScala,                % choose the language of the code
+language=JavaScalaHaskell,                % choose the language of the code
 columns=fullflexible,
 keepspaces=true,
 lineskip=-1pt,
