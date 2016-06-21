@@ -3,8 +3,6 @@ package desugar
 //BEGIN_DESUGAR_SCALA
 trait Circuit extends width.Circuit {
   def desugar: Circuit = this
-  type Layout = List[List[Tuple2[Int,Int]]]
-  def tlayout(f: Int => Int): Layout
 }
 trait Fan extends width.Fan with Circuit
 object Fan {
