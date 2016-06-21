@@ -1,31 +1,32 @@
 \section{Transformations in Shallow Embeddings}
-Transformations are typically regarded as the privilege of deep embedding.
+Transformations are typically regarded as the privilege of deep embeddings.
 Since there is not a data structure persisting the AST, how to define transformations
-becomes unclear, which becomes one of the main criticism of shallow embedding.
-It is not completely true especially for the OO setting.
-This section illustrates how to define various transformations in shallow embedding.
+becomes unclear.
+It is not completely true, especially for the OO approach.
+This section illustrates how to define various transformations, the missing
+kind of interpretations in Gibbons and Wu's paper, in shallow embeddings.
 %In fact, transformations can still be defined in shallow embedding.
 
 \subsection{Desugaring}
 Desugaring is one kind of transformations, which eliminates some
-language constructs that could be expressed by other constructs without
-sacrificing the expressiveness of the whole language.
-In \dsl, the \emph{identity n} construct is such a syntactic sugar that can
+language constructs without sacrificing the expressiveness of the whole language.
+In \dsl, the \emph{id} construct is such a syntactic sugar that can
 be rewritten via the following formula:
-$$identity\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
-which states that \emph{identity n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
+$$id\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
+which states that \emph{id n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
 %Using the above formula, we can define a transformation that desugars every
 %occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
 
-Figure~\ref{code:desugar} shows how to implement desugaring in Scala.
+Figure~\ref{code:desugar} shows how to eliminate \lstinline{Id} construct in Scala.
 \begin{figure}
 \lstinputlisting[linerange=4-23]{../src/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
 \caption{OO implementation of desugaring}
 \label{code:desugar}
 \end{figure}
-The newly introduced method \lstinline{desugar} in \lstinline{Circuit} returns a \lstinline{Circuit} reflecting that it is a transformation. The implementation of \lstinline{desugar} for each case is
-straightforward: \emph{fan n} just returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
-their results into an instance of \lstinline{Beside}; \emph{identity n} mimics the
+The newly introduced method \lstinline{desugar} in \lstinline{Circuit} returns a
+\lstinline{Circuit} reflecting the nature of a transformation. The implementation of \lstinline{desugar} for each case is
+straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ recursively desugars $c_1$ and $c_2$ then wraps back
+their results into an instance of \lstinline{Beside}; \emph{id n} just mimics the
 formula.
 
 %\weixin{define a show function in the and show the result after desugaring?}
@@ -36,19 +37,18 @@ which relies on the laziness of Haskell.
 \subsection{Sophisticated Optimizations}
 Sophisticated optimizations may need to inspect multiple internal
 representations of values.
-Suppose we want to merge consecutive vertical wires together:
+Suppose we want to merge consecutive vertical wires:
 $$
-beside\ (identity\ m)\ (identity\ n) = identity\ (m + n)
+beside\ (id\ m)\ (id\ n) = id\ (m + n)
 $$
 This rewrite rule applies only when both $c_1$ and $c_2$ of the $beside\ c_1\ c_2$
-are $identity$, which has to inspect the internal representation of $c_1$ and $c_2$ simultaneously.
+are $id$, which has to inspect the internal representation of $c_1$ and $c_2$ simultaneously.
 However, pattern matching can only be simulated only at the the top level, i.e. $beside$.
-There is no way to tell what the class types of $c_1$ and $c_2$ are.
-Fortunately, Scala has built-in support for pattern matching. Nevertheless, we
-can not simply decorate classes with \lstinline{case} modifier as
-it is not possible to have a case class that extends another case class.
-Alternatively, we define the \lstinline{unapply} method, a.k.a \emph{extractor}, in the companion object
-to tell the compiler how to destruct the object. Here comes the implementation
+There is no easy way to destruct $c_1$ and $c_2$.
+Fortunately, Scala has built-in support for pattern matching. For extensibility reasons, we
+can not simply decorate classes with \lstinline{case} modifier.
+% as it is not possible to have a case class that extends another case class.
+Alternatively, we manually define the \lstinline{unapply} method, a.k.a \emph{extractor}, in the companion object. Here comes the implementation
 of the above optimization:
 \lstinputlisting[linerange=4-22]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 

@@ -1,18 +1,5 @@
 \section{Interpretations in Shallow Embeddings}
 
-\begin{comment}
-Weixin writes this one.
-
-Go over jeremy's examples, maybe having only 3 diagram 
-constructs instead of 5 for space reasons.
-
-Use five constructs to show extensibility.
-
-Think of how to introduce our tool? Using the Jeremy's examples? 
-or introducing before with some other examples?
-
-\end{comment}
-
 A well-known limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu worked around this problem by accommodating
 multiple interpretations using tuples and summarized how to define various types
@@ -35,7 +22,7 @@ interpretations in Haskell based on
 \cite{swierstra2008data}. But such solution changes the encoding style
 dramatically and may be too complex to use in practice.
 
-Conversely, we can define introduce new interpretation in a
+Conversely, we can introduce new interpretation in a
 modular and intuitive way with an OO language like Scala:
 \begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
