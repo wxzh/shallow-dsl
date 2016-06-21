@@ -52,29 +52,24 @@ interpretations from being defined modularly.
 Fortunately, OO approach can still modularize such interpretations.
 
 Before giving an example of dependent interpretations, we first show how to add new
-constructs. The new constructs are: \emph{stretch ns c} which inserts additional wires into the circuit \emph{c} by
-summing up \emph{ns} and $above\ c_1\ c_2$ which combines two circuits of the same width vertically.
+constructs. The extended grammar of \dsl is given below,
+which contains two extra constructs \emph{above} and \emph{stretch}:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
-The extended grammar is given below:
 %\lstinputlisting[linerange=39-40]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
 \begin{grammar}
 <circuit> ::= \ldots
 \alt `above' <circuit> <circuit>
 \alt `stretch' <positive-numbers> <circuit>
 \end{grammar}
-
-Figure~\ref{code:variant} shows how to add new constructs - just defining new classes that implement \lstinline{Circuit}.
+$above\ c_1\ c_2$ combines two circuits of the same width vertically;
+\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
+summing up \emph{ns}.
+Figure~\ref{code:variant} shows how to add new constructs - simply defining new classes that implement \lstinline{Circuit}.
 \begin{figure}
 \lstinputlisting[linerange=2-11]{../src/width/Variants.scala}%APPLY:VARIANT_SCALA
 \caption{Adding new language constructs}
 \label{code:variant}
 \end{figure}
-\paragraph{Solving the Expression Problem (EP)} As EDSLs evolve along the time, the
-demand of new syntax and new semantics may arise. It would be good if we could
-implement these features modularly. This, however, requires that the host
-language should be capable of solving the EP. Figure~\ref{code:operation} and
-Figure~\ref{code:variant} together illustrate how elegant the OO solution is.
-In this sense, OO languages are good candidates for defining modular EDSLs.
 
 Not arbitrary circuits can be combined using $above$ and $stretch$
 as stated in their specifications.
@@ -87,6 +82,14 @@ What distinguishes the OO approach is that \lstinline{width} and \lstinline{well
 can be defined separately. Essentially, with only the signature of
 \lstinline{width} exposed to the \lstinline{Circuit} we can
 define \lstinline{wellSized}.
+
+\paragraph{Solving the Expression Problem (EP)} As EDSLs evolve along the time, the
+demand for new syntax and new semantics may arise. It would be good if
+these features can be introduced modularly. Then the capability of solving the EP
+becomes a requirement of the host language.
+Figure~\ref{code:operation} and Figure~\ref{code:variant} together illustrate
+how elegant the OO solution,
+indicating that OO languages are suitable host languages for defining modular EDSLs.
 
 \subsection{Context-sensitive Interpretations}
 Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with
