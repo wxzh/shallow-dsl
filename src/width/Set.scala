@@ -1,4 +1,4 @@
-package base
+package width
 
 trait Set {
   def exists(m: Int, n: Int): Boolean

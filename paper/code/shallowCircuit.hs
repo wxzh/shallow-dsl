@@ -2,19 +2,16 @@
 type Circuit = ...
 END_CIRCUIT_TYPE-}
 --BEGIN_TYPES
-identity :: Int -> Circuit
-fan      :: Int -> Circuit
-beside   :: Circuit -> Circuit -> Circuit
+id     :: Int -> Circuit
+fan    :: Int -> Circuit
+beside :: Circuit -> Circuit -> Circuit
 --END_TYPES
 
 --BEGIN_CIRCUIT1
 type Circuit = Int
-identity n   = n
+id n         = n
 fan n        = n
 beside c1 c2 = c1 + c2
-
-width1 :: Int
-width1 = id
 --END_CIRCUIT1
 
 --BEGIN_CIRCUIT2
@@ -30,11 +27,11 @@ width3 (Circuit3 n) = n
 
 
 --BEGIN_CIRCUIT3
-newtype Circuit2 = Circuit2 { width2 :: Int }
-identity2 n   = Circuit2 { width2 = n }
-fan2 n        = Circuit2 { width2 = n }
+newtype Circuit2 = Circuit2 { width :: Int }
+id2 n         = Circuit2 { width = n }
+fan2 n        = Circuit2 { width = n }
 beside2 c1 c2 = Circuit2 {
-  width2 = width2 c1 + width2 c2
+  width = width c1 + width c2
 }
 --END_CIRCUIT3
 

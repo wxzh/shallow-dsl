@@ -1,10 +1,10 @@
 \section{Introduction}
 
-Since Hudak's seminal paper on Embedded DSLs (EDSLs)~\cite{}, existing
+Since Hudak's seminal paper on Embedded DSLs (EDSLs)~\cite{hudak1998modular}, existing
 languages (such as Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
 and \emph{deep} embeddings. The origin of that terminology can be
-attributed to Boulton's work~\cite{}. The difference between these
+attributed to Boulton et al.'s work~\cite{Boulton92dsl}. The difference between these
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
@@ -12,7 +12,7 @@ two styles of embeddings is commonly described as follows:
 construct an abstract syntax tree (AST), which is subsequently
 transformed for optimization and traversed for evaluation. With a
 shallow embedding, terms in the DSL are implemented directly by
-their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons15folding}
+their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons2014folding}
 \end{quote}
 
 %\begin{comment}
@@ -30,11 +30,7 @@ made both ways. Since the {\sc Composite} or {\sc Interpreter}
 patterns are normally accepted to provide a way to encode ASTs, it would be
 reasonable to say that \emph{according to definition of deep embedding
   above, the OO approach classifies as a deep
-  embedding}. However, as we shall argue in the remainder of the
-paper, another possible interpretation is that the OO approach is
-really a shallow embedding. At least some authors~\cite{} seem to
-implicitly agree with 
-the latter interpretation.
+  embedding}. 
 
 \begin{comment}
 For example, in their work
@@ -72,24 +68,37 @@ embeddings when they say:
 in a shallow embedding as Boulton's choice of terms suggests.}''
 \end{comment}
 
-To avoid confusion and make the terminology more precise,
-this paper distinguishes EDSLs in terms of the data
-abstraction used to model the language constructs instead.  We follow
-Reynold's classification~\cite{} of data abstractions:
-\emph{procedural abstraction} and \emph{user-defined types}. It is
-clear that shallow embeddings use \emph{procedural
+In this paper, however, we prefer to interpret shallow embeddings
+differently. We argue that a straightforward OO approach is really a
+shallow embedding. The reason is that shallow embeddings are typically
+implemented using procedural abstraction and, as Cook~\cite{} argued,
+procedural abstraction is the essence of Object-Oriented
+Programming. Thus the implementation of a shallow
+DSL in OOP languages should simply correspond to a standard
+object-oriented program.
+
+
+If we accept this view, 
+a natural way to distinguish implementations of EDSLs is 
+in terms of the data abstraction used to model the language
+constructs instead. We can follow Reynold's~\cite{} classification of
+data abstractions: \emph{procedural abstraction} and \emph{user-defined
+  types}. It is clear that shallow embeddings use \emph{procedural
   abstraction}~\cite{}: the DSLs are modelled by interpretation
-functions. Therefore, the other implementation option for EDSLs is to use
-\emph{user-defined types}. In Reynolds terminology user-defined types
-mean disjoint union types, which are nowadays commonly available in
-modern languages as \emph{algebraic datatypes}. Disjoint union types 
-can also be emulated in OOP using the {\sc Visitor} pattern. A
-distinction based on data abstraction provides a remedy for possible
-misinterpretation. An EDSL implemented with algebraic
-datatypes falls into the category of user-defined types (deep embedding), 
-while a Composite-based OO implementation falls under procedural
-abstraction (shallow embedding). For the rest of the paper we identify shallow EDSLs 
-with EDSLs implemented using procedural abstraction.
+functions. Thus, the other implementation option for EDSLs is to
+use \emph{user-defined types}. In Reynolds terminology user-defined
+types mean disjoint union types, which are nowadays commonly available
+in modern languages as \emph{algebraic datatypes}. Disjoint union
+types can also be emulated in OOP using the {\sc Visitor} pattern. 
+
+A distinction based on data abstraction is more precise and provides a
+remedy for possible misinterpretation. An EDSL implemented with
+algebraic datatypes falls into the category of user-defined types
+(deep embedding), while a Composite-based OO implementation falls
+under procedural abstraction (shallow embedding). 
+
+%At least some authors~\cite{} seem to implicitly
+%agree with the latter interpretation.
 
 As Cook~\cite{} argued
 procedural abstraction is the essence of Object-Oriented
