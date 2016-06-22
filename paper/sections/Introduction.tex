@@ -68,7 +68,7 @@ embeddings when they say:
 in a shallow embedding as Boulton's choice of terms suggests.}''
 \end{comment}
 
-In this paper, however, we prefer to interpret shallow and deep embeddings
+In this paper, however, we prefer to interpret shallow embeddings
 differently. We argue that a straightforward OO approach is really a
 shallow embedding. The reason is that shallow embeddings are 
 implemented using \emph{procedural abstraction} and, as Cook~\cite{cook09abstraction} argued,
@@ -77,6 +77,7 @@ Programming. Thus the implementation of a shallow
 DSL in OOP languages should simply correspond to a standard
 object-oriented program.
 
+\begin{comment}
 If we accept Cook's view on OOP, 
 a natural way to distinguish implementations of EDSLs is 
 in terms of the data abstraction used to model the language
@@ -95,6 +96,7 @@ remedy for possible misinterpretation. An EDSL implemented with
 algebraic datatypes falls into the category of user-defined types
 (deep embedding), while a {\sc Composite}-based OO implementation falls
 under procedural abstraction (shallow embedding). 
+\end{comment}
 
 %At least some authors~\cite{} seem to implicitly
 %agree with the latter interpretation.
@@ -105,7 +107,7 @@ not came as a surprise, as OOP languages have evolved over more than 50
 years to improve the use of procedural abstraction. 
 
 In order to understand how OOP can help with shallow embeddings, lets
-first review some of the limitations of shallow embeddings commonly
+first review some of the limitations commonly
 found in the literature:
 
 \begin{enumerate}
@@ -133,7 +135,6 @@ For the second problem, we show that transformations can be encoded
 with recursive objects. Interestingly enough, for transformations it
 is possible to port back the OO solution to
 Haskell.
- \bruno{double-check if the paper really shows this!}
 
 We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple
