@@ -12,12 +12,13 @@ object Id {
 trait Fan extends width.Fan with Circuit
 trait Beside extends width.Beside with Circuit {
   val c1, c2: Circuit
-  override def mergeIds: Circuit = {
-    val (d1,d2) = (c1.mergeIds,c2.mergeIds)
-    (d1,d2) match {
+  override def mergeIds = 
+    (c1.mergeIds,c2.mergeIds) match {
       case (Id(n1),Id(n2)) => Id(n1 + n2)
-      case _ => new Beside{val c1=d1; val c2=d2}
-    }
+      case _ => Beside(c1.mergeIds, c2.mergeIds)
   }
 }
 //END_MERGEIDS_SCALA
+object Beside {
+  def apply(x: Circuit, y: Circuit): Circuit = new Beside{val c1=x; val c2=y}
+}

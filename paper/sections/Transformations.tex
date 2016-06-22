@@ -46,7 +46,7 @@ as case class to case class extension is not supported.
 Alternatively, we could manually define an \lstinline{unapply} method, a.k.a
 \emph{extractor}, in the companion object:
 %Here comes the implementation of the optimization:
-\lstinputlisting[linerange=4-22]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
+\lstinputlisting[linerange=4-20]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 
 For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type test and type casts},
 although they may not be as elegant as extractors~\cite{emir2007matching}.
