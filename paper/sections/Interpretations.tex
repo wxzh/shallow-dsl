@@ -1,88 +1,118 @@
 \section{Interpretations in Shallow Embeddings}
 
-\begin{comment}
-Weixin writes this one.
-
-Go over jeremy's examples, maybe having only 3 diagram 
-constructs instead of 5 for space reasons.
-
-Use five constructs to show extensibility.
-
-Think of how to introduce our tool? Using the Jeremy's examples? 
-or introducing before with some other examples?
-
-\end{comment}
-
 A well-known limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu worked around this problem by accommodating
-multiple interpretations using tuples and summarized how to define various types
-of interpretations with a shallow embedding.
-This section illustrates the OOP way of defining interpretations. Different from
-their workaround, our approach is modular extensible.
+multiple interpretations using tuples. However, their encoding needs to modify
+the original code. Although a modular solution based on \cite{swierstra2008data}
+is also presented, it complicates the encoding dramatically and may prevent pratical use.
+OO approach, on the contrary, provides modular yet simple solution of defining
+multiple interpretations. This section illustrates how various type of
+interpretations can be defined in an OOP way.
+
 
 \subsection{Multiple Interpretations}
 %Defining additional interpretations is not trivial for shallow embedding,
 %especially for functional languages.
 Suppose that we want to have an additional function that checks whether a circuit is
-constructed correctly. Here comes the Haskell solution:
+constructed correctly. Here comes Gibbons and Wu's solution:
 \lstinputlisting[linerange=2-9]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
-which is not modular because we add the definition of \lstinline{wellSized} by
-modifying the original code. And whenever a new interpretation comes,
+which is not modular because
+whenever a new interpretation is needed (e.g. \lstinline{wellSized}), the
+original code has to be revised -
 the arity of the tuple must be incremented and the new interpretation has to be
 appended to each case.
-Though Gibbons and Wu presented an modular way of defining multiple
-interpretations in Haskell based on
-\cite{swierstra2008data}. But such solution changes the encoding style
-dramatically and may be too complex to use in practice.
+%we add the definition of \lstinline{wellSized} by modifying the original code.
 
-Conversely, we can define multiple interpretations in a
-modular and intuitive way with an OO language like Scala:
+Conversely, we can introduce new interpretations in a
+modular and intuitive way with an OO language like Scala, as shown in Figure~\ref{code:operation}.
+\begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
-Instead of modifying the original code, we define \lstinline{wellSized} modularly.
-The encoding makes use of three OOP abstraction mechanisms:
+\caption{Adding new interpretations}
+\label{code:operation}
+\end{figure}
+%Instead of modifying the original code, we define \lstinline{wellSized} modularly.
+The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
 Specifically, the new \lstinline{Circuit} is a subtype of
 \lstinline{base.Circuit} and declares a new method \lstinline{wellSized}.
 The hierarchy implements the new \lstinline{Circuit} by inheriting the corresponding class
 from \lstinline{base} and
 complementing the body of \lstinline{wellSized}.
-Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit}
-type to avoid type mismatch in creating objects.
+Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} type
+to avoid type mismatch in creating objects.
 
+% Multiple inheritance
+We can even define \lstinline{wellSized} separately:
+\begin{lstlisting}
+trait Circuit { def wellSized: Boolean }
+trait Id extends Circuit { ... }
+...
+\end{lstlisting}
+And merge the two hierarchy through \emph{multiple inheritance} for providing
+multiple interpretations:
+\begin{lstlisting}
+trait Circuit
+    extends width.Circuit with wellSized.Circuit
+trait Id extends Circuit
+    with width.Id with wellSized.Circuit
+...
+\end{lstlisting}
 
 \subsection{Dependent Interpretations}
- \emph{Dependent interpretations} can not be defined alone which use other
- interpretations in their definition.
+ \emph{Dependent interpretations} use other interpretations in their definition.
 %Such interpretations are non-compositional.
 In Haskell a dependent interpretation must be defined together with what it
 dependents on and makes no exceptions on modular approaches like~\cite{}.
 This prevents a new interpretation that depends on existing
 interpretations from being defined modularly.
-Fortunately, OO approach can still modularize such interpretations.
+Fortunately, OO approach does not have such restriction.
 
 Before giving an example of dependent interpretations, we first show how to add new
-constructs. The new constructs are: \emph{stretch ns c} which inserts additional wires into the circuit \emph{c} by
-summing up \emph{ns} and $above\ c_1\ c_2$ which combines two circuits of the same width vertically.
-Their types are given below:
-\lstinputlisting[linerange=39-40]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+constructs in OO approach. The extended grammar of \dsl is given below,
+which contains two extra constructs \emph{above} and \emph{stretch}:
+\setlength{\grammarindent}{5em} % increase separation between LHS/RHS
+%\lstinputlisting[linerange=39-40]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+\begin{grammar}
+<circuit> ::= \ldots
+\alt `above' <circuit> <circuit>
+\alt `stretch' <positive-numbers> <circuit>
+\end{grammar}
+$above\ c_1\ c_2$ combines two circuits of the same width vertically;
+\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
+summing up \emph{ns}.
+Figure~\ref{code:variant} shows how to add them to \dsl - simply defining new classes that implement \lstinline{Circuit}.
+\begin{figure}
+\lstinputlisting[linerange=2-11]{../src/width/Variants.scala}%APPLY:VARIANT_SCALA
+\caption{Adding new language constructs}
+\label{code:variant}
+\end{figure}
 
-Adding new constructs is easy - just defining new classes that implement \lstinline{Circuit}:
-\lstinputlisting[linerange=19-30]{../src/wellsized/Circuit.scala}%APPLY:VARIANT
-Not arbitrary circuits can be combined using $above$ and $stretch$
-as stated in their specifications.
-We hence define the \texttt{wellSized} method for these two new constructs to
+From the specifications we can see that not arbitrary circuits can be combined using $above$ and $stretch$.
+We hence define the \lstinline{wellSized} method for them to
 verify the constraints they imply:
+\lstinputlisting[linerange=2-11]{../src/wellsized/Variants.scala}%APPLY:DEPENDENT_SCALA
+Definitions of \lstinline{wellSized} for the extended cases make it a dependent
+interpretation, as they can not be defined without \lstinline{width}.
+Note that \lstinline{width} and \lstinline{wellSized} are defined separately.
+Essentially, it is sufficient to define \lstinline{wellSized} with only the signature of \lstinline{width} in \lstinline{Circuit}.
 
-Definitions of \texttt{wellSized} for the extended cases make it a dependent interpretation, as they
-rely on another method defined on the \texttt{Circuit}, \texttt{width}, for calculating the width of a circuit.
-Most importantly, our approach do not force dependent interpretation to be
-defined together with what they depend on. In the case of \texttt{width} and
-\texttt{wellSized}, they can be defined in separate families as long as the
-signature of \texttt{width} is exposed to the definition of \texttt{wellSized}.
-
-\paragraph{Solving Expression Problem} The code above shows how to
-define new variant, combining with
+\paragraph{Solving the Expression Problem (EP)} As EDSLs evolve along the time, the
+demand for new syntax and new semantics may arise. It would be good if
+these features can be introduced modularly. Then the capability of solving the EP
+becomes a requirement of the host language.
+Figure~\ref{code:operation} and Figure~\ref{code:variant} together illustrate
+how elegant the OO solution,
+indicating that OO languages are suitable host languages for defining modular EDSLs.
 
 \subsection{Context-sensitive Interpretations}
-by declaring contexts as arguments of the method.
-For space reasons, we omit the.
+Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with
+only the given circuit, interpretations may need some mutable contexts for definition.
+These contexts can be captured by arguments of the method. For example, a
+function that collects all the connections between wires inside a circuit would have
+the following signature:
+\begin{lstlisting}
+type Layout = List[List[Tuple2[Int,Int]]]
+def tlayout(f: Int => Int): Layout
+\end{lstlisting}
+where the context \lstinline{f} may vary in recursive calls.
+For space reasons, we omit the implementation details.

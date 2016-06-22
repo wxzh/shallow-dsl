@@ -93,17 +93,13 @@ OOP program.
 
 \paragraph{Porting to Scala}
 Indeed, we can easily translate the Haskell program into an OO
-language like Scala, as shown in Figure~\ref{code:base}.
+language like Scala:
+\lstinputlisting[linerange=2-15]{../src/width/Circuit.scala}%APPLY:CIRCUIT_SCALA
 The record type maps to the trait \lstinline{Circuit} and field
 declaration becomes a method declaration.
 Each case in the semantic function corresponds to an class and its parameters become fields of the class.
 And all the classes extends \lstinline{Circuit} by implementing \lstinline{width}.
 
-\begin{figure}
-\lstinputlisting[linerange=2-15]{../src/width/Circuit.scala}%APPLY:CIRCUIT_SCALA
-\caption{OO implementation of \dsl}
-\label{code:base}
-\end{figure}
 
 This implementation is exactly how we would model \dsl in an OO language in the first
 place, following the \interp pattern (which uses \textsc{Composite} pattern to
