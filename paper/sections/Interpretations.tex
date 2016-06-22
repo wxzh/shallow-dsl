@@ -3,27 +3,36 @@
 A well-known limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu worked around this problem by accommodating
 multiple interpretations using tuples. However, their encoding needs to modify
-the original code. Although a modular solution based on \cite{swierstra2008data}
+the original code. This section illustrates how various type of
+interpretations can be defined in OOP.
+\begin{comment}
+Although a modular solution based on \cite{swierstra2008data}
 is also presented, it complicates the encoding dramatically and may prevent pratical use.
 OO approach, on the contrary, provides modular yet simple solution of defining
-multiple interpretations. This section illustrates how various type of
-interpretations can be defined in an OOP way.
+multiple interpretations. 
+\end{comment}
 
 
 \subsection{Multiple Interpretations}
 %Defining additional interpretations is not trivial for shallow embedding,
 %especially for functional languages.
+\paragraph{Multiple Interpretations in Haskell}
 Suppose that we want to have an additional function that checks whether a circuit is
-constructed correctly. Here comes Gibbons and Wu's solution:
+constructed correctly. Gibbons and Wu's solution is:
 \lstinputlisting[linerange=2-9]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
-which is not modular because
-whenever a new interpretation is needed (e.g. \lstinline{wellSized}), the
+\noindent This solution is not modular because it relies 
+on defining the two interpretations (\lstinline{width} and
+\lstinline{wellSized}) simultaneously, using a pair. It is not
+possible to define \lstinline{width} independently and then reuse it.
+Whenever a new interpretation is needed (e.g. \lstinline{wellSized}), the
 original code has to be revised -
 the arity of the tuple must be incremented and the new interpretation has to be
 appended to each case.
 %we add the definition of \lstinline{wellSized} by modifying the original code.
 
-Conversely, we can introduce new interpretations in a
+
+\paragraph{Multiple Interpretations in Scala}
+In contrast, new interpretations are introduced in a 
 modular and intuitive way with an OO language like Scala, as shown in Figure~\ref{code:operation}.
 \begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
@@ -39,16 +48,16 @@ The hierarchy implements the new \lstinline{Circuit} by inheriting the correspon
 from \lstinline{base} and
 complementing the body of \lstinline{wellSized}.
 Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} type
-to avoid type mismatch in creating objects.
+to avoid type mismatch in creating objects~\cite{eptrivially16}.
 
 % Multiple inheritance
-We can even define \lstinline{wellSized} separately:
+We can even define \lstinline{wellSized} independently:
 \begin{lstlisting}
 trait Circuit { def wellSized: Boolean }
 trait Id extends Circuit { ... }
 ...
 \end{lstlisting}
-And merge the two hierarchy through \emph{multiple inheritance} for providing
+And merge the two hierarchies through \emph{multiple inheritance} for providing
 multiple interpretations:
 \begin{lstlisting}
 trait Circuit
