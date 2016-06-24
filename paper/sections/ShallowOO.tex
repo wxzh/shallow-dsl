@@ -22,9 +22,8 @@ This section shows that an OO approach and shallow embeddings using
 procedural abstraction are closely related.  We use a subset of the
 DSL presented in Gibbons and Wu's paper~\cite{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
-implementation in Haskell and gradually rewrite it towards an ``OO
-style''.  Then translating the program into an OO language becomes
-straightforward.
+implementation in Haskell and rewrite it towards an ``OO style''.
+Then translating the program into an OO language becomes straightforward.
 
 \subsection{A DSL for Parallel Prefix Circuits}
 Consider an DSL named \dsl that models parallel circuits.
@@ -82,12 +81,11 @@ datatype, getting back the value through pattern matching:
 \paragraph{Towards OOP}
 A simple, \emph{semantics preserving}, rewriting of the above program 
 uses a record implemented as a newtype. The record has a sole field representing the result:
-\lstinputlisting[linerange=30-35]{./code/shallowCircuit.hs}%APPLY:CIRCUIT3
+\lstinputlisting[linerange=2-5]{./code/Rewrite.hs}%APPLY:CIRCUIT3
 %\bruno{width3 should now be width2}
 %We no longer need a separate \lstinline{width3} function as the field name is the extractor.
-The implementation is still shallow since essentially the same program
-as the previous one. In fact Haskell \lstinline{newtype} do not add any operational
-behaviour to the program, and the two programs are effectivelly the
+The implementation is still shallow because \lstinline{newtype} does not add any operational
+behaviour to the program, and hence the two programs are effectivelly the
 same.  However, having fields makes the program look more like an 
 OOP program.
 

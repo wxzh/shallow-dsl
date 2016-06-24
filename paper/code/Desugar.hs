@@ -3,21 +3,21 @@ fan :: Int -> Circuit
 beside :: Circuit -> Circuit -> Circuit
 
 --BEGIN_DESUGAR
-data Circuit2 = Circuit2 {
-  width2   :: Int,
-  desugar2 :: Circuit2
+data Circuit = Circuit {
+  width   :: Int,
+  desugar :: Circuit
 }
-id2 n = Circuit2 {
-  width2   = n,
-  desugar2 = foldr1 beside $ replicate n (fan 1)
+id n = Circuit {
+  width   = n,
+  desugar = foldr1 beside $ replicate n (fan 1)
 }
-fan2 n = Circuit2 {
-  width2   = n,
-  desugar2 = fan n
+fan n = Circuit {
+  width   = n,
+  desugar = fan n
 }
-beside2 c1 c2 = Circuit {
-  width2   = width2 c1 + width2 c2,
-  desugar2 = beside2 (desugar2 c1) (desugar2 c2)
+beside c1 c2 = Circuit {
+  width   = width c1 + width c2,
+  desugar = beside (desugar c1) (desugar c2)
 }
 --END_DESUGAR
 

@@ -4,7 +4,7 @@ persistent AST obscures how to define transformations in shallow embeddings.
 The \textsc{Composite} pattern applied in our OO approach encodes the AST, making
 it possible to implement transformations. More interestingly, we can port back
 some simple transformations to Haskell.
-This sections illustrates how to define transformations, the missing kind of interpretations in Gibbons and Wu's paper, in shallow embeddings.
+This section illustrates how to define transformations, the missing kind of interpretations in Gibbons and Wu's paper, in shallow embeddings.
 
 \subsection{Desugaring}
 Desugaring is an transformation, which eliminates some
@@ -26,7 +26,7 @@ For constructing circuits easily, we define some companion objects with an \lsti
 
 %\weixin{define a show function in the and show the result after desugaring?}
 We can port the implementation back to Haskell thanks to its laziness:
-\lstinputlisting[linerange=6-21]{./code/desugar.hs}%APPLY:DESUGAR
+\lstinputlisting[linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
 
 \subsection{Sophisticated Optimizations}
 Sophisticated optimizations may need to inspect multiple internal
