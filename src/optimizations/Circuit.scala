@@ -5,10 +5,6 @@ trait Circuit extends width.Circuit {
   def mergeIds: Circuit = this
 }
 trait Id extends width.Id with Circuit
-object Id {
-  def apply(i: Int) = new Id{val n=i}
-  def unapply(c: Id) = Some(c.n)
-}
 trait Fan extends width.Fan with Circuit
 trait Beside extends width.Beside with Circuit {
   val c1, c2: Circuit
@@ -19,6 +15,12 @@ trait Beside extends width.Beside with Circuit {
   }
 }
 //END_MERGEIDS_SCALA
+//BEGIN_EXTRACTOR
+object Id {
+  def apply(i: Int) = new Id { val n = i }
+  def unapply(c: Id): Option[Int] = Some(c.n)
+}
+//END_EXTRACTOR
 object Beside {
   def apply(x: Circuit, y: Circuit): Circuit = new Beside{val c1=x; val c2=y}
 }

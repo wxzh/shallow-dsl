@@ -1,56 +1,56 @@
 \section{Transformations in Shallow Embeddings}
-Transformations are typically regarded as the privilege of deep embeddings.
-Since there is not a data structure persisting the AST, how to define transformations
-becomes unclear.
-It is not completely true, especially for the OO approach.
-This section illustrates how to define various transformations, the missing
-kind of interpretations in Gibbons and Wu's paper, in shallow embeddings.
-%In fact, transformations can still be defined in shallow embedding.
+Transformations are typically regarded as the privilege of deep embeddings as no
+persistent AST obscures how to define transformations in shallow embeddings.
+The \textsc{Composite} pattern applied in our OO approach encodes the AST, making
+it possible to implement transformations. More interestingly, we can port back
+some simple transformations to Haskell.
+This sections illustrates how to define transformations, the missing kind of interpretations in Gibbons and Wu's paper, in shallow embeddings.
 
 \subsection{Desugaring}
-Desugaring is one kind of transformations, which eliminates some
-language constructs without sacrificing the expressiveness of the whole language.
-In \dsl, the \emph{id} construct is such a syntactic sugar that can
-be rewritten via the following formula:
+Desugaring is an transformation, which eliminates some
+language constructs without sacrificing the expressiveness of the language.
+\emph{id} construct is such a syntactic sugar:
 $$id\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
-which states that \emph{id n} can be represented as \emph{n} of \emph{fan 1} combined with \emph{beside}.
-%Using the above formula, we can define a transformation that desugars every
-%occurrence of \emph{identity} to a combination of \emph{fan} and \emph{beside}.
+The formula states that \emph{id n} can be rewritten as \emph{n} of \emph{fan 1}
+combined with \emph{beside}.
 
-The following shows how to eliminate \lstinline{Id} construct in Scala:
-\lstinputlisting[linerange=4-23]{../src/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
-The newly introduced method \lstinline{desugar} returns a
-\lstinline{Circuit} reflecting the nature of transformations. The implementation of \lstinline{desugar} for each case is
+A corresponding Scala implementation is given below:
+\lstinputlisting[linerange=4-17]{../src/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
+The method \lstinline{desugar} returns a
+\lstinline{Circuit} reflecting the nature of transformations.
+Implementing it for each case is
 straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
 $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the formula.
+For constructing circuits easily, we define some companion objects with an \lstinline{apply} method implemented:
+\lstinputlisting[linerange=20-26]{../src/desugar/Circuit.scala}%APPLY:COMPANION
 
 %\weixin{define a show function in the and show the result after desugaring?}
-Inspired by the Scala implementation, we can port it back to Haskell thanks to
-the laziness of Haskell:
+We can port the implementation back to Haskell thanks to its laziness:
 \lstinputlisting[linerange=6-21]{./code/desugar.hs}%APPLY:DESUGAR
 
 \subsection{Sophisticated Optimizations}
 Sophisticated optimizations may need to inspect multiple internal
-representations of values.
-Suppose we want to merge consecutive vertical wires:
+representations of values, which imposes difficulty to shallow embeddings.
+For instance, consecutive \emph{id}s put side by side can be merged together:
 $$
 beside\ (id\ m)\ (id\ n) = id\ (m + n)
 $$
-This rewrite rule applies only when both $c_1$ and $c_2$ of $beside\ c_1\ c_2$
-are $id$ and also accesses their inner value.
-This kind of optimizations are hard to define in shallow embeddings since it
-requires deep pattern matching on the AST.
-Fortunately, Scala has built-in support for pattern matching on objects.
-We can not simply decorate classes with \lstinline{case} modifier
-as case class to case class extension is not supported.
-Alternatively, we could manually define an \lstinline{unapply} method, a.k.a
-\emph{extractor}, in the companion object:
-%Here comes the implementation of the optimization:
-\lstinputlisting[linerange=4-20]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
+This rule applies to a $beside\ c_1\ c_2$ only when both $c_1$ and $c_2$ are
+$id$, also their inner values are extracted for constructing the term
+on the right hand side of the equation.
+Fortunately, Scala has built-in support for pattern matching by decorating
+classes with \lstinline{case} modifiers or defining extractor objects.
+For extensibility reasons, case classes can not be used
+because case class to case class extension is not supported.
+Instead, we manually define \lstinline{unapply} methods in companion
+objects:
+\lstinputlisting[linerange=19-22]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
+Then we can define this optimization:
+\lstinputlisting[linerange=4-16]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 
 For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type test and type casts},
-although they may not be as elegant as extractors~\cite{emir2007matching}.
-Interested reader can refer to \ref{} for implementations using these approaches.
+though they may not be as elegant as extractors~\cite{emir2007matching}.
+%Interested reader can refer to \ref{} for implementations using these approaches.
 
 \begin{comment}
 \paragraph{Test methods.}
