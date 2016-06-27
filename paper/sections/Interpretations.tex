@@ -127,11 +127,17 @@ embeddings. In other words, the circuit DSL presented so far does not
 suffer from the Expression Problem. The key point is that procedural
 abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
-abstraction.\bruno{Need to briefly mention that some they discuss 
-some advanced solutions in Haskell to address some of the problems:
-example: DTC and finally tagless}
-Of course, there are solutions to EP in Haskell, e.g. \emph{finally
-  tagless}~\cite{carette2009finally} and \emph{data types a la
+abstraction. Gibbons and Wu do discuss a number of advanced techniques that 
+can solve some of the modularity problems. For example, using type
+classes, the \emph{finally
+  tagless}~\cite{carette2009finally} can deal with the example in
+Section~\ref{subsec:multiple}. However
+tuples are still needed 
+to deal with dependent interpretations. In contrast the approach
+proposed here is just straightforward OOP, and dependent
+interpretations are not a problem.
+\begin{comment}
+and \emph{data types a la
   carte}~\cite{swierstra2008data} (DTC).
 Finally tagless approach uses a type class to abstract over all interpretations
 of the language. Concrete interpretations are given through creating a data type and
@@ -139,12 +145,11 @@ making it an instance of that type. However, it forces dependent interpretations
 DTC represents language constructs separately and composes them together using
 extensible sums. However, not like OO languages which come with subtyping, one
 has to manually implement the subtyping machinery for variants.
-
+\end{comment}
 Gibbons and Wu also show some different variants of interpretations,
 such as context-sensitive interpretations. 
-Context-sensitive transformations do not pose any particular
-challenge. For space reasons, we omit the implementation details here. Full details
-are available online.
+Context-sensitive transformations are unproblematic as well. 
+For space reasons, full details are only available online.
 
 \begin{comment}
 Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with

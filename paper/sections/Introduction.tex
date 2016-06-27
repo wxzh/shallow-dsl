@@ -68,12 +68,13 @@ embeddings when they say:
 in a shallow embedding as Boulton's choice of terms suggests.}''
 \end{comment}
 
-In this paper, however, we prefer to interpret shallow embeddings
-differently. We argue that a straightforward OO approach is really a
-shallow embedding. The reason is that shallow embeddings are 
-implemented using \emph{procedural abstraction} and, as Cook~\cite{cook09abstraction} argued,
-procedural abstraction is the essence of Object-Oriented
-Programming. Thus the implementation of a shallow
+In this paper, to avoid ambiguity, we prefer a more precise meaning
+for shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\cite{reynolds94proceduralabstraction}. Such
+interpretation arises from the domain of shallow DSLs being
+typically a function, and procedural abstraction being a way to encode
+data abstractions using functions. As Cook~\cite{cook09abstraction} argued,
+procedural abstraction is also the essence of Object-Oriented
+Programming. Thus, according to our definition, the implementation of a shallow
 DSL in OOP languages should simply correspond to a standard
 object-oriented program.
 
@@ -102,10 +103,10 @@ under procedural abstraction (shallow embedding).
 %agree with the latter interpretation.
 
 The main goal of this paper is to argue that OOP languages have
-advantages for the implementation of shallow embeddings. This should
-not came as a surprise, as OOP languages have evolved over more than 50
-years to improve the use of procedural abstraction. 
-
+advantages for the implementation of shallow embeddings. 
+%This should
+%not came as a surprise, as OOP languages have evolved over more than 50
+%years to improve the use of procedural abstraction. 
 In order to understand how OOP can help with shallow embeddings, lets
 first review some of the limitations commonly
 found in the literature:

@@ -26,24 +26,12 @@ $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
 formula.
 For constructing circuits easily, we define some helper methods:
 \lstinputlisting[linerange=3-5]{../src/desugar/package.scala}%APPLY:COMPANION
-\bruno{I would try to avoid Scala-specific things like extractors as
-  much as possible here. You can just define, for example:
-
-def Fan (x : Int) = new Fan\{val n=x\}
-
-This is shorter, and less language-specific.
-}
 
 %\weixin{define a show function in the and show the result after
 %desugaring?}
 \paragraph{Desugaring in Haskell}
 Interestingly we can port the implementation back to Haskell:
 \lstinputlisting[linerange=6-13]{./code/Desugar.hs}%APPLY:DESUGAR
-\bruno{Please try to put more code in single lines:
-
-data Circuit = Circuit \{width::Int, desugar::Circuit\}
-
-}
 
 \noindent This code follows well-known encodings of objects into 
 \emph{functional} calculi with recursive records~\cite{}. Thanks 
