@@ -99,9 +99,11 @@ Each case in the semantic function corresponds to an class and its parameters be
 And all the classes extends \lstinline{Circuit} by implementing \lstinline{width}.
 
 
-This implementation is exactly how we would model \dsl in an OO language in the first
+This implementation is essentially how we would model \dsl in an OO language in the first
 place, following the \interp pattern (which uses \textsc{Composite} pattern to
-organize classes).
+organize classes). A minor difference is the use of
+traits, instead of classes. As we shall see using traits instead of
+classes will enable some additional modularity via multiple (trait-)inheritance.
 In summary, shallow embedding and straightforward OO programming are closely
 related.
 %It may worth mentioning that deep embedding is closely related to the \textsc{Visitor} pattern.

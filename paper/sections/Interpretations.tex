@@ -3,8 +3,8 @@
 A well-known limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu worked around this problem by accommodating
 multiple interpretations using tuples. However, their encoding needs to modify
-the original code. This section illustrates how various type of
-interpretations can be defined in OOP.
+the original code, and thus is non-modular. This section illustrates how various type of
+interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
 Although a modular solution based on \cite{swierstra2008data}
 is also presented, it complicates the encoding dramatically and may prevent pratical use.
@@ -33,7 +33,7 @@ appended to each case.
 
 \paragraph{Multiple Interpretations in Scala}
 In contrast, new interpretations are introduced in a 
-modular and intuitive way with an OO language like Scala, as shown in Figure~\ref{code:operation}.
+modular way with an OO language like Scala, as shown in Figure~\ref{code:operation}.
 \begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
 \caption{Adding new interpretations}
@@ -51,6 +51,7 @@ Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} 
 to avoid type mismatches in methods~\cite{eptrivially16}.
 
 % Multiple inheritance
+\begin{comment}
 We can even define \lstinline{wellSized} independently:
 \begin{lstlisting}
 trait Circuit { def wellSized: Boolean }
@@ -66,6 +67,7 @@ trait Id extends Circuit
     with width.Id with wellSized.Circuit
 ...
 \end{lstlisting}
+\end{comment}
 
 \subsection{Dependent Interpretations}
  \emph{Dependent interpretations} are a generalization of multiple
@@ -84,7 +86,7 @@ it is quite similar to the example in Section~\ref{subsec:multiple}
 %interpretations from being defined modularly.
 %Fortunately, OO approach does not have such restriction.
 
-To illustrate dependent interpretations, we first add two new language constructs
+To illustrate dependent interpretations, we first add two new language 
 constructs \emph{above} and \emph{stretch}:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 %\lstinputlisting[linerange=29-30]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
@@ -125,10 +127,16 @@ embeddings. In other words, the circuit DSL presented so far does not
 suffer from the Expression Problem. The key point is that procedural
 abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
-abstraction.
-
+abstraction.\bruno{Need to briefly mention that some they discuss 
+some advanced solutions in Haskell to address some of the problems:
+example: DTC and finally tagless}
 Gibbons and Wu, also show some different variants of interpretations, 
 such as context-sensitive interpretations. 
+Context-sensitive transformations do not pose any particular
+challenge. For space reasons, we omit the implementation details here. Full details
+are available online.
+
+\begin{comment}
 Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with
 only the given circuit, context-dependent interpretations may need some context.
 These contexts can be captured by arguments of the method. For example, a
@@ -142,3 +150,4 @@ where the context \lstinline{f} may vary in recursive
 calls. Context-sensitive transformations do not pose any particular
 challenge. For space reasons, we omit the implementation details here. Full details
 are available online.
+\end{comment}
