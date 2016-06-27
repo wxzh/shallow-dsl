@@ -1,0 +1,15 @@
+\section{Conclusion}
+This paper shows how OO programming improves the modularity of shallow EDSLs.
+With the procedural abstraction mechanisms provided by OO languages, various types of
+interpretations can be defined modularly. We also show that defining
+transformations in shallow embeddings is possible.
+
+There are still certain interpretations that can not be modeled modularly,
+including transformations and binary methods.
+For transformations, we have to refine their return type in extensions and
+supply a new implementation by duplicating the original code.
+For binary methods like equality, there is no way to refine the argument type.
+How to define these methods modularly is a possible line of future work.
+Also, it is still tedious to express the inheritance relationships in extensions,
+especially when multiple inheritance is used. Another line of future work is to
+use some meta-programming mechanisms to eliminate these boilerplate.
