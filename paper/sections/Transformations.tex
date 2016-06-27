@@ -24,8 +24,8 @@ Implementing it for each case is
 straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
 $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
 formula.
-For constructing circuits easily, we define some companion objects with an \lstinline{apply} method implemented:
-\lstinputlisting[linerange=20-26]{../src/desugar/Circuit.scala}%APPLY:COMPANION
+For constructing circuits easily, we define some helper methods:
+\lstinputlisting[linerange=3-5]{../src/desugar/package.scala}%APPLY:COMPANION
 \bruno{I would try to avoid Scala-specific things like extractors as
   much as possible here. You can just define, for example:
 
@@ -38,7 +38,7 @@ This is shorter, and less language-specific.
 %desugaring?}
 \paragraph{Desugaring in Haskell}
 Interestingly we can port the implementation back to Haskell:
-\lstinputlisting[linerange=6-21]{./code/Desugar.hs}%APPLY:DESUGAR
+\lstinputlisting[linerange=6-15]{./code/Desugar.hs}%APPLY:DESUGAR
 \bruno{Please try to put more code in single lines:
 
 data Circuit = Circuit \{width::Int, desugar::Circuit\}

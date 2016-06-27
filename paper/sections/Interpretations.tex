@@ -130,7 +130,17 @@ type-refinement) adds expressiveness over traditional procedural
 abstraction.\bruno{Need to briefly mention that some they discuss 
 some advanced solutions in Haskell to address some of the problems:
 example: DTC and finally tagless}
-Gibbons and Wu, also show some different variants of interpretations, 
+Of course, there are solutions to EP in Haskell, e.g. \emph{finally
+  tagless}~\cite{carette2009finally} and \emph{data types a la
+  carte}~\cite{swierstra2008data} (DTC).
+Finally tagless approach uses a type class to abstract over all interpretations
+of the language. Concrete interpretations are given through creating a data type and
+making it an instance of that type. However, it forces dependent interpretations to be defined along with what they depend on.
+DTC represents language constructs separately and composes them together using
+extensible sums. However, not like OO languages which come with subtyping, one
+has to manually implement the subtyping machinery for variants.
+
+Gibbons and Wu also show some different variants of interpretations,
 such as context-sensitive interpretations. 
 Context-sensitive transformations do not pose any particular
 challenge. For space reasons, we omit the implementation details here. Full details

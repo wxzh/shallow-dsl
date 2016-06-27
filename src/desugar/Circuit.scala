@@ -16,12 +16,3 @@ trait Id extends width.Id with Circuit {
     List.fill(n)(Fan(1)).reduce(Beside(_,_))
 }
 //END_DESUGAR_SCALA
-//BEGIN_COMPANION
-object Fan {
-  def apply(x: Int): Circuit = new Fan{val n=x}
-}
-object Beside {
-  def apply(x: Circuit, y: Circuit): Circuit = 
-    new Beside{ val c1 = x; val c2 = y }
-}
-//END_COMPANION
