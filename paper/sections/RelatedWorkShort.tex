@@ -5,20 +5,20 @@ Shallow embedding yields flexible and concise EDSLs while deep embedding makes
 it easy to define optimizations.
 There are a lot of work~\cite{svenningsson2012combining,
   Jovanovic:2014:YCD:2658761.2658771, scherr2014implicit} trying to blend these two
-approaches to enjoy benefits from both by using the shallow embedding as the
-surface language and generate deep embedding version to allow optimizations to
-be defined.
+approaches to enjoy benefits from both.
+They typically encode the surface language with a shallow embedding and
+then generate or translate to a deep embedded version for allowing optimizations.
 %Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at the same time so that clients can choose for a particular interpretation;
 The OO approach we present retains the simplicity of shallow embedding while
-makes it possible to directly implement optimizations.
+makes it possible to implement optimizations.
 
 \paragraph{Modularity of EDSLs}
 Languages that solves the EP are capable of being host languages for
 implementing modular EDSLs. But many of these solutions require sophisticated
 type parameterization, advanced features or heavy encoding which impose
-complexity to the DSL implementers or even clients and may be too complicated to use in practice.
+complexity to the DSL implementers or even clients, preventing practical use.
 For example, solutions based on the \textsc{Visitor}
 pattern~\cite{oliveira09modular,hofer2010modular} %more references
 Relatively simple solution like Object Algebras~\cite{bruno12oa} may not support
 optimizations well.
-Our approach, however, is simple, intuitive and supports transformations.
+Our approach, however, is simple and supports transformations.

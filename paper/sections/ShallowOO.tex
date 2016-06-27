@@ -39,7 +39,7 @@ Its BNF grammar is given below:
 \alt `beside' <circuit> <circuit>
 \end{grammar}
 
-The DSL consists of three constructs - two primitives
+\noindent The DSL consists of three constructs - two primitives
 \emph{id} and \emph{fan} and one combinator \emph{beside}.
 Their meanings are: \emph{id n} contains \emph{n} isolated vertical wires;
 \emph{fan n} has \emph{n} vertical wires with its first wire connected to
@@ -102,8 +102,8 @@ And all the classes extends \lstinline{Circuit} by implementing \lstinline{width
 This implementation is essentially how we would model \dsl in an OO language in the first
 place, following the \interp pattern (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
-traits, instead of classes. As we shall see using traits instead of
-classes will enable some additional modularity via multiple (trait-)inheritance.
-In summary, shallow embedding and straightforward OO programming are closely
+traits, instead of classes. Using traits instead of
+classes enables some additional modularity via multiple (trait-)inheritance.
+In summary, shallow embeddings and straightforward OO programming are closely
 related.
 %It may worth mentioning that deep embedding is closely related to the \textsc{Visitor} pattern.
