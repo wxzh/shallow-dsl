@@ -2,16 +2,15 @@ package optimizations
 
 //BEGIN_MERGEIDS_SCALA
 trait Circuit extends width.Circuit {
-  def mergeIds: Circuit = this
+  def merge: Circuit = this
 }
 trait Id extends width.Id with Circuit
 trait Fan extends width.Fan with Circuit
 trait Beside extends width.Beside with Circuit {
   val c1, c2: Circuit
-  override def mergeIds = 
-    (c1.mergeIds,c2.mergeIds) match {
-      case (Id(n1),Id(n2)) => Id(n1 + n2)
-      case _ => Beside(c1.mergeIds, c2.mergeIds)
+  override def merge = (c1.merge, c2.merge) match { 
+    case (Id(n1), Id(n2)) => Id(n1 + n2) 
+    case _ => Beside(c1.merge, c2.merge)
   }
 }
 //END_MERGEIDS_SCALA

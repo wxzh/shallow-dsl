@@ -38,7 +38,7 @@ This is shorter, and less language-specific.
 %desugaring?}
 \paragraph{Desugaring in Haskell}
 Interestingly we can port the implementation back to Haskell:
-\lstinputlisting[linerange=6-15]{./code/Desugar.hs}%APPLY:DESUGAR
+\lstinputlisting[linerange=6-13]{./code/Desugar.hs}%APPLY:DESUGAR
 \bruno{Please try to put more code in single lines:
 
 data Circuit = Circuit \{width::Int, desugar::Circuit\}
@@ -53,8 +53,8 @@ to Haskell's laziness, the port of recursive definitions such as
 \subsection{Sophisticated Optimizations}
 A final example is a more sophisticated type of optimization, 
 which requires inspecting multiple internal
-representations of values. Such type of optimizations 
- imposes extra difficulty to shallow embeddings, but both 
+representations of abstract values at the same time.
+Such type of optimizations imposes extra difficulty to shallow embeddings, but both
 Cook~\cite{cook09abstraction} and Reynolds~\cite{reynolds94proceduralabstraction} have shown how it 
 is possible to overcome such difficulties. 
 %which imposes difficulty to shallow embeddings.
@@ -71,9 +71,9 @@ classes with \lstinline{case} modifiers or defining extractor objects~\cite{emir
 %because case class to case class extension is not supported.
 Instead, we manually define \lstinline{unapply} methods in companion
 objects:
-\lstinputlisting[linerange=19-22]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
+\lstinputlisting[linerange=18-21]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
 Then we can define this optimization:
-\lstinputlisting[linerange=4-16]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
+\lstinputlisting[linerange=4-15]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 
 For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type test and type casts},
 though they may not be as elegant as extractors.
