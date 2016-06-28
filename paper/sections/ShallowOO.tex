@@ -62,11 +62,10 @@ circuit. The definitions would be:
 \lstinputlisting[linerange=11-14]{./code/shallowCircuit.hs}%APPLY:CIRCUIT1
 %As shallow embedding is semantics-oriented,
 %\bruno{why is ``id'' in bold?}
-\lstinline{Circuit} is just a type
-synonym of \lstinline{Int} and it is already an integer after circuit construction.
-For example, we will immediately get $6$ for \lstinline{beside (fan 3) (id 3)}.
-
-Note that, for this simple circuit DSL, the Haskell domain is simply
+%\lstinline{Circuit} is just a type
+%synonym of \lstinline{Int} and it is already an integer after circuit construction.
+%For example, we will immediately get $6$ for \lstinline{beside (fan 3) (id 3)}.
+Note that, for this tiny DSL, the Haskell domain is simply
 \lstinline{Int}. This domain is a degenerate case of
 procedural abstraction, where \lstinline{Int} can be viewed 
 as a no argument function. In Haskell, due to laziness, \lstinline{Int}
@@ -89,8 +88,8 @@ datatype, getting back the value through pattern matching:
 \end{comment}
 
 \paragraph{Towards OOP}
-A simple, \emph{semantics preserving}, rewriting of the above program 
-uses a record implemented as a newtype. The record has a sole field representing the result:
+A simple, \emph{semantics preserving}, rewriting of the above program is given
+below, where a record with a sole field captures the domain and is declared as a \lstinline{newtype}:
 \lstinputlisting[linerange=2-5]{./code/Rewrite.hs}%APPLY:CIRCUIT3
 %\bruno{width3 should now be width2}
 %We no longer need a separate \lstinline{width3} function as the field name is the extractor.
@@ -105,11 +104,11 @@ language like Scala:
 \lstinputlisting[linerange=2-15]{../src/width/Circuit.scala}%APPLY:CIRCUIT_SCALA
 The record type maps to the trait \lstinline{Circuit} and field
 declaration becomes a method declaration.
-Each case in the semantic function corresponds to an class and its parameters become fields of the class.
-And all the classes extends \lstinline{Circuit} by implementing \lstinline{width}.
+Each case in the semantic function corresponds to a trait and its parameters become fields of that trait.
+And these traits extend \lstinline{Circuit} and implement \lstinline{width}.
 
 
-This implementation is essentially how we would model \dsl in an OO language in the first
+This implementation is essentially how we would model \dsl with an OO language in the first
 place, following the \interp pattern (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
