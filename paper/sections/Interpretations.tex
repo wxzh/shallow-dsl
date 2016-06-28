@@ -1,7 +1,7 @@
 \section{Interpretations in Shallow Embeddings}
 
 A often stated limitation of shallow embeddings is that they allow only a single
-interpretation. Gibbons and Wu worked around this problem by using tuples. However, their encoding needs to modify
+interpretation. Gibbons and Wu~\cite{gibbons2014folding}  work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various type of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
@@ -72,12 +72,10 @@ trait Id extends Circuit
 \subsection{Dependent Interpretations}
  \emph{Dependent interpretations} are a generalization of multiple
 interpretations, where one or more interpretations can use other
-interpretations in their definition. Typically such interpretations 
-would be said to be \emph{non-compositional} since they do not 
-depend only on themselves. 
+interpretations in their definition. 
 In Haskell dependent interpretations are once again defined with
 tuples in a non-modular way. We omit the Haskell code here, since 
-it is quite similar to the example in Section~\ref{subsec:multiple}
+it is quite similar to the example in Section~\ref{subsec:multiple}.
 
 %Such interpretations are non-compositional.
 %In Haskell a dependent interpretation must be defined together with what it
@@ -112,14 +110,13 @@ require dependent interpretations.
 Circuits written with $above$ and $stretch$ have to obey to certain
 size constrains, which are captured by the \lstinline{wellSized} method:
 \lstinputlisting[linerange=2-11]{../src/wellsized/Variants.scala}%APPLY:DEPENDENT_SCALA
-Definitions of \lstinline{wellSized} for the extended cases make it a dependent
-interpretation, as they need \lstinline{width} in their definition.
+The definitions of \lstinline{wellSized} for extended cases depend on \lstinline{width}.
 Note that \lstinline{width} and \lstinline{wellSized} are defined separately.
 Essentially, it is sufficient to define \lstinline{wellSized} while
 knowing only the signature of \lstinline{width} in \lstinline{Circuit}.
 
 \subsection{Discussion} 
-Gibbons and Wu~\cite{gibbons2014folding} claim that in shallow
+Gibbons and Wu claim that in shallow
 embeddings new language constructs are easy to add, but new
 interpretations are hard. As our OOP approach shows, in OOP both
 language constructs and new interpretations are easy to add in shallow

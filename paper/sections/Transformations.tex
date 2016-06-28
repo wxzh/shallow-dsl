@@ -8,7 +8,7 @@ This section illustrates how to define transformations, a missing kind
 of interpretations in Gibbons and Wu's paper, in shallow embeddings.
 
 \subsection{Desugaring}
-Desugaring is a transformation, which eliminates some
+Desugaring is a transformation which eliminates some
 language constructs without sacrificing the expressiveness of the language.
 The \emph{id} construct is an example of syntactic sugar:
 $$id\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
@@ -51,19 +51,17 @@ $$
 beside\ (id\ m)\ (id\ n) = id\ (m + n)
 $$
 This rule applies to a $beside\ c_1\ c_2$ only when both $c_1$ and $c_2$ are
-$id$, also their inner values are extracted for constructing the term
-on the right hand side of the equation.
+$id$, also their inner values are extracted for constructing a new $id$.
 Fortunately, Scala has built-in support for pattern matching by decorating
 classes with \lstinline{case} modifiers or defining extractor objects~\cite{emir2007matching}.
 %For extensibility reasons, case classes can not be used
 %because case class to case class extension is not supported.
-Instead, we manually define \lstinline{unapply} methods in companion
-objects:
+Here, we define the extractor for \lstinline{Id}:
 \lstinputlisting[linerange=18-21]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
-Then we can define this optimization:
+Then we can implement this optimization:
 \lstinputlisting[linerange=4-15]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 
-For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type test and type casts},
+For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type-tests/type-casts},
 though they may not be as elegant as extractors.
 %Interested reader can refer to \ref{} for implementations using these approaches.
 
