@@ -1,15 +1,29 @@
-\section{Conclusion}
+\section{Discussion and Conclusion}
 This paper shows how OO programming improves the modularity of shallow EDSLs.
 With the procedural abstraction mechanisms provided by OO languages, various types of
 interpretations can be defined modularly. We also show that defining
 transformations in shallow embeddings is possible.
 
-There are still certain interpretations that can not be modeled modularly,
-including transformations and binary methods.
-For transformations, we have to refine their return type in extensions and
-supply a new implementation by duplicating the original code.
-For binary methods like equality, there is no way to refine the argument type.
-How to define these methods modularly is a possible line of future work.
-Also, it is still tedious to express the inheritance relationships in extensions,
-especially when multiple inheritance is used. Another line of future work is to
-use some meta-programming mechanisms to eliminate these boilerplate.
+Existing work showed that shallow embeddings yield flexible and concise EDSLs, while deep embedding makes
+it easy to define optimizations.
+There is a lot of work~\cite{svenningsson2012combining,
+  Jovanovic:2014:YCD:2658761.2658771, scherr2014implicit} trying to blend these two
+approaches to enjoy benefits from both.
+They typically encode the surface language with a shallow embedding and
+then generate or translate to a deep embedded version for allowing optimizations.
+%Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at the same time so that clients can choose for a particular interpretation;
+The OO approach we present retains the simplicity of shallow embedding while
+making it possible to implement optimizations. It would be interesting
+to conduct larger case studies to assess whether the techniques
+presented here are enough to avoiding deep embeddings for various DSLs
+in the literature.
+
+One limitation of the techniques presented here is that
+transformations require code duplication in extensions.  For
+transformations, we have to refine their return type in extensions and
+supply a new implementation by duplicating the original code.  How to
+define these transformations modularly, and without code duplication
+is a possible line of future work.  Also, it is still tedious to
+express the inheritance relationships in extensions, especially when
+multiple inheritance is used. Another line of future work is to use
+some meta-programming mechanisms to eliminate such boilerplate.

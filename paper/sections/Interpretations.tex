@@ -94,10 +94,10 @@ constructs \emph{above} and \emph{stretch}:
 \alt `stretch' <positive-numbers> <circuit>
 \end{grammar}
 $above\ c_1\ c_2$ combines two circuits of the same width vertically;
-\emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
+\emph{stretch ns c} inserts more wires into the circuit \emph{c} by
 summing up \emph{ns}.
-Figure~\ref{code:variant} shows how to add them to \dsl, simply by
-\emph{modularly} defining new classes that implement \lstinline{Circuit}.
+Figure~\ref{code:variant} shows the Scala implementation, which
+\emph{modularly} defines new traits implementing \lstinline{Circuit}.
 \begin{figure}
 \lstinputlisting[linerange=2-11]{../src/width/Variants.scala}%APPLY:VARIANT_SCALA
 \caption{Adding new language constructs}

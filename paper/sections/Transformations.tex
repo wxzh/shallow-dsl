@@ -8,7 +8,7 @@ This section illustrates how to define transformations, a missing kind
 of interpretations in Gibbons and Wu's paper, in shallow embeddings.
 
 \subsection{Desugaring}
-Desugaring is a transformation which eliminates some
+Desugaring is a transformation which eliminates 
 language constructs without sacrificing the expressiveness of the language.
 The \emph{id} construct is an example of syntactic sugar:
 $$id\ n = \overbrace{\ beside\ (fan\ 1)}^{\text{repeat }n-1\text{ times}}\ (fan\ 1)$$
@@ -23,8 +23,7 @@ The method \lstinline{desugar} returns a
 Implementing it for each case is
 straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
 $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
-formula.
-For constructing circuits easily, we define some helper methods:
+formula. Circuits are constructed using the helper methods:
 \lstinputlisting[linerange=3-5]{../src/desugar/package.scala}%APPLY:COMPANION
 
 %\weixin{define a show function in the and show the result after
@@ -32,9 +31,10 @@ For constructing circuits easily, we define some helper methods:
 \paragraph{Desugaring in Haskell}
 Interestingly we can port the implementation back to Haskell:
 \lstinputlisting[linerange=6-13]{./code/Desugar.hs}%APPLY:DESUGAR
-
+\bruno{Code is cut-off in my pdf! Are the lines correct; beside is not
+  fully defined?}
 \noindent This code follows well-known encodings of objects into 
-\emph{functional} calculi with recursive records~\cite{}. Thanks 
+\emph{functional} calculi with recursive records~\cite{bruce97comparing}. Thanks 
 to Haskell's laziness, the port of recursive definitions such as
 \lstinline{beside} is straightforward.  
 
@@ -42,9 +42,11 @@ to Haskell's laziness, the port of recursive definitions such as
 A final example is a more sophisticated type of optimization, 
 which requires inspecting multiple internal
 representations of abstract values at the same time.
-Such type of optimizations imposes extra difficulty to shallow embeddings, but both
-Cook~\cite{cook09abstraction} and Reynolds~\cite{reynolds94proceduralabstraction} have shown how it 
-is possible to overcome such difficulties. 
+Such optimizations impose extra difficulty to shallow
+embeddings.
+%, but both
+%Cook~\cite{cook09abstraction} and Reynolds~\cite{reynolds94proceduralabstraction} have shown how it 
+%is possible to overcome such difficulties. 
 %which imposes difficulty to shallow embeddings.
 For instance, consecutive \emph{id}s put side by side can be merged together:
 $$
