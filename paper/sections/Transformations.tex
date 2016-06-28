@@ -24,7 +24,10 @@ Implementing it for each case is
 straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
 $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
 formula. Circuits are constructed using the helper methods:
-\lstinputlisting[linerange=3-5]{../src/desugar/package.scala}%APPLY:COMPANION
+\lstinputlisting[linerange=3-6]{../src/desugar/package.scala}%APPLY:COMPANION
+These methods are interfaces exposed to DSL clients, e.g.
+\lstinputlisting[linerange=5-6]{../src/test/Test.scala}%APPLY:CLIENT
+By importing a different package, clients can change the semantics with the majority of the code untouched.
 
 %\weixin{define a show function in the and show the result after
 %desugaring?}
@@ -57,7 +60,7 @@ classes with \lstinline{case} modifiers or defining extractor objects~\cite{emir
 %For extensibility reasons, case classes can not be used
 %because case class to case class extension is not supported.
 Here, we define the extractor for \lstinline{Id}:
-\lstinputlisting[linerange=18-21]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
+\lstinputlisting[linerange=18-18]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
 Then we can implement this optimization:
 \lstinputlisting[linerange=4-15]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 

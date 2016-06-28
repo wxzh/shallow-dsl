@@ -1,10 +1,9 @@
-package scans
+package layout
 
 import javax.swing.JPanel
 import java.awt.Graphics2D
 import java.awt.Graphics
 import java.awt.Dimension
-import layout._
 
 class DrawCircuit(layout: Layout) extends JPanel {
   val L = 30;
