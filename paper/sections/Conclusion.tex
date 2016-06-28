@@ -4,12 +4,14 @@ With the procedural abstraction mechanisms provided by OO languages, various typ
 interpretations can be defined modularly. We also show that defining
 transformations in shallow embeddings is possible.
 
-There are still certain interpretations that can not be modeled modularly,
-including transformations and binary methods.
+There are still certain interpretations that can not be modeled modularly using
+our approach, including transformations and binary methods.
 For transformations, we have to refine their return type in extensions and
 supply a new implementation by duplicating the original code.
 For binary methods like equality, there is no way to refine the argument type.
-How to define these methods modularly is a possible line of future work.
-Also, it is still tedious to express the inheritance relationships in extensions,
-especially when multiple inheritance is used. Another line of future work is to
-use some meta-programming mechanisms to eliminate these boilerplate.
+Though with advanced type system features of Scala, these can still be defined
+modularly~\ref{zenger05independentlyextensible}. However, the encoding would
+become complicated.
+Also, we can further eliminate some boilerplate through code generation.
+For example, similar inheritance relationships are repeated in each constructs
+for extensions.
