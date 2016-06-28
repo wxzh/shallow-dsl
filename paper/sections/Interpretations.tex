@@ -44,8 +44,7 @@ The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
 Specifically, the new \lstinline{Circuit} is a subtype of
 \lstinline{base.Circuit} and declares a new method \lstinline{wellSized}.
-The hierarchy implements the new \lstinline{Circuit} by inheriting the corresponding class
-from \lstinline{base} and
+The hierarchy implements the new \lstinline{Circuit} by inheriting the corresponding trait from \lstinline{base} and
 implementing \lstinline{wellSized}.
 Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} type
 to avoid type mismatches in methods~\cite{eptrivially16}.
@@ -146,7 +145,7 @@ has to manually implement the subtyping machinery for variants.
 Gibbons and Wu also show some different variants of interpretations,
 such as context-sensitive interpretations. 
 Context-sensitive transformations are unproblematic as well. 
-For space reasons, full details are only available online.
+For space reasons, full details are only available online~\url{https://github.com/wxzh/shallow-dsl}.
 
 \begin{comment}
 Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with

@@ -10,7 +10,7 @@ it easy to define optimizations.
 There is a lot of work~\cite{svenningsson2012combining,
   Jovanovic:2014:YCD:2658761.2658771, scherr2014implicit} trying to blend these two
 approaches to enjoy benefits from both.
-They typically encode the surface language with a shallow embedding and
+They typically encode the surface language in shallow embeddings and
 then generate or translate to a deep embedded version for allowing optimizations.
 %Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at the same time so that clients can choose for a particular interpretation;
 The OO approach we present retains the simplicity of shallow embedding while
@@ -23,12 +23,12 @@ One limitation of the techniques presented here is that
 transformations require code duplication in extensions.  For
 transformations, we have to refine their return type in extensions and
 supply a new implementation by duplicating the original code. 
-Though with advanced type system features of Scala, these can still be defined
-modularly~\cite{zenger05independentlyextensible}, the encoding would
-become significantly more complicated.
+Though these methods can still be defined modularly with advanced type
+system features of Scala~\cite{zenger05independentlyextensible},
+the encoding would become significantly more complicated.
 How to define these transformations modularly, without code
-duplication, and without sphiticated types
-is a possible line of future work.  Also, it is still tedious to
+duplication, and without sophisticated types
+is a possible line of future work.  Also, it is tedious to
 express the inheritance relationships in extensions, especially when
 multiple inheritance is used. Another line of future work is to use
 some meta-programming mechanisms to eliminate such boilerplate.

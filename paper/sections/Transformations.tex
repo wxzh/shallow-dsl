@@ -25,6 +25,9 @@ straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
 $beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
 formula. Circuits are constructed using the helper methods:
 \lstinputlisting[linerange=3-6]{../src/desugar/package.scala}%APPLY:COMPANION
+These methods are interfaces exposed to DSL clients, e.g.
+\lstinputlisting[linerange=5-6]{../src/test/Test.scala}%APPLY:CLIENT
+By importing a different package, clients can change the semantics with the majority of the code untouched.
 
 %\weixin{define a show function in the and show the result after
 %desugaring?}
