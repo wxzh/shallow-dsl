@@ -13,16 +13,15 @@ approaches to enjoy benefits from both.
 They typically encode the surface language in shallow embeddings and
 then generate or translate to a deep embedded version for allowing optimizations.
 %Hofer and Ostermann~\cite{hofer2010modular} propose to provide both embedding through implementing internal and external visitor at the same time so that clients can choose for a particular interpretation;
-The OO approach we present retains the simplicity of shallow embedding while
-making it possible to implement optimizations. It would be interesting
+Our OO approach retains the simplicity of shallow embeddings while
+allowing optimizations. It would be interesting
 to conduct larger case studies to assess whether the techniques
-presented here are enough to avoiding deep embeddings for various DSLs
+presented here are enough to avoid deep embeddings for various DSLs
 in the literature.
 
-One limitation of the techniques presented here is that
-transformations require code duplication in extensions.
-We have to refine their return type and
-supply a new implementation by copying the original code.
+One limitation of our approach is that
+transformations require code duplication in extensions,
+as we must give an implementation when refining their return type.
 Though transformations can still be defined modularly with advanced type
 system features of Scala~\cite{zenger05independentlyextensible},
 the encoding would become significantly more complicated.
