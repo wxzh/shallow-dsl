@@ -39,7 +39,7 @@ Its BNF grammar is given below:
 \alt `beside' <circuit> <circuit>
 \end{grammar}
 
-The DSL consists of three constructs - two primitives
+\noindent The DSL consists of three constructs: two primitives
 \emph{id} and \emph{fan} and one combinator \emph{beside}.
 Their meanings are: \emph{id n} contains \emph{n} isolated vertical wires;
 \emph{fan n} has \emph{n} vertical wires with its first wire connected to
@@ -48,7 +48,7 @@ $c_1$ and $c_2$ horizontally.
 With these three constructs, simple circuits can be described.
 %For example, Figure~\ref{} visualize the circuit \emph{beside (fan 3) (id 3)}.
 
-\subsection{Shallow Embeddings and OOP}
+\subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
 an shallow embedded implementation should conform to the following
@@ -65,6 +65,16 @@ circuit. The definitions would be:
 \lstinline{Circuit} is just a type
 synonym of \lstinline{Int} and it is already an integer after circuit construction.
 For example, we will immediately get $6$ for \lstinline{beside (fan 3) (id 3)}.
+
+Note that, for this simple circuit DSL, the Haskell domain is simply
+\lstinline{Int}. This domain is a degenerate case of
+procedural abstraction, where \lstinline{Int} can be viewed 
+as a no argument function. In Haskell, due to laziness, \lstinline{Int}
+is a good representation. In a call-by-value language 
+a no-argument function \lstinline{() -> Int} would be more
+appropriate to deal correctly with potential control-flow 
+language constructs. More realistic shallow DSLs, such as parser 
+combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \begin{comment}
 

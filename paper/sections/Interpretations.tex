@@ -1,8 +1,7 @@
 \section{Interpretations in Shallow Embeddings}
 
-A well-known limitation of shallow embeddings is that they allow only a single
-interpretation. Gibbons and Wu worked around this problem by accommodating
-multiple interpretations using tuples. However, their encoding needs to modify
+A often stated limitation of shallow embeddings is that they allow only a single
+interpretation. Gibbons and Wu worked around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various type of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
@@ -22,18 +21,19 @@ constructed correctly. Gibbons and Wu's solution is:
 \lstinputlisting[linerange=2-9]{./code/NewSemantics.hs}%APPLY:SEMANTICS_HS
 \noindent This solution is not modular because it relies 
 on defining the two interpretations (\lstinline{width} and
-\lstinline{wellSized}) simultaneously, using a pair. It is not
-possible to define \lstinline{width} independently and then reuse it.
+\lstinline{wellSized}) simultaneously, using a tuple. It is not
+possible reuse the independently defined \lstinline{width} function in
+Section~\ref{subsec:shallow}.
 Whenever a new interpretation is needed (e.g. \lstinline{wellSized}), the
-original code has to be revised -
+original code has to be revised:
 the arity of the tuple must be incremented and the new interpretation has to be
 appended to each case.
 %we add the definition of \lstinline{wellSized} by modifying the original code.
 
 
 \paragraph{Multiple Interpretations in Scala}
-In contrast, new interpretations are introduced in a 
-modular way with an OO language like Scala, as shown in Figure~\ref{code:operation}.
+In contrast, Scala allows new interpretations to be introduced in a 
+modular way, as shown in Figure~\ref{code:operation}.
 \begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
 \caption{Adding new interpretations}
@@ -46,7 +46,7 @@ Specifically, the new \lstinline{Circuit} is a subtype of
 \lstinline{base.Circuit} and declares a new method \lstinline{wellSized}.
 The hierarchy implements the new \lstinline{Circuit} by inheriting the corresponding class
 from \lstinline{base} and
-complementing the body of \lstinline{wellSized}.
+implementing \lstinline{wellSized}.
 Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} type
 to avoid type mismatches in methods~\cite{eptrivially16}.
 
@@ -74,7 +74,7 @@ trait Id extends Circuit
 interpretations, where one or more interpretations can use other
 interpretations in their definition. Typically such interpretations 
 would be said to be \emph{non-compositional} since they do not 
-dependent only on themselves. 
+depend only on themselves. 
 In Haskell dependent interpretations are once again defined with
 tuples in a non-modular way. We omit the Haskell code here, since 
 it is quite similar to the example in Section~\ref{subsec:multiple}
@@ -129,7 +129,7 @@ abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
 abstraction. Gibbons and Wu do discuss a number of advanced techniques that 
 can solve some of the modularity problems. For example, using type
-classes, the \emph{finally
+classes, \emph{finally
   tagless}~\cite{carette2009finally} can deal with the example in
 Section~\ref{subsec:multiple}. However
 tuples are still needed 

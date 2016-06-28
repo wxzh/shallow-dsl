@@ -21,16 +21,17 @@ their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons
 %We argue that this definition is vague,
 %and often leads to some contradicting claims. 
 
-Although the above definition is quite reasonable and widely accepted,
+\noindent Although the above definition is quite reasonable and widely accepted,
 it leaves some space to (mis)interpretation. For example it is unclear 
 how to classify an EDSL implemented using the {\sc Composite} or {\sc Interpreter} 
 patterns in OOP. Would this OO approach be
 classified as a shallow or deep embedding? We believe arguments can be
-made both ways. The {\sc Composite} or {\sc Interpreter}
-patterns are normally accepted to provide a way to encode ASTs. Thus, 
-one possible interpretation is that \emph{according to definition of deep embedding
-  above, the OO approach classifies as a deep
-  embedding}. 
+made both ways. 
+%The {\sc Composite} or {\sc Interpreter}
+%patterns are normally accepted to provide a way to encode ASTs. Thus, 
+%one possible interpretation is that \emph{according to definition of deep embedding
+%  above, the OO approach classifies as a deep
+%  embedding}. 
 
 \begin{comment}
 For example, in their work
@@ -107,10 +108,11 @@ advantages for the implementation of shallow embeddings.
 %This should
 %not came as a surprise, as OOP languages have evolved over more than 50
 %years to improve the use of procedural abstraction. 
-In order to understand how OOP can help with shallow embeddings, lets
+In order to understand how OOP can help with shallow embeddings, it is
+helpful to
 first review some of the limitations commonly
 found in the literature:
-
+\vspace{-5pt}
 \begin{enumerate}
 
 \item {\bf Single Interpretation} An often stated limitation of
@@ -122,10 +124,11 @@ of shallow embeddings is that they do not support transformations,
 preventing optimizations and other useful transformations.
 
 \end{enumerate}
+\vspace{-5pt}
 
 \noindent Both limitations are often used as motivators to switch to deep embeddings.
 
-We show that OOP abstractions, including \emph{(multiple)
+We show that OOP abstractions, including \emph{
   inheritance}, \emph{subtyping} and \emph{type-refinement}, are
 helpful to address those problems. For the first problem, we can
 employ a recently proposed design pattern~\cite{eptrivially16}, which provides a simple
@@ -139,10 +142,8 @@ Haskell.
 
 We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple
-EDSL, and we recode that EDSL in Scala. Although from the
-\emph{syntactical} point of view there are minor inconveniences in
-the Scala version, from the \emph{semantic} and \emph{modularity} point of view the
-Scala version has clear advantages.
+EDSL, and we recode that EDSL in Scala. From the \emph{semantic} and \emph{modularity} point of view the
+Scala version has clear advantages over the Haskell version.
 
 \begin{comment}
 In summary, our contributions are:
