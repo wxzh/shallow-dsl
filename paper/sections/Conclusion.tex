@@ -4,6 +4,7 @@ With the procedural abstraction mechanisms provided by OO languages, various typ
 interpretations can be defined modularly. We also show that defining
 transformations in shallow embeddings is possible.
 
+
 Existing work showed that shallow embeddings yield flexible and concise EDSLs, while deep embedding makes
 it easy to define optimizations.
 There is a lot of work~\cite{svenningsson2012combining,
@@ -21,8 +22,12 @@ in the literature.
 One limitation of the techniques presented here is that
 transformations require code duplication in extensions.  For
 transformations, we have to refine their return type in extensions and
-supply a new implementation by duplicating the original code.  How to
-define these transformations modularly, and without code duplication
+supply a new implementation by duplicating the original code. 
+Though with advanced type system features of Scala, these can still be defined
+modularly~\cite{zenger05independentlyextensible}, the encoding would
+become significantly more complicated.
+How to define these transformations modularly, without code
+duplication, and without sphiticated types
 is a possible line of future work.  Also, it is still tedious to
 express the inheritance relationships in extensions, especially when
 multiple inheritance is used. Another line of future work is to use
