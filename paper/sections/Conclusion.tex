@@ -20,10 +20,10 @@ presented here are enough to avoiding deep embeddings for various DSLs
 in the literature.
 
 One limitation of the techniques presented here is that
-transformations require code duplication in extensions.  For
-transformations, we have to refine their return type in extensions and
-supply a new implementation by duplicating the original code. 
-Though these methods can still be defined modularly with advanced type
+transformations require code duplication in extensions.
+We have to refine their return type and
+supply a new implementation by copying the original code.
+Though transformations can still be defined modularly with advanced type
 system features of Scala~\cite{zenger05independentlyextensible},
 the encoding would become significantly more complicated.
 How to define these transformations modularly, without code

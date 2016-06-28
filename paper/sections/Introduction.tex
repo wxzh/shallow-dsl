@@ -71,7 +71,7 @@ in a shallow embedding as Boulton's choice of terms suggests.}''
 
 In this paper, to avoid ambiguity, we prefer a more precise meaning
 for shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\cite{reynolds94proceduralabstraction}. Such
-interpretation arises from the domain of shallow DSLs being
+interpretation arises from the domain of shallow EDSLs being
 typically a function, and procedural abstraction being a way to encode
 data abstractions using functions. As Cook~\cite{cook09abstraction} argued,
 procedural abstraction is also the essence of Object-Oriented
@@ -131,7 +131,7 @@ We show that OOP abstractions, including \emph{
 helpful to address those problems. For the first problem, we can
 employ a recently proposed design pattern~\cite{eptrivially16}, which provides a simple
 solution to the \emph{Expression Problem}~\cite{expPb} in OOP languages. Thus
-using just standard OOP mechanims enables \emph{multiple modular
+using just standard OOP mechanisms enables \emph{multiple modular
   interpretations} to co-exist and be combined in shallow embeddings.
 For the second problem, we show that transformations can be encoded 
 with recursive objects. Interestingly enough, for transformations it
@@ -140,7 +140,8 @@ Haskell.
 
 We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple
-EDSL, and we recode that EDSL in Scala. From the \emph{semantic} and \emph{modularity} point of view the
+EDSL, and we recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
+From the \emph{semantic} and \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 
 \begin{comment}
