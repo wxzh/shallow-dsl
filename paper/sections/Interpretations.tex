@@ -1,7 +1,8 @@
 \section{Interpretations in Shallow Embeddings}
 
-A often stated limitation of shallow embeddings is that they allow only a single
-interpretation. Gibbons and Wu~\cite{gibbons2014folding}  work around this problem by using tuples. However, their encoding needs to modify
+
+An often stated limitation of shallow embeddings is that they allow only a single
+interpretation. Gibbons and Wu~\cite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various type of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
@@ -30,15 +31,21 @@ the arity of the tuple must be incremented and the new interpretation has to be
 appended to each case.
 %we add the definition of \lstinline{wellSized} by modifying the original code.
 
-
-\paragraph{Multiple Interpretations in Scala}
-In contrast, Scala allows new interpretations to be introduced in a 
-modular way, as shown in Figure~\ref{code:operation}.
 \begin{figure}
 \lstinputlisting[linerange=2-15]{../src/wellsized/Circuit.scala}%APPLY:MULTIPLE_SCALA
 \caption{Adding new interpretations}
 \label{code:operation}
 \end{figure}
+
+\begin{figure}
+\lstinputlisting[linerange=2-11]{../src/width/Variants.scala}%APPLY:VARIANT_SCALA
+\caption{Adding new language constructs}
+\label{code:variant}
+\end{figure}
+
+\paragraph{Multiple Interpretations in Scala}
+In contrast, Scala allows new interpretations to be introduced in a 
+modular way, as shown in Figure~\ref{code:operation}.
 %Instead of modifying the original code, we define \lstinline{wellSized} modularly.
 The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
@@ -48,6 +55,7 @@ The hierarchy implements the new \lstinline{Circuit} by inheriting the correspon
 implementing \lstinline{wellSized}.
 Also, fields of \lstinline{Beside} are refined with the new \lstinline{Circuit} type
 to avoid type mismatches in methods~\cite{eptrivially16}.
+
 
 % Multiple inheritance
 \begin{comment}
@@ -97,24 +105,21 @@ $above\ c_1\ c_2$ combines two circuits of the same width vertically;
 summing up \emph{ns}.
 Figure~\ref{code:variant} shows the Scala implementation, which
 \emph{modularly} defines new traits implementing \lstinline{Circuit}.
-\begin{figure}
-\lstinputlisting[linerange=2-11]{../src/width/Variants.scala}%APPLY:VARIANT_SCALA
-\caption{Adding new language constructs}
-\label{code:variant}
-\end{figure}
+
+
 
 \paragraph{Dependent Interpretations in Scala}
 The definitions of \lstinline{wellSized} for $above$ and $stretch$
 require dependent interpretations.
 Circuits written with $above$ and $stretch$ have to obey to certain
-size constrains, which are captured by the \lstinline{wellSized} method:
+size constrains%, which are captured by the \lstinline{wellSized} method:
 \lstinputlisting[linerange=2-11]{../src/wellsized/Variants.scala}%APPLY:DEPENDENT_SCALA
 The definitions of \lstinline{wellSized} for extended cases depend on \lstinline{width}.
 Note that \lstinline{width} and \lstinline{wellSized} are defined separately.
 Essentially, it is sufficient to define \lstinline{wellSized} while
 knowing only the signature of \lstinline{width} in \lstinline{Circuit}.
 
-\subsection{Discussion} 
+\subsection{Discussion}
 Gibbons and Wu claim that in shallow
 embeddings new language constructs are easy to add, but new
 interpretations are hard. As our OOP approach shows, in OOP both
@@ -144,8 +149,8 @@ has to manually implement the subtyping machinery for variants.
 \end{comment}
 Gibbons and Wu also show some different variants of interpretations,
 such as context-sensitive interpretations. 
-Context-sensitive transformations are unproblematic as well. 
-For space reasons, full details are only available online~\url{https://github.com/wxzh/shallow-dsl}.
+These interpretations are unproblematic as well.
+Implementation details can be found online.
 
 \begin{comment}
 Unlike \lstinline{width} and \lstinline{wellSized} which can be defined with

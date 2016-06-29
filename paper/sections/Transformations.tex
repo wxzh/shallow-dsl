@@ -20,14 +20,17 @@ A corresponding Scala implementation is given below:
 \lstinputlisting[linerange=4-17]{../src/desugar/Circuit.scala}%APPLY:DESUGAR_SCALA
 The method \lstinline{desugar} returns a
 \lstinline{Circuit} reflecting the nature of transformations.
-Implementing it for each case is
-straightforward: \emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
-$beside$ with $c_1$ and $c_2$ desugared; \emph{id n} just mimics the
-formula. Circuits are constructed using the helper methods:
+Implementing each case is straightforward:
+\emph{fan n} returns itself; $beside\ c_1\ c_2$ returns a new
+$beside$ with $c_1$ and $c_2$ desugared; \emph{id n} mimics the
+formula.
+
+Circuits are constructed via some helper methods:
 \lstinputlisting[linerange=3-6]{../src/desugar/package.scala}%APPLY:COMPANION
-These methods are interfaces exposed to DSL clients, e.g.
+These methods would be intensively used in client code, e.g.
 \lstinputlisting[linerange=5-6]{../src/test/Test.scala}%APPLY:CLIENT
-By importing a different package, clients can change the semantics with the majority of the code untouched.
+By importing a different package, clients can obtain new semantics with the code
+describing circuits untouched.
 
 %\weixin{define a show function in the and show the result after
 %desugaring?}
@@ -63,6 +66,8 @@ Here, we define the extractor for \lstinline{Id}:
 \lstinputlisting[linerange=18-18]{../src/optimizations/Circuit.scala}%APPLY:EXTRACTOR
 Then we can implement this optimization:
 \lstinputlisting[linerange=4-15]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
+where we pattern matching on the two merged inner circuits of \lstinline{Beside}
+simultaneously and applies the rule when both of them are \lstinline{Id}.
 
 For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type-tests/type-casts},
 though they may not be as elegant as extractors.
