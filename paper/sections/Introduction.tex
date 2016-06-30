@@ -25,8 +25,12 @@ their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons
 it leaves some space to (mis)interpretation. For example it is unclear 
 how to classify an EDSL implemented using the {\sc Composite} or {\sc Interpreter} 
 patterns in Object-Oriented Programming (OOP). Would this OO approach be
-classified as a shallow or deep embedding? We believe arguments can be
-made both ways. 
+classified as a shallow or deep embedding? Some authors working on
+EDSLs in OOP~\cite{} consider a {\sc Composite} to be a deep
+embedding. Some other authors~\cite{} 
+consider implementations using tuples and/or the  {\sc Composite}
+pattern to be a shallow embedding. 
+
 %The {\sc Composite} or {\sc Interpreter}
 %patterns are normally accepted to provide a way to encode ASTs. Thus, 
 %one possible interpretation is that \emph{according to definition of deep embedding
