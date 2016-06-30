@@ -1,8 +1,8 @@
 \section{Discussion and Conclusion}
-This paper shows how OO programming improves the modularity of shallow EDSLs.
-With the procedural abstraction mechanisms provided by OO languages, various types of
-interpretations can be defined modularly. We also show that defining
-transformations in shallow embeddings is possible.
+This paper shows the close correspondence between OOP and shallow
+embeddings, and how OOP improves the modularity of shallow EDSLs.
+With OOP, various types of interpretations can be defined modularly. 
+Moreover defining transformations is also possible.
 
 Existing work showed that shallow embeddings yield flexible and
 concise EDSLs, while deep embedding makes it easy to define
@@ -15,10 +15,10 @@ then generate or translate to a deep embedded version for allowing optimizations
 Our OO approach retains the simplicity of shallow embeddings while
 allowing optimizations. It would be interesting
 to conduct larger case studies to assess whether the techniques
-presented here are enough to avoid deep embeddings for various DSLs
+presented here are enough to avoid sophisticated deep embeddings for various DSLs
 in the literature.
 
-One limitation of our approach is that
+One limitation is that
 transformations require code duplication in extensions,
 as we must give an implementation when refining their return type.
 Though transformations can still be defined modularly with advanced type
