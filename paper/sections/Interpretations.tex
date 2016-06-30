@@ -79,9 +79,9 @@ trait Id extends Circuit
 \subsection{Dependent Interpretations}
  \emph{Dependent interpretations} are a generalization of multiple
 interpretations, where other interpretations are used for definition.
-In Haskell dependent interpretations are once again defined with
-tuples in a non-modular way. We omit the Haskell code here, since 
-it is quite similar to the example in Section~\ref{subsec:multiple}.
+In Haskell dependent interpretations are again defined with
+tuples in a non-modular way. We omit the Haskell code here since
+it is similar to the example in Section~\ref{subsec:multiple}.
 
 %Such interpretations are non-compositional.
 %In Haskell a dependent interpretation must be defined together with what it
@@ -111,11 +111,11 @@ Figure~\ref{code:variant} shows the Scala implementation, which
 The definitions of \lstinline{wellSized} for $above$ and $stretch$
 require dependent interpretations.
 Circuits written with $above$ and $stretch$ have to obey to certain
-size constrains%, which are captured by the \lstinline{wellSized} method:
+size constrains:%, which are captured by the \lstinline{wellSized} method:
 \lstinputlisting[linerange=2-11]{../src/wellsized/Variants.scala}%APPLY:DEPENDENT_SCALA
 The \lstinline{wellSized} method becomes a dependent interpretation
 because it depends not only on itself but also on \lstinline{width} in the
-definition of \lstinline{Beside} and \lstinline{Above}.
+definition of \lstinline{Above} and \lstinline{Stretch}.
 Note that \lstinline{width} and \lstinline{wellSized} are defined separately.
 Essentially, it is sufficient to define \lstinline{wellSized} while
 knowing only the signature of \lstinline{width} in \lstinline{Circuit}.

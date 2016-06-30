@@ -39,13 +39,12 @@ Its BNF grammar is given below:
 \alt `beside' <circuit> <circuit>
 \end{grammar}
 
-\noindent The DSL consists of three constructs: two primitives
+\noindent The DSL has three constructs: two primitives
 \emph{id} and \emph{fan} and one combinator \emph{beside}.
 Their meanings are: \emph{id n} contains \emph{n} isolated vertical wires;
 \emph{fan n} has \emph{n} vertical wires with its first wire connected to
 all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuits
-$c_1$ and $c_2$ horizontally.
-With these three constructs, simple circuits can be described.
+$c_1$ and $c_2$ horizontally. Simple circuits can be described with these three constructs.
 %For example, Figure~\ref{} visualize the circuit \emph{beside (fan 3) (id 3)}.
 
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
