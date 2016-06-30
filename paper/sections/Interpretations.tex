@@ -113,7 +113,8 @@ require dependent interpretations.
 Circuits written with $above$ and $stretch$ have to obey to certain
 size constrains%, which are captured by the \lstinline{wellSized} method:
 \lstinputlisting[linerange=2-11]{../src/wellsized/Variants.scala}%APPLY:DEPENDENT_SCALA
-The definitions of \lstinline{wellSized} for extended cases depend on \lstinline{width}.
+\lstinline{wellSized} becomes a dependent interpretation
+because it depends not only on itself but also on \lstinline{width}.
 Note that \lstinline{width} and \lstinline{wellSized} are defined separately.
 Essentially, it is sufficient to define \lstinline{wellSized} while
 knowing only the signature of \lstinline{width} in \lstinline{Circuit}.
