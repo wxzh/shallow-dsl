@@ -26,10 +26,10 @@ it leaves some space to (mis)interpretation. For example it is unclear
 how to classify an EDSL implemented using the {\sc Composite} or {\sc Interpreter} 
 patterns in Object-Oriented Programming (OOP). Would this OO approach be
 classified as a shallow or deep embedding? Some authors working on
-EDSLs in OOP~\cite{} consider a {\sc Composite} to be a deep
-embedding. Some other authors~\cite{} 
+OOP EDSLs ~\cite{} consider a {\sc Composite} to be a deep
+embedding. Some other authors~\cite{gibbons2014folding} 
 consider implementations using tuples and/or the  {\sc Composite}
-pattern to be a shallow embedding. 
+pattern to be a shallow embedding.  
 
 %The {\sc Composite} or {\sc Interpreter}
 %patterns are normally accepted to provide a way to encode ASTs. Thus, 
@@ -73,15 +73,15 @@ embeddings when they say:
 in a shallow embedding as Boulton's choice of terms suggests.}''
 \end{comment}
 
-In this paper, to avoid ambiguity, we prefer a more precise meaning
+In this paper, we avoid ambiguitity by using a more precise meaning
 for shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\cite{reynolds94proceduralabstraction}. Such
-interpretation arises from the domain of shallow EDSLs being
-typically a function, and procedural abstraction being a way to encode
+interpretation arises naturally from the domain of shallow EDSLs being
+typically functions, and procedural abstraction being a way to encode
 data abstractions using functions. As Cook~\cite{cook09abstraction} argued,
 procedural abstraction is also the essence of OOP.
 Thus, according to our definition, the implementation of a shallow
 EDSL in OOP languages should simply correspond to a standard
-object-oriented program.
+object-oriented program. 
 
 \begin{comment}
 If we accept Cook's view on OOP, 
@@ -107,15 +107,15 @@ under procedural abstraction (shallow embedding).
 %At least some authors~\cite{} seem to implicitly
 %agree with the latter interpretation.
 
-The main goal of this paper is to argue that OOP languages have
+The main goal of our paper is to show that OOP languages have
 advantages for the implementation of shallow embeddings. 
-%This should
-%not came as a surprise, as OOP languages have evolved over more than 50
-%years to improve the use of procedural abstraction. 
-In order to understand how OOP can help with shallow embeddings, it is
-helpful to
-first review some of the limitations commonly
-found in the literature:
+It is perhaps due to those advantages that some authors 
+have considered  {\sc Composite}-based implementations to be deep
+embeddings, rather than shallow. However, we argue that the OOP
+mechanisms do not change the essence of the implementation, which is
+still shallow (i.e. using procedural abstraction). To understand how
+OOP is helpful for shallow embeddings, we should first look at the
+limitations of shallow embeddings commonly found in the literature:
 \begin{enumerate}
 
 \item {\bf Single Interpretation} An often stated limitation of
@@ -127,8 +127,6 @@ of shallow embeddings is that they do not support transformations,
 preventing optimizations and other useful transformations.
 
 \end{enumerate}
-
-\noindent Both limitations are often used as motivators to switch to deep embeddings.
 
 We show that OOP abstractions, including \emph{
   inheritance}, \emph{subtyping} and \emph{type-refinement}, are
@@ -145,7 +143,7 @@ Haskell.
 We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple
 EDSL, and we recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
-From the \emph{semantic} and \emph{modularity} point of view the
+From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 
 \begin{comment}
