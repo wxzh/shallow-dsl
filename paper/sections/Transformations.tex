@@ -68,7 +68,6 @@ Then we can implement this optimization:
 \lstinputlisting[linerange=4-15]{../src/optimizations/Circuit.scala}%APPLY:MERGEIDS_SCALA
 where we pattern match on the two merged inner circuits of \lstinline{Beside}
 simultaneously and apply the rule when both of them are \lstinline{Id}.
-
 For other OO languages, pattern matching can still be simulated through \emph{test methods} or \emph{type-tests/type-casts},
 though they may not be as elegant as extractors.
 %Interested reader can refer to \ref{} for implementations using these approaches.
