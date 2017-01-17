@@ -8,11 +8,11 @@ attributed to Boulton et al.'s work~\cite{Boulton92dsl}. The difference between 
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
-\emph{With a deep embedding, terms in the DSL are implemented simply to
+With a deep embedding, terms in the DSL are implemented simply to
 construct an abstract syntax tree (AST), which is subsequently
 transformed for optimization and traversed for evaluation. With a
 shallow embedding, terms in the DSL are implemented directly by
-their semantics, bypassing the intermediate AST and its traversal.}\cite{gibbons2014folding}
+their semantics, bypassing the intermediate AST and its traversal.\cite{gibbons2014folding}
 \end{quote}
 
 %\begin{comment}
@@ -49,33 +49,14 @@ It is perhaps partly due to those advantages that some authors
 have considered  {\sc Composite}-based implementations to be deep
 embeddings. However, we argue that the OOP
 mechanisms do not change the essence of the implementation, which is
-still shallow (i.e. using procedural abstraction). 
-To understand how
-OOP is helpful for shallow embeddings, we should first look at the
-limitations of shallow embeddings commonly found in the literature:
-\begin{enumerate}
-
-\item {\bf Single Interpretation} An often stated limitation of
-  shallow EDSLs is that they only support one
-  interpretation.
-
-\item {\bf No Transformations} Another commonly stated limitation 
-of shallow embeddings is the lack of support for transformations,
-preventing optimizations.
-
-\end{enumerate}
-
-We show that OOP abstractions, including \emph{
-  inheritance}, \emph{subtyping} and \emph{type-refinement}, are
-helpful to address those problems. For the first problem, we can
-employ a recently proposed design pattern~\cite{eptrivially16}, which provides a simple
+still shallow (i.e. using procedural abstraction).
+An often stated limitation of shallow EDSLs is that they only support \emph{single} interpretation.
+We show that OOP abstractions, including \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
+helpful to address this problem.
+We can employ a recently proposed design pattern~\cite{eptrivially16}, which provides a simple
 solution to the \emph{Expression Problem}~\cite{expPb} in OOP languages. Thus
 using just standard OOP mechanisms enables \emph{multiple modular
   interpretations} to co-exist and be combined in shallow embeddings.
-For the second problem, we show that transformations can be encoded 
-with recursive objects. Interestingly enough, for transformations it
-is possible to port back the OO solution to
-Haskell.
 
 We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
