@@ -1,0 +1,35 @@
+%format . = "."
+%format trait = "\mathbf{trait}"
+%format package = "\mathbf{package}"
+%format val = "\mathbf{val}"
+%format def = "\mathbf{def}"
+%format with = "\mathbf{with}"
+%format extends = "\mathbf{extends}"
+%format for = "\mathbf{for}"
+%format yield = "\mathbf{yield}"
+%format match = "\mathbf{match}"
+
+%format c1
+%format c2
+%format Circuit1
+%format Circuit2
+%format Circuit3
+%format Circuit4
+%format identity2
+%format fan2
+%format beside2
+%format above2
+%format stretch2
+%format width2
+%format identity3
+%format fan3
+%format beside3
+%format above3
+%format stretch3
+%format width3
+%format identity4
+%format fan4
+%format beside4
+%format above4
+%format stretch4
+%format width4
