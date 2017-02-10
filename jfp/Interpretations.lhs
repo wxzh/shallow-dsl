@@ -14,105 +14,106 @@ multiple interpretations.
 \subsection{Multiple Interpretations}\label{subsec:multiple}
 
 \paragraph{Multiple Interpretations in Haskell}
-Suppose that we want to have an additional function that checks whether a circuit is
-constructed correctly. Gibbons and Wu's solution is:
+Suppose that we want to have an additional interpretation that calculates the depth of a circuit. Here is Gibbons and Wu's solution:
 \begin{code}
 type Circuit3  =  (Int,Int)
 identity3 n    =  (n,0)
 fan3 n         =  (n,1)
-above3 c1 c2   =  (width3 c1,depth c1 + depth c2)
-beside3 c1 c2  =  (width3 c1 + width3 c2, depth c1 `max` depth c2)
+above3 c1 c2   =  (width c1,depth c1 + depth c2)
+beside3 c1 c2  =  (width c1 + width c2, depth c1 `max` depth c2)
 stretch3 ns c  =  (sum ns,depth c)
 
-width3  =  fst
-depth   =  snd
+width  =  fst
+depth  =  snd
 \end{code}
 
-\noindent This solution is not modular because it relies
+\noindent where a tuple is used to accommodate multiple interpretations.
+However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
-|wellSized|) simultaneously, using a tuple. It is not
-possible reuse the independently defined |width| function in
+|depth|) simultaneously. It is not
+possible to reuse the independently defined |width| interpretation in
 Section~\ref{subsec:shallow}.
-Whenever a new interpretation is needed (e.g. |wellSized|), the
+Whenever a new interpretation is needed (e.g. |depth|), the
 original code has to be revised:
 the arity of the tuple must be incremented and the new interpretation has to be
 appended to each case.
 %we add the definition of |wellSized| by modifying the original code.
+
+\paragraph{Multiple Interpretations in Scala}
+In contrast, an OO language like Scala allows new interpretations to be introduced in a modular way:
 \begin{spec}
-package depth
-trait Circuit extends width.Circuit {
+trait Circuit2 extends Circuit1 {
   def depth: Int
 }
-trait Id extends width.Id with Circuit {
+trait Identity2 extends Identity1 with Circuit2 {
   def depth = 0
 }
-trait Fan extends width.Fan with Circuit {
+trait Fan2 extends Fan1 with Circuit2 {
   def depth = 1
 }
-trait Above extends width.Above with Circuit {
-  val c1, c2: Circuit
+trait Above2 extends Above1 with Circuit2 {
+  val c1, c2: Circuit2
   def depth = c1.depth + c2.depth
 }
-trait Beside extends width.Beside with Circuit {
-  val c1, c2: Circuit
+trait Beside2 extends Beside1 with Circuit2 {
+  val c1, c2: Circuit2
   def depth = Math.max(c1.depth, c2.depth)
 }
-trait Stretch extends width.Stretch with Circuit {
-  val c: Circuit
+trait Stretch2 extends Stretch1 with Circuit2 {
+  val c: Circuit2
   def depth = c.depth
 }
 \end{spec}
-
-\paragraph{Multiple Interpretations in Scala}
-In contrast, Scala allows new interpretations to be introduced in a
-modular way, as shown in Figure~\ref{code:operation}.
-%Instead of modifying the original code, we define |wellSized| modularly.
 The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
-Specifically, the new |Circuit| is a subtype of
-|width.Circuit| and declares a new method |depth|.
-The hierarchy implements the new |Circuit| by inheriting the corresponding trait from |width| and
-implementing |depth|.
-Also, fields of |Beside| are refined with the new |Circuit| type
+Specifically, |Circuit2| is a subtype of
+|Circuit1| and declares a new method |depth|.
+Concrete cases, for instance |Above2|, implements |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
+Also, fields of type |Circuit1| are refined with |Circuit2|
 to avoid type mismatches in methods~\cite{eptrivially16}.
 
 \subsection{Dependent Interpretations}
+\paragraph{Dependent Interpretations in Haskell}
 \emph{Dependent interpretations} are a generalization of multiple
-interpretations. A dependent interpretation does not only itself but also other interpretations.
-An instance of such interpretation is |wellSized| which checks whether a circuit is constructed correctly:
+interpretations. A dependent interpretation does not only depend on itself but also on other interpretations.
+An instance of such interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
+|wellSized| is dependent because combinators such as |above| have width constraints on its circuit components.
+
+In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
 \begin{code}
 type Circuit  =  (Int,Bool)
 identity n    =  (n,True)
 fan n         =  (n,True)
-above c1 c2   =  (width c1,wellSized c1&&wellSized c2&&width c1==width c2)
+above c1 c2   =  (width c1,wellSized c1 && wellSized c2 && width c1==width c2)
 beside c1 c2  =  (width c1 + width c2,wellSized c1 && wellSized c2)
-stretch ns c  =  (sum ns,wellSized c&&length ns==width c)
+stretch ns c  =  (sum ns,wellSized c && length ns==width c)
 
-width      =  fst
 wellSized  =  snd
 \end{code}
-$above$ and $stretch$ require dependent interpretations.
-
-In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
-This prevents a new interpretation that depends on existing
-interpretations from being defined modularly.
 
 \paragraph{Dependent Interpretations in Scala}
-Fortunately, OO approach does not have such restriction:
+Fortunately, an OO approach does not have such restriction:
 \begin{spec}
-package wellsized
-trait Circuit extends width.Circuit {
+trait Circuit3 extends Circuit1 {
   def wellSized: Boolean
 }
-trait Id extends width.Id with Circuit {
-  def wellSized = n > 0
+trait Identity3 extends Identity1 with Circuit3 {
+  def wellSized = true
 }
-trait Fan extends width.Fan with Circuit {
-  def wellSized = n > 0
+trait Fan3 extends Fan1 with Circuit3 {
+  def wellSized = true
 }
-trait Beside extends width.Beside with Circuit {
-  val c1, c2: Circuit
+trait Above3 extends Above1 with Circuit3 {
+  val c1, c2: Circuit3
+  def wellSized = c1.wellSized && c2.wellSized && c1.width==c2.width
+}
+trait Beside3 extends Beside1 with Circuit3 {
+  val c1, c2: Circuit3
   def wellSized = c1.wellSized && c2.wellSized
+}
+trait Stretch3 extends Stretch1 with Circuit3 {
+  val c: Circuit3
+  def wellSized = c.wellSized && c2.wellSized && ns.length==c.width
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
@@ -124,83 +125,116 @@ Interpretations may rely on some mutable contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
-For instance, circuit
-$$
-|(fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2)|
-$$
-can be represented as:
-$$[[(0,1), (2,3)], [(1,3)]]$$
-It has two layers: the first layer has connections from
-the first wire to the second, and from the second to the third; the second layer has
-only one connection from the first wire to the third one.
+For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
+
+> [[(0,1), (2,3)], [(1,3)], [(1,2)]]
+
+It has three layers: the first layer has connections from
+the first wire to the second, and from the third to the fourth; the second layer has
+only one connection from the second wire to the fourth one; the third layer also has a single connection from the second to the third.
 
 \paragraph{Context-sensitive Interpretations in Haskell}
 The following Haskell code models the interpretation described above:
 %{
 %format . = "\circ"
 \begin{code}
+type Layout    = [[(Int, Int)]]
+type Circuit4  =  (Int,(Int -> Int) -> Layout)
+identity4 n    =  (n,\f -> [])
+fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
+above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
+beside4 c1 c2  =  (width c1 + width c2
+                  ,\f -> lzw (++) (tlayout c1 f) (tlayout c2 ((width c1+) . f)))
+stretch4 ns c  =  (sum ns,\f -> tlayout c (pred . (scanl1 (+) ns!!) . f))
+
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
 lzw f [ ] ys             =  ys
 lzw f xs [ ]             =  xs
 lzw f (x : xs) (y : ys)  =  f x y : lzw f xs ys
 
-type Layout    = [[(Int, Int)]]
-type Circuit4  =  (Int,(Int -> Int) -> Layout)
-id4 n          =  (n,\f -> [])
-fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
-above4 c1 c2   =  (width4 c1,\f -> tlayout c1 f ++ tlayout c2 f)
-beside4 c1 c2  =  (width4 c1 + width c2,
-                   \f -> lzw (++) (tlayout c1 f) (tlayout c2 ((width4 c1+) . f)))
-stretch4 ns c  =  (sum ns,\f -> tlayout c (pred . (vs!!) . f))
-  where vs = scanl1 (+) ns
-
-width4  = fst
-tlayout = snd
+tlayout =  snd
 \end{code}
 %}
-|tlayout| is firstly a dependent interpretation, relying on the
-previously defined |width| interpretation.
+
+|tlayout| is firstly a dependent interpretation, relying on itself as well as |width|.
 More importantly, it is a context-sensitive interpretation.
-The domain |tlayout| is not a direct value but a function that takes a transformation function on wires (|Int -> Int|) and then produces a layout (|Layout|).
-The transformation function is accumulated in function varies in recursive calls for accumulating
-on wires and hence is context-sensitive.
+A circuit's would be changed when the circuit is stretched or put on the right hand side of another circuit.
+To effectively produce a layout, these changes are lazily applied to the circuit and are accumulated in a parameter.
+The domain |tlayout| is thereby not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
+Then each case of |tlayout| is defined using Haskell's lambda syntax.
 
 \paragraph{Context-sensitive Interpretations in Scala}
-Context-sensitive interpretations in our OO approach are unproblematic as well.
-Mutable contexts can be captured as arguments of methods:
+Context-sensitive interpretations in our OO approach are unproblematic as well:
 \begin{spec}
 type Layout = List[List[Tuple2[Int,Int]]]
-
-def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
-  case (Nil,_) => ys
-  case (_,Nil) => xs
-  case (x::xs,y::ys) => f(x,y)::lzw(xs,ys)(f)
-}
-def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
-
-trait Circuit extends width.Circuit {
+trait Circuit4 extends Circuit1 {
   def tlayout(f: Int => Int): Layout
 }
-trait Id extends Circuit with width.Id {
+trait Identity4 extends Identity1 with Circuit4 {
   def tlayout(f: Int => Int) = List()
 }
-trait Fan extends Circuit with width.Fan {
+trait Fan4 extends Fan1 with Circuit4 {
   def tlayout(f: Int => Int) = List(for (i <- List.range(1,n)) yield (f(0),f(i)))
 }
-trait Above extends Circuit with width.Above {
-  val c1, c2: Circuit
+trait Above4 extends Above1 with Circuit4 {
+  val c1, c2: Circuit4
   def tlayout(f: Int => Int) = c1.tlayout(f) ++ c2.tlayout(f)
 }
-trait Beside extends Circuit with width.Beside {
-  val c1, c2: Circuit
+trait Beside4 extends Beside1 with Circuit4 {
+  val c1, c2: Circuit4
   def tlayout(f: Int => Int) =
     lzw (c1.tlayout(f), c2.tlayout(f.andThen(c1.width + _))) (_ ++ _)
 }
-trait Stretch extends Circuit with width.Stretch {
-  val c: Circuit
+trait Stretch4 extends Stretch1 with Circuit4 {
+  val c: Circuit4
   def tlayout(f: Int => Int) = c.tlayout(f.andThen(partialSum(ns)(_) - 1))
 }
+
+def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
+  case (Nil,_)        =>  ys
+  case (_,Nil)        =>  xs
+  case (x::xs,y::ys)  =>  f(x,y)::lzw(xs,ys)(f)
+}
+def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
 \end{spec}
+The Scala version is both modular and intuitive, where
+mutable contexts are captured as method arguments.
+
+\subsection{Parameterized Interpretations}
+\weixin{Discuss folds}
+
+\subsection{Implicitly Parameterized Interpretations}
+\weixin{Discuss type classes, tagless final, polymorphic embedding, Object Algebras?}
+
+\subsection{Intermediate Interpretations}
+\weixin{Discuss desugaring?}
+The core language is represented using deep embedding (algebraic datatypes).
+Desugaring from
+% CoreCircuit
+% Desugaring
+
+\subsection{Modular Interpretations}
+\weixin{Discuss adding RStretch and DTC}
+As Gibbons and Wu have noticed that
+\begin{quote}
+(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
+tuples generally lack good language support.
+\end{quote}
+Later sections of
+Two advanced techniques, i.e. tagless final~\cite{} and data type a la carte, are investigated.
+Dependent interpretation can not be introduced modularly using these techniques.
+% This prevents a new interpretation that depends on existing interpretations from being defined modularly.
+
+\paragraph{Modular Interpretations in Haskell}
+% new constructs that can be desugared to core constructs can easily be added
+%
+% DTC
+
+
+\paragraph{Modular Interpretations in Scala}
+
+Figure~\ref{code:variant} shows the Scala implementation, which
+\emph{modularly} defines new traits implementing |Circuit|.
 
 \subsection{Discussion}
 Gibbons and Wu claim that in shallow
@@ -211,12 +245,12 @@ embeddings. In other words, the circuit DSL presented so far does not
 suffer from the Expression Problem. The key point is that procedural
 abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
-abstraction. Gibbons and Wu do discuss a number of advanced techniques that 
+abstraction. Gibbons and Wu do discuss a number of advanced techniques that
 can solve some of the modularity problems. For example, using type
 classes, \emph{finally
   tagless}~\cite{carette2009finally} can deal with the example in
 Section~\ref{subsec:multiple}. However
-tuples are still needed 
+tuples are still needed
 to deal with dependent interpretations. In contrast the approach
 proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
@@ -231,59 +265,6 @@ extensible sums. However, not like OO languages which come with subtyping, one
 has to manually implement the subtyping machinery for variants.
 \end{comment}
 Gibbons and Wu also show some different variants of interpretations,
-such as context-sensitive interpretations. 
+such as context-sensitive interpretations.
 These interpretations are unproblematic as well.
 Implementation details can be found online.
-
-\begin{comment}
-Unlike |width| and |wellSized| which can be defined with
-only the given circuit, context-dependent interpretations may need some context.
-These contexts can be captured by arguments of the method. For example, a
-function that collects all the connections between wires inside a circuit would have
-the following signature:
-\begin{lstlisting}
-type Layout = List[List[Tuple2[Int,Int]]]
-def tlayout(f: Int => Int): Layout
-\end{lstlisting}
-where the context |f| may vary in recursive
-calls. Context-sensitive transformations do not pose any particular
-challenge. For space reasons, we omit the implementation details here. Full details
-are available online.
-\end{comment}
-
-\subsection{Parameterized Interpretations}
-% Object Algebras
-% fold
-
-
-\subsection{Implicitly Parameterized Interpretations}
-% type class
-% tagless final
-
-\subsection{Intermediate Interpretations}
-Core language
-The core language is represented using deep embedding (algebraic datatypes).
-Desugaring from
-% CoreCircuit
-% Desugaring
-
-\subsection{Modular Interpretations}
-As Gibbons and Wu noticed that
-\begin{quote}
-(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
-tuples generally lack good language support.
-\end{quote}
-
-Type classes
-
-\paragraph{Modular Interpretations in Haskell}
-%right stretch combinator
-% new constructs that can be desugared to core constructs can easily be added
-%
-% DTC
-
-
-\paragraph{Modular Interpretations in Scala}
-
-Figure~\ref{code:variant} shows the Scala implementation, which
-\emph{modularly} defines new traits implementing |Circuit|.

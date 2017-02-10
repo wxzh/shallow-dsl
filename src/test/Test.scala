@@ -1,10 +1,10 @@
 package test
 
 object SimpleTest {
-//BEGIN_CLIENT
+//BEGIN_CLIENT_SCALA
 import width._
 beside(fan(3), id(3)).width // 6
-//END_CLIENT
+//END_CLIENT_SCALA
 }
 
 object Test extends App {

@@ -1,13 +1,22 @@
 %format . = "."
+%format { = "~\{"
+%format // = "/\!/"
 %format trait = "\mathbf{trait}"
 %format package = "\mathbf{package}"
 %format val = "\mathbf{val}"
+%format var = "\mathbf{var}"
+%format new = "\mathbf{new}"
 %format def = "\mathbf{def}"
+%format this = "\mathbf{this}"
 %format with = "\mathbf{with}"
 %format extends = "\mathbf{extends}"
 %format for = "\mathbf{for}"
 %format yield = "\mathbf{yield}"
 %format match = "\mathbf{match}"
+%format sealed = "\mathbf{sealed}"
+%format abstract = "\mathbf{abstract}"
+%format override = "\mathbf{override}"
+%format in = "in"
 
 %format c1
 %format c2
@@ -15,11 +24,27 @@
 %format Circuit2
 %format Circuit3
 %format Circuit4
+%format identity1
+%format fan1
+%format beside1
+%format above1
+%format stretch1
+%format width1
+%format Identity1
+%format Fan1
+%format Beside1
+%format Above1
+%format Stretch1
 %format identity2
 %format fan2
 %format beside2
 %format above2
 %format stretch2
+%format Identity2
+%format Fan2
+%format Beside2
+%format Above2
+%format Stretch2
 %format width2
 %format identity3
 %format fan3
@@ -33,3 +58,20 @@
 %format above4
 %format stretch4
 %format width4
+%format Identity3
+%format Fan3
+%format Beside3
+%format Above3
+%format Stretch3
+%format Identity4
+%format Fan4
+%format Beside4
+%format Above4
+%format Stretch4
+
+%format Operator2
+%format Scan2
+%format Print2
+%format Project2
+%format Filter2
+%format Join2

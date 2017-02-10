@@ -11,7 +11,7 @@
 \usepackage{syntax}
 \usepackage{comment}
 
-\newcommand{\dsl}{\emph{scans}\xspace}
+\newcommand{\dsl}{\textsc{Scans}\xspace}
 \newcommand{\interp}{\textsc{Interpreter}\xspace}
 
 %\newcommand{\authornote}[3]{}
@@ -63,16 +63,21 @@ over the Haskell version.
 %several case studies using larger DSLs from the literature.
 \end{abstract}
 
+% mention Willam Cook's work
+% pure: class are only used to construct objects. The use of classes as types are discussed later. No inheritance
+
+
 %===============================================================================
 %include Introduction.lhs
 %include ShallowOO.lhs
 %include Interpretations.lhs
+%include Casestudy.lhs
 %\acks
 
 %Acknowledgments, if needed.
 
 \bibliographystyle{jfp}
-\bibliography{literature}
+\bibliography{Main}
 
 
 \end{document}
