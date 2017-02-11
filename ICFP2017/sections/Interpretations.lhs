@@ -1,3 +1,5 @@
+%include lhs2TeX.fmt
+%include def.fmt
 \section{Interpretations in Shallow Embeddings}
 
 An often stated limitation of shallow embeddings is that they allow only a single

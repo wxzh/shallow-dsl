@@ -1,3 +1,5 @@
+%include lhs2TeX.fmt
+%include def.fmt
 \section{Shallow Object-Oriented Programming}\label{sec:oo}
 
 This section shows that an OO approach and shallow embeddings using
@@ -43,9 +45,6 @@ $c_1$ and $c_2$ horizontally; $above\ c_1\ c_2$ combines two circuits of the sam
 summing up \emph{ns}.
 For example, Fig.~\ref{fig:circuit} visualises the following circuit
 
-> (fan 2 `beside` fan 2) `above`
-> stretch [2,2] (fan 2) `above`
-> (identity 1 `beside` fan 2 `beside` identity 1)
 
 
 \begin{figure}
@@ -86,8 +85,15 @@ stretch1 ns c   =  sum ns
 width1  =  id
 \end{code}
 
-Note that, for interpretation |width1|, the Haskell domain is simply
-|Int|. This domain is a degenerate case of
+Circuit shown in Fig~\ref{fig:circuit} can be constructed using these definitions:
+
+> (fan 2 `beside` fan 2) `above`
+> stretch [2,2] (fan 2) `above`
+> (identity 1 `beside` fan 2 `beside` identity 1)
+
+Note that, for |width1|, the Haskell domain is simply
+|Int|. This means that we will directly get the width of this circuit after construction (|4| for this case), thereby |width1| is just a identity function.
+This domain is a degenerate case of
 procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language

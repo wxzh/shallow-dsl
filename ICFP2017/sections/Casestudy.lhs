@@ -1,3 +1,5 @@
+%include lhs2TeX.fmt
+%include def.fmt
 \section{Case Study}
 To further illustrate the applicability of our OO approach, we took an existing real-world DSL and rewrote .
 
@@ -6,11 +8,11 @@ By using the LMS framework~\cite{}, the implementation has performance comparabl
 However, the encoding employs deep embedding techniques such as algebraic datatypes (sealed case classes in Scala) and pattern matching.
 As a result, the implementation suffers from the Expression Problem for adding new constructs.
 We found that it is possible to make the implementation as a shallow EDSL: 1) it is common to embed SQL queries into a general purpose language\cite{} \url{http://circumflex.ru/projects/orm/index.html} \url{https://github.com/Kangmo/vigsql};
-2) there is no transformation/optimization in the original ;
+2) there is no transformation/optimization in the original implementation;
 With modest effort, we are able to rewrite the implementation using the approach presented in this pearl.
 The resulting implementation is modular without comprimising the performance.
-This section focuses on the interpreter. Staged compiler based on this interpreter is omitted as LMS-related stuff is out of the concern of this pearl.
-Nevertheless, similar rewriting can also apply to the
+This section focuses on the rewriting of the interpreter. Similar rewriting is also applicable to the staged compiler based on this interpreter.
+As LMS-related stuff is out of the concern of this pearl.
 
 %Although adding new interpretations is easy for such encoding, adding new constructs become hard.
 %Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
@@ -24,14 +26,14 @@ Nevertheless, similar rewriting can also apply to the
 
 \subsection{SQL Query Processor}
 ~\cite{} presented an external DSL for processing SQL queries in Scala.
-To demonstrate the DSL, suppose that there is a csv file that contains a list of talks:
+To demonstrate the DSL, suppose that there is a csv file containing a list of talks:
 
 > tid,time,title,room
 > 1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
 > 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
 > ...
 
-Each item records the id, time, title and room of a talk.
+Each item records the identity, time, title and room of a talk.
 Here are some SQL queries on this file.
 For example, a query to find all talks at 9am with their room and title printed is:
 
@@ -122,8 +124,7 @@ def evalPred(p: Predicate)(rec: Record) = p match {
   case Ne(a,b) => evalRef(a)(rec) != evalRef(b)(rec)
 }
 \end{spec}
-|execOp| is a context-sensitive interpretation pretty much like |tlayout| discussed in Section~\ref{}, where |yld| is a callback that accumulates what each operator does to the records.
-|Scan| processes a csv file and produces a record line by line;
+|execOp| is a context-sensitive interpretation pretty much like |tlayout| discussed in Section~\ref{}, where |yld| is a callback that accumulates what each operator does to the records. Concretely, |Scan| processes a csv file and produces a record line by line;
 |Print| prints the fields of a record;
 |Filter| filter out a record that does not meet the predicate;
 |Project| rearranges the fields of a record;
