@@ -18,12 +18,12 @@ multiple interpretations.
 \paragraph{Multiple Interpretations in Haskell}
 Suppose that we want to have an additional interpretation that calculates the depth of a circuit. Here is Gibbons and Wu's solution:
 \begin{code}
-type Circuit3  =  (Int,Int)
-identity3 n    =  (n,0)
-fan3 n         =  (n,1)
-above3 c1 c2   =  (width c1,depth c1 + depth c2)
-beside3 c1 c2  =  (width c1 + width c2, depth c1 `max` depth c2)
-stretch3 ns c  =  (sum ns,depth c)
+type Circuit2  =  (Int,Int)
+identity2 n    =  (n,0)
+fan2 n         =  (n,1)
+above2 c1 c2   =  (width c1,depth c1 + depth c2)
+beside2 c1 c2  =  (width c1 + width c2, depth c1 `max` depth c2)
+stretch2 ns c  =  (sum ns,depth c)
 
 width  =  fst
 depth  =  snd
@@ -83,12 +83,12 @@ An instance of such interpretation is |wellSized|, which checks whether a circui
 
 In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
 \begin{code}
-type Circuit  =  (Int,Bool)
-identity n    =  (n,True)
-fan n         =  (n,True)
-above c1 c2   =  (width c1,wellSized c1 && wellSized c2 && width c1==width c2)
-beside c1 c2  =  (width c1 + width c2,wellSized c1 && wellSized c2)
-stretch ns c  =  (sum ns,wellSized c && length ns==width c)
+type Circuit   =  (Int,Bool)
+identity3 n    =  (n,True)
+fan3 n         =  (n,True)
+above3 c1 c2   =  (width c1,wellSized c1 && wellSized c2 && width c1==width c2)
+beside3 c1 c2  =  (width c1 + width c2,wellSized c1 && wellSized c2)
+stretch3 ns c  =  (sum ns,wellSized c && length ns==width c)
 
 wellSized  =  snd
 \end{code}
@@ -122,7 +122,7 @@ Note that |width| and |wellSized| are defined separately.
 Essentially, it is sufficient to define |wellSized| while
 knowing only the signature of |width| in |Circuit|.
 
-\subsection{Context-Sensitive Interpretations}
+\subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
 Interpretations may rely on some mutable contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
@@ -135,12 +135,12 @@ It has three layers: the first layer has connections from
 the first wire to the second, and from the third to the fourth; the second layer has
 only one connection from the second wire to the fourth one; the third layer also has a single connection from the second to the third.
 
-\paragraph{Context-sensitive Interpretations in Haskell}
+\paragraph{Context-Sensitive Interpretations in Haskell}
 The following Haskell code models the interpretation described above:
 %{
 %format . = "\circ"
 \begin{code}
-type Layout    = [[(Int, Int)]]
+type Layout    =  [[(Int, Int)]]
 type Circuit4  =  (Int,(Int -> Int) -> Layout)
 identity4 n    =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
@@ -210,10 +210,6 @@ mutable contexts are captured as method arguments.
 
 \subsection{Intermediate Interpretations}
 \weixin{Discuss desugaring?}
-The core language is represented using deep embedding (algebraic datatypes).
-Desugaring from
-% CoreCircuit
-% Desugaring
 
 \subsection{Modular Interpretations}
 \weixin{Discuss adding RStretch and DTC}
@@ -226,12 +222,6 @@ Later sections of
 Two advanced techniques, i.e. tagless final~\citep{carette2009finally} and data type a la carte~\citep{swierstra2008data}, are investigated.
 Dependent interpretation can not be introduced modularly using these techniques.
 % This prevents a new interpretation that depends on existing interpretations from being defined modularly.
-
-\paragraph{Modular Interpretations in Haskell}
-% new constructs that can be desugared to core constructs can easily be added
-%
-% DTC
-
 
 \paragraph{Modular Interpretations in Scala}
 
@@ -249,12 +239,9 @@ abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
 abstraction. Gibbons and Wu do discuss a number of advanced techniques that
 can solve some of the modularity problems. For example, using type
-classes, \emph{finally
-  tagless}~\cite{carette2009finally} can deal with the example in
-Section~\ref{subsec:multiple}. However
-tuples are still needed
-to deal with dependent interpretations. In contrast the approach
-proposed here is just straightforward OOP, and dependent
+classes, \emph{finally tagless}~\cite{carette2009finally} can deal with the example in
+Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations.
+In contrast the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 \begin{comment}
 and \emph{data types a la
@@ -266,7 +253,3 @@ DTC represents language constructs separately and composes them together using
 extensible sums. However, not like OO languages which come with subtyping, one
 has to manually implement the subtyping machinery for variants.
 \end{comment}
-Gibbons and Wu also show some different variants of interpretations,
-such as context-sensitive interpretations.
-These interpretations are unproblematic as well.
-Implementation details can be found online.

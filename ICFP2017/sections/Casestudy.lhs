@@ -8,7 +8,7 @@ The DSL first parses an SQL query into an relational algebra AST and then execut
 Based on LMS framework~\citep{rompf2012lightweight}, the implementation has performance comparable to the hand-written C code while nearly as simple as an intuitive interpreter.
 However, the encoding employs deep embedding techniques such as algebraic datatypes (sealed case classes in Scala) and pattern matching.
 As a result, the implementation suffers from the Expression Problem for adding new constructs.
-We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language \url{http://circumflex.ru/projects/orm/index.html} \url{https://github.com/Kangmo/vigsql};
+We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language\footnote{\url{http://circumflex.ru/projects/orm/index.html}}\footnote{\url{https://github.com/Kangmo/vigsql}};
 secondly, the original implementation contains no transformation/optimization.
 With modest effort, we are able to rewrite the implementation using the approach presented in this pearl.
 The resulting implementation is modular without comprimising the performance.
@@ -85,6 +85,7 @@ Some auxilary AST definitions are needed:
 
 For example, after parsing, we will get the following relational algebra AST for the complex query shown above:
 
+>
 > Filter(Ne(Field("title1"),Field("title2")),
 >   Join(
 >     Project(Vector("time","room","title"),Vector("time","room","title1"),
@@ -194,10 +195,10 @@ trait Value extends Ref {
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
-In Section 4 of ~\cite{}, Rompf and Amin extended their SQL processor for better performance.
-Two new operators, aggregations and hash joins, are added.
+Rompf and Amin~\citet{rompf15} extended their SQL processor for better performance in Section 4.
+Two new operators, aggregations and hash joins, are added:
 The former caches the records from the composed operator; the latter implements a more efficient join algorithm.
-The algorithm further requires a new interpretation to calculate an auxiliary data structure on operators.
+To implement the join algorithm, an auxiliary data structure is needed. further requires a new interpretation to calculate  on operators.
 In other words, two dimensions of extension are required.
 However, the use of sealed case classes in the orginal implementation disallows modular extensions on both dimensions.
 Whereas our approach
@@ -211,16 +212,6 @@ sealed abstract class Operator
 ...
 case class HashJoin(parent1: Operator, parent2: Operator) extends Operator
 case class Group(keys: Schema, agg: Schema, parent: Operator) extends Operator
-
-def resultSchema(o: Operator): Schema = o match {
-  case Scan(_, schema, _, _)     =>  schema
-  case Print(parent)             =>  Schema()
-  case Project(schema, _, _)     =>  schema
-  case Filter(pred, parent)      =>  resultSchema(parent)
-  case Join(left, right)         =>  resultSchema(left) ++ resultSchema(right)
-  case Group(keys, agg, parent)  =>  keys ++ agg
-  case HashJoin(left, right)     =>  resultSchema(left) ++ resultSchema(right)
-}
 
 def execOp(o: Operator)(yld: Record => Unit): Unit = o match {
   ...
@@ -240,9 +231,21 @@ def execOp(o: Operator)(yld: Record => Unit): Unit = o match {
 }
 \end{spec}
 
-An auxiliary interpretation, |resultSchema|, is needed for complementing the |HashJoin| case.
+The |HashJoin| case needs a new interpretation, |resultSchema|, for composing the schema from an operator:
 
-% Very much like |tlayout| discussed in Section~\ref{}, |execOp| is a non-trivial interpretation - both dependent (depending on |resultSchema|) and context-sensitive (taking a |yld|).
+\begin{spec}
+def resultSchema(o: Operator): Schema = o match {
+  case Scan(_, schema, _, _)     =>  schema
+  case Print(parent)             =>  Schema()
+  case Project(schema, _, _)     =>  schema
+  case Filter(pred, parent)      =>  resultSchema(parent)
+  case Join(left, right)         =>  resultSchema(left) ++ resultSchema(right)
+  case Group(keys, agg, parent)  =>  keys ++ agg
+  case HashJoin(left, right)     =>  resultSchema(left) ++ resultSchema(right)
+}
+\end{spec}
+
+|execOp| becomes both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|) - a non-trivial interpretation very much like |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 
 \paragraph{Our Implementation}
 Our approach makes it simple to add new constructs (|Group| and |HashJoin|) as well as new interpretations (|resultSchema|):
@@ -310,6 +313,7 @@ trait HashJoin extends Join2 {
 \end{spec}
 The definition of |HashJoin| shows some extra modularity provided by OOP.
 Instead of directly implementing |Operators|, |HashJoin| extends |Join| and overrides the definition of |exec|. This way |resultSchema| as well as field declaration would not be duplicated.
+Moreover, our approach allows modular field extensions on existing constructs, illustrated by |Scan|.
 
 Extensions on |Predicate|, such as adding new predicates like |LessThan|, |And| or |Or|, are left as exercises
 on the companion website\footnote{\url{http://scala-lms.github.io/tutorials/query.html}}.

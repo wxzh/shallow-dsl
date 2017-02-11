@@ -5,7 +5,7 @@ Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\citep
 languages (e.g. Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
 and \emph{deep} embeddings. The origin of that terminology can be
-attributed to Boulton et al.'s work~\citet{Boulton92dsl}. The difference between these
+attributed to ~\citet{Boulton92dsl}. The difference between these
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
@@ -27,7 +27,7 @@ embedding. Some other authors~\citep{gibbons2014folding,barringer2011tracecontra
 consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 
-To avoid ambiguitity we propose defining shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\citep{reynolds94proceduralabstraction}. Such
+To avoid ambiguitity, we propose defining shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\citep{reynolds94proceduralabstraction}. Such
 interpretation arises naturally from the domain of shallow EDSLs being
 functions, and procedural abstraction being a way to encode
 data abstractions using functions. As~\citet{cook09abstraction} argued,
@@ -52,7 +52,7 @@ solution to the \emph{Expression Problem}~\citep{expPb} in OOP languages. Thus
 using just standard OOP mechanisms enables \emph{multiple modular
   interpretations} to co-exist and be combined in shallow embeddings.
 
-We make our arguments by taking a recent paper by Gibbons and Wu~\citet{gibbons2014folding},
+We make our arguments by taking a recent paper by ~\citet{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL, and we recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the

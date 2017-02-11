@@ -6,7 +6,7 @@ This section shows that an OO approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
 DSL presented by ~\citet{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
-implementation in Haskell and rewrite it towards an ``OO style''.
+implementation in Haskell, and rewrite it towards an ``OO style''.
 Then translating the program into an OO language becomes straightforward.
 We choose Scala as the demonstrating OO language throughout this pearl because of its concise syntax.
 Indeed, none of Scala's fancy functional features is used.
@@ -35,7 +35,7 @@ The grammar of \dsl is given below:
  \alt `stretch' <positive-numbers> <circuit>
 \end{grammar}
 
-\noindent \dsl has 5 constructs: two primitives
+\noindent \dsl has five constructs: two primitives
 (\emph{identity} and \emph{fan}) and three combinators (\emph{beside}, \emph{above} and \emph{stretch}).
 Their meanings are: \emph{identity n} contains \emph{n} isolated vertical wires;
 \emph{fan n} has \emph{n} vertical wires with its first wire connected to
@@ -43,7 +43,7 @@ all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuit
 $c_1$ and $c_2$ horizontally; $above\ c_1\ c_2$ combines two circuits of the same width vertically;
 \emph{stretch ns c} inserts more wires into the circuit \emph{c} by
 summing up \emph{ns}.
-For example, Fig.~\ref{fig:circuit} visualises the following circuit
+For example, Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs. The circuit
 
 
 
@@ -75,43 +75,44 @@ Suppose that the semantics of \dsl is to calculate the width of a
 circuit. The definitions would be:
 
 \begin{code}
-type Circuit1  =  Int
-identity1 n     =  n
-fan1 n          =  n
-beside1 c1 c2   =  c1 + c2
-above1 c1 c2    =  c1
-stretch1 ns c   =  sum ns
-
-width1  =  id
+type Circuit   =  Int
+identity n     =  n
+fan n          =  n
+beside c1 c2   =  c1 + c2
+above c1 c2    =  c1
+stretch ns c   =  sum ns
 \end{code}
 
-Circuit shown in Fig~\ref{fig:circuit} can be constructed using these definitions:
+Note that, for this simple interpretation, the Haskell domain is simply |Int|.
+This means that we will get the width right after the construction of a circuit.
+For example, running code that represents the circuit shown in Fig~\ref{fig:circuit}
 
-> (fan 2 `beside` fan 2) `above`
-> stretch [2,2] (fan 2) `above`
-> (identity 1 `beside` fan 2 `beside` identity 1)
+> Prelude  >  :{
+> Prelude  |  (fan 2 `beside` fan 2) `above`
+> Prelude  |  stretch [2,2] (fan 2) `above`
+> Prelude  |  (identity 1 `beside` fan 2 `beside` identity 1)
+> Prelude  |  :}
+> 4
 
-Note that, for |width1|, the Haskell domain is simply
-|Int|. This means that we will directly get the width of this circuit after construction (|4| for this case), thereby |width1| is just a identity function.
-This domain is a degenerate case of
-procedural abstraction, where |Int| can be viewed
+we will get a direct value |4|.
+This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language
 a no-argument function |() -> Int| would be more
 appropriate to deal correctly with potential control-flow
-language constructs. We will see an interpretation of a more complex domain in Section~\ref{}.
+language constructs. We will see an interpretation of a more complex domain in Section~\ref{sec:ctxsensitive}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}
 A simple, \emph{semantics preserving}, rewriting of the above program is given
 below, where a record with a sole field captures the domain and is declared as a |newtype|:
 \begin{code}
-newtype Circuit2   =  Circuit2 {width2  ::  Int}
-identity2 n        =  Circuit2 {width2  =   n}
-fan2 n             =  Circuit2 {width2  =   n}
-beside2 c1 c2      =  Circuit2 {width2  =   width2 c1 + width2 c2}
-above2 c1 c2       =  Circuit2 {width2  =   width2 c1}
-stretch2 ns c      =  Circuit2 {width2  =   sum ns}
+newtype Circuit1   =  Circuit1 {width1  ::  Int}
+identity1 n        =  Circuit1 {width1  =   n}
+fan1 n             =  Circuit1 {width1  =   n}
+beside1 c1 c2      =  Circuit1 {width1  =   width1 c1 + width1 c2}
+above1 c1 c2       =  Circuit1 {width1  =   width1 c1}
+stretch1 ns c      =  Circuit1 {width1  =   sum ns}
 \end{code}
 The implementation is still shallow because |newtype| does not add any operational
 behaviour to the program, and hence the two programs are effectively the
@@ -146,15 +147,35 @@ trait Stretch1 extends Circuit1 {
   def width = ns.sum
 }
 \end{spec}
-The record type maps to an object interface |Circuit1| and field
+The record type maps to an object interface |Circuit1|, and field
 declaration becomes a method declaration.
-Each case in the semantic function corresponds to a trait and its parameters become fields of that trait.
-All these traits are concrete implementations of |Circuit1| with the |width| method defined.
+Each case in the semantic function corresponds to a trait with its parameters captured by fields of that trait.
+All these traits are concrete implementations of |Circuit1| that define the |width| method.
 
 This implementation is essentially how we would model \dsl with an OO language in the first
 place, following the \interp pattern (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
-In summary, shallow embeddings and straightforward OO programming are closely
+Thus, shallow embeddings and straightforward OO programming are closely
 related.
+
+We can further define some some smart constructors on top of these traits so that
+we can use this OOP implementation in a manner similar to the FP implementation:
+
+\begin{spec}
+def identity(x: Int)                    =  new Identity1  {val n=x}
+def fan(x: Int)                         =  new Fan1       {val n=x}
+def above(x: Circuit, y: Circuit)       =  new Above1     {val c1=x;   val c2=y}
+def beside(x: Circuit, y: Circuit)      =  new Beside1    {val c1=x;   val c2=y}
+def stretch(xs: List[Int], x: Circuit)  =  new Stretch1   {val ns=xs;  val c=x}
+\end{spec}
+
+\noindent At this stage, we are able to construct the circuit shown in Fig.~\ref{fig:circuit} again in Scala:
+
+> scala  >  {
+>        |  above(beside(fan(2), fan(2)),
+>        |  above(stretch(List(2,2), fan(2)),
+>        |  beside(identity(1), beside(fan(2), identity(1))))).width
+>        |  }
+> res0: Int = 4
