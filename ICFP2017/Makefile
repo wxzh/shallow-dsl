@@ -12,7 +12,6 @@ GHCI        := ghci
 # Directories and source files
 #-----------------------------------------------------------------------------
 MAIN        := Main
-MAINTECH    := Main_techmemo
 SRCDIR      := sections
 LHSFILES    := $(wildcard $(SRCDIR)/*.lhs)
 TEXFILES    := $(wildcard $(SRCDIR)/*.tex)
@@ -28,19 +27,9 @@ all: $(MAIN).pdf
 #	dvipdf $<
 #	ps2pdf $< 
 
-# $(MAINTECH).pdf
-
 #-----------------------------------------------------------------------------
 # Pattern rules
 #-----------------------------------------------------------------------------
-
-$(MAINTECH).pdf: $(MAINTECH).tex lhs $(TEXFILES) force
-	$(PDFLATEX) $<
-	if grep -s '^LaTeX Warning: Citation' $(<:.tex=.log); \
-	then $(BIBTEX) $(<:.tex=); $(PDFLATEX) $(<); \
-	fi
-	while grep -s "Warning.*Rerun" $(<:.tex=.log); \
-	  do $(PDFLATEX) $<; done;
 
 %.tex : %.lhs force
 	[ $(<) ] && ($(LHS2TEX) $(LHS2TEX_FLAGS) $< > $@ || rm -f $@)
@@ -78,6 +67,3 @@ clean:
 	rm -rfv auto _region_.tex
 
 .PHONY: ghci spell force clean
-
-publish: Main.pdf
-	cp Main.pdf ~/web/papers/implicits/implicits.pdf

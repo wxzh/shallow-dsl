@@ -1,11 +1,11 @@
 %include lhs2TeX.fmt
 \section{Introduction}
 
-Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\cite{hudak1998modular}, existing
+Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\citep{hudak1998modular}, existing
 languages (e.g. Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
 and \emph{deep} embeddings. The origin of that terminology can be
-attributed to Boulton et al.'s work~\cite{Boulton92dsl}. The difference between these
+attributed to Boulton et al.'s work~\citet{Boulton92dsl}. The difference between these
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
@@ -13,7 +13,7 @@ With a \emph{deep embedding}, terms in the DSL are implemented simply to
 construct an abstract syntax tree (AST), which is subsequently
 transformed for optimization and traversed for evaluation. With a
 \emph{shallow embedding}, terms in the DSL are implemented directly by
-their semantics, bypassing the intermediate AST and its traversal.\cite{gibbons2014folding}
+their semantics, bypassing the intermediate AST and its traversal.~\citep{gibbons2014folding}
 \end{quote}
 
 \noindent Although the above definition is quite reasonable and widely accepted,
@@ -22,15 +22,15 @@ how to classify an EDSL implemented using the {\sc Composite} or {\sc Interprete
 patterns in Object-Oriented Programming (OOP). Would this OO approach be
 classified as a shallow or deep embedding? We feel there is a rather
 fuzzy line here, and the literature allows for both interpretations. Some authors working on
-OOP EDSLs ~\cite{rompf2012scala,scherrc2015} consider a {\sc Composite} to be a deep
-embedding. Some other authors~\cite{gibbons2014folding,barringer2011tracecontract}
+OOP EDSLs ~\citep{rompf2012scala,scherrc2015} consider a {\sc Composite} to be a deep
+embedding. Some other authors~\citep{gibbons2014folding,barringer2011tracecontract}
 consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 
-To avoid ambiguitity we propose defining shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\cite{reynolds94proceduralabstraction}. Such
+To avoid ambiguitity we propose defining shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\citep{reynolds94proceduralabstraction}. Such
 interpretation arises naturally from the domain of shallow EDSLs being
 functions, and procedural abstraction being a way to encode
-data abstractions using functions. As Cook~\cite{cook09abstraction} argued,
+data abstractions using functions. As~\citet{cook09abstraction} argued,
 procedural abstraction is also the essence of OOP.
 Thus, according to our definition, the implementation of a shallow
 EDSL in OOP languages should simply correspond to a standard
@@ -47,12 +47,12 @@ still shallow (i.e. using procedural abstraction).
 An often stated limitation of shallow EDSLs is that they only support \emph{single} interpretation.
 We show that OOP abstractions, including \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
 helpful to address this problem.
-We can employ a recently proposed design pattern~\cite{eptrivially16}, which provides a simple
-solution to the \emph{Expression Problem}~\cite{expPb} in OOP languages. Thus
+We can employ a recently proposed design pattern~\citep{eptrivially16}, which provides a simple
+solution to the \emph{Expression Problem}~\citep{expPb} in OOP languages. Thus
 using just standard OOP mechanisms enables \emph{multiple modular
   interpretations} to co-exist and be combined in shallow embeddings.
 
-We make our arguments by taking a recent paper by Gibbons and Wu~\cite{gibbons2014folding},
+We make our arguments by taking a recent paper by Gibbons and Wu~\citet{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL, and we recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the

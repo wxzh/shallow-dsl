@@ -4,7 +4,7 @@
 
 This section shows that an OO approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
-DSL presented in Gibbons and Wu's paper~\cite{gibbons2014folding} as
+DSL presented by ~\citet{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
 implementation in Haskell and rewrite it towards an ``OO style''.
 Then translating the program into an OO language becomes straightforward.
@@ -19,7 +19,7 @@ Essentially, the code can be trivially adapted to any OO language that supports 
 %format x1
 %format x2
 %format xn = "\Varid{x}_{n}"
-Gibbons and Wu present \dsl~\cite{hinze2004algebra}, a DSL for describing parallel prefix circuits.
+\citet{gibbons2014folding} present \dsl~\citep{hinze2004algebra}, a DSL for describing parallel prefix circuits.
 Given a binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|
 %}
 

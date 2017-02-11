@@ -3,12 +3,13 @@
 \section{Case Study}
 To further illustrate the applicability of our OO approach, we took an existing real-world DSL and rewrote .
 
-The original implementation is an external DSL that first parses an SQL query into an relational algebra AST and then executes the query by interpreting that AST.
-By using the LMS framework~\cite{}, the implementation has performance comparable to the hand-written C code while nearly as simple as an intuitive interpreter.
+\citet{rompf15} present an external DSL for processing SQL queries using Scala.
+The DSL first parses an SQL query into an relational algebra AST and then executes the query by interpreting that AST.
+Based on LMS framework~\citep{rompf2012lightweight}, the implementation has performance comparable to the hand-written C code while nearly as simple as an intuitive interpreter.
 However, the encoding employs deep embedding techniques such as algebraic datatypes (sealed case classes in Scala) and pattern matching.
 As a result, the implementation suffers from the Expression Problem for adding new constructs.
-We found that it is possible to make the implementation as a shallow EDSL: 1) it is common to embed SQL queries into a general purpose language\cite{} \url{http://circumflex.ru/projects/orm/index.html} \url{https://github.com/Kangmo/vigsql};
-2) there is no transformation/optimization in the original implementation;
+We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language \url{http://circumflex.ru/projects/orm/index.html} \url{https://github.com/Kangmo/vigsql};
+secondly, the original implementation contains no transformation/optimization.
 With modest effort, we are able to rewrite the implementation using the approach presented in this pearl.
 The resulting implementation is modular without comprimising the performance.
 This section focuses on the rewriting of the interpreter. Similar rewriting is also applicable to the staged compiler based on this interpreter.
@@ -24,16 +25,15 @@ As LMS-related stuff is out of the concern of this pearl.
 %allowing both new constructs and new interpretations to be introduced.
 %deep embedding
 
-\subsection{SQL Query Processor}
-~\cite{} presented an external DSL for processing SQL queries in Scala.
-To demonstrate the DSL, suppose that there is a csv file containing a list of talks:
+\subsection{An SQL Query Processor}
+Suppose that there is a data file, |talks.csv|, containing a list of talks:
 
 > tid,time,title,room
 > 1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
 > 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
 > ...
 
-Each item records the identity, time, title and room of a talk.
+Each item in the file records the identity, time, title and room of a talk.
 Here are some SQL queries on this file.
 For example, a query to find all talks at 9am with their room and title printed is:
 
@@ -54,7 +54,7 @@ Another relative complex query to find all unique talks happening at the same ti
 
 \subsection{Initial Implementation}
 \paragraph{Their Implementation}
-In the original implementation, SQL queries are firstly parsed as relational algebra ASTs.
+In the original implementation, SQL queries are encoded using strings are firstly parsed as relational algebra ASTs.
 The definition of |Operator|
 
 %\begin{figure}

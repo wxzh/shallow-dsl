@@ -3,11 +3,11 @@
 \section{Interpretations in Shallow Embeddings}
 
 An often stated limitation of shallow embeddings is that they allow only a single
-interpretation. Gibbons and Wu~\cite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
+interpretation. Gibbons and Wu~\citet{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various type of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
-Although a modular solution based on \cite{swierstra2008data}
+Although a modular solution based on \citep{swierstra2008data}
 is also presented, it complicates the encoding dramatically and may prevent pratical use.
 OO approach, on the contrary, provides modular yet simple solution of defining
 multiple interpretations. 
@@ -72,7 +72,7 @@ Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implements |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
 Also, fields of type |Circuit1| are refined with |Circuit2|
-to avoid type mismatches in methods~\cite{eptrivially16}.
+to avoid type mismatches in methods~\citep{eptrivially16}.
 
 \subsection{Dependent Interpretations}
 \paragraph{Dependent Interpretations in Haskell}
@@ -223,7 +223,7 @@ As Gibbons and Wu have noticed that
 tuples generally lack good language support.
 \end{quote}
 Later sections of
-Two advanced techniques, i.e. tagless final~\cite{} and data type a la carte, are investigated.
+Two advanced techniques, i.e. tagless final~\citep{carette2009finally} and data type a la carte~\citep{swierstra2008data}, are investigated.
 Dependent interpretation can not be introduced modularly using these techniques.
 % This prevents a new interpretation that depends on existing interpretations from being defined modularly.
 
