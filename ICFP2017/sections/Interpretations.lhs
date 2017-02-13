@@ -1,22 +1,31 @@
 %include lhs2TeX.fmt
+%include polycode.fmt
 %include def.fmt
 \section{Interpretations in Shallow Embeddings}
 
 An often stated limitation of shallow embeddings is that they allow only a single
-interpretation. Gibbons and Wu~\citet{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
+interpretation. ~\citet{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various type of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
 Although a modular solution based on \citep{swierstra2008data}
 is also presented, it complicates the encoding dramatically and may prevent pratical use.
 OO approach, on the contrary, provides modular yet simple solution of defining
-multiple interpretations. 
+multiple interpretations.
 \end{comment}
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
 
 \paragraph{Multiple Interpretations in Haskell}
-Suppose that we want to have an additional interpretation that calculates the depth of a circuit. Here is Gibbons and Wu's solution:
+Suppose that we want to have an additional interpretation that calculates the depth of a circuit. Here is ~\citet{gibbons2014folding}'s solution:
+
+%format Circuit2
+%format identity2
+%format fan2
+%format beside2
+%format above2
+%format stretch2
+
 \begin{code}
 type Circuit2  =  (Int,Int)
 identity2 n    =  (n,0)
@@ -29,7 +38,8 @@ width  =  fst
 depth  =  snd
 \end{code}
 
-\noindent where a tuple is used to accommodate multiple interpretations.
+\noindent A tuple (pair) is used to accommodate multiple interpretations.
+And |width| and |depth| are defined as projections on the tuple.
 However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
 |depth|) simultaneously. It is not
@@ -43,6 +53,13 @@ appended to each case.
 
 \paragraph{Multiple Interpretations in Scala}
 In contrast, an OO language like Scala allows new interpretations to be introduced in a modular way:
+
+%format Identity2
+%format Fan2
+%format Beside2
+%format Above2
+%format Stretch2
+
 \begin{spec}
 trait Circuit2 extends Circuit1 {
   def depth: Int
@@ -82,8 +99,16 @@ An instance of such interpretation is |wellSized|, which checks whether a circui
 |wellSized| is dependent because combinators such as |above| have width constraints on its circuit components.
 
 In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
+
+%format Circuit3
+%format identity3
+%format fan3
+%format beside3
+%format above3
+%format stretch3
+
 \begin{code}
-type Circuit   =  (Int,Bool)
+type Circuit3   =  (Int,Bool)
 identity3 n    =  (n,True)
 fan3 n         =  (n,True)
 above3 c1 c2   =  (width c1,wellSized c1 && wellSized c2 && width c1==width c2)
@@ -93,8 +118,15 @@ stretch3 ns c  =  (sum ns,wellSized c && length ns==width c)
 wellSized  =  snd
 \end{code}
 
-\paragraph{Dependent Interpretations in Scala}
+\paragraph{Dependent Interpretations in Scala}\label{sec:dependent}
 Fortunately, an OO approach does not have such restriction:
+
+%format Identity3
+%format Fan3
+%format Beside3
+%format Above3
+%format Stretch3
+
 \begin{spec}
 trait Circuit3 extends Circuit1 {
   def wellSized: Boolean
@@ -131,14 +163,19 @@ For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 
 > [[(0,1), (2,3)], [(1,3)], [(1,2)]]
 
-It has three layers: the first layer has connections from
-the first wire to the second, and from the third to the fourth; the second layer has
-only one connection from the second wire to the fourth one; the third layer also has a single connection from the second to the third.
 
 \paragraph{Context-Sensitive Interpretations in Haskell}
 The following Haskell code models the interpretation described above:
+
+%format Circuit4
+%format identity4
+%format fan4
+%format beside4
+%format above4
+%format stretch4
 %{
 %format . = "\circ"
+
 \begin{code}
 type Layout    =  [[(Int, Int)]]
 type Circuit4  =  (Int,(Int -> Int) -> Layout)
@@ -167,6 +204,13 @@ Then each case of |tlayout| is defined using Haskell's lambda syntax.
 
 \paragraph{Context-sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
+
+%format Identity4
+%format Fan4
+%format Beside4
+%format Above4
+%format Stretch4
+
 \begin{spec}
 type Layout = List[List[Tuple2[Int,Int]]]
 trait Circuit4 extends Circuit1 {
@@ -239,8 +283,8 @@ abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
 abstraction. Gibbons and Wu do discuss a number of advanced techniques that
 can solve some of the modularity problems. For example, using type
-classes, \emph{finally tagless}~\cite{carette2009finally} can deal with the example in
-Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations.
+classes, \emph{finally tagless}~\cite{carette2009finally} can deal with multiple interpretations in
+Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.
 In contrast the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 \begin{comment}

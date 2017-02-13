@@ -1,4 +1,5 @@
 %include lhs2TeX.fmt
+%include polycode.fmt
 %include def.fmt
 \section{Shallow Object-Oriented Programming}\label{sec:oo}
 
@@ -13,18 +14,15 @@ Indeed, none of Scala's fancy functional features is used.
 Essentially, the code can be trivially adapted to any OO language that supports subtyping, inheritance and type-refinements.
 
 \subsection{\dsl: A DSL for Parallel Prefix Circuits}
-\weixin{TODO: Describe \dsl in detail}
-%{
-%format * = "\circ"
+%format * = "\bullet"
 %format x1
 %format x2
 %format xn = "\Varid{x}_{n}"
 \citet{gibbons2014folding} present \dsl~\citep{hinze2004algebra}, a DSL for describing parallel prefix circuits.
-Given a binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|
-%}
+Given a associative binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|. Such computation can be performed in parallel for a parallel prefix circuit.
+Prallel prefix circuits have a of applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:
-% \setlength{\grammarparsep}{20pt plus 1pt minus 1pt} % increase separation between rules
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 
 \begin{grammar}
@@ -37,15 +35,18 @@ The grammar of \dsl is given below:
 
 \noindent \dsl has five constructs: two primitives
 (\emph{identity} and \emph{fan}) and three combinators (\emph{beside}, \emph{above} and \emph{stretch}).
-Their meanings are: \emph{identity n} contains \emph{n} isolated vertical wires;
+Their meanings are: \emph{identity n} contains \emph{n} parallel wires;
 \emph{fan n} has \emph{n} vertical wires with its first wire connected to
 all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuits
 $c_1$ and $c_2$ horizontally; $above\ c_1\ c_2$ combines two circuits of the same width vertically;
 \emph{stretch ns c} inserts more wires into the circuit \emph{c} by
 summing up \emph{ns}.
-For example, Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs. The circuit
-
-
+For example, Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs.
+The construction of the circuit is explained as follows.
+The whole circuit can be divided into three sub-circuits, vertically:
+the top sub-circuit is a two |fan 2| put side by side;
+the middle sub-circuit is a |fan 2| stretched by inserting a wire on the left hand side of the first and second wire;
+the bottom sub-circuit is a |fan 2| between two |identity 1|.
 
 \begin{figure}
   \center
@@ -54,21 +55,20 @@ For example, Fig.~\ref{fig:circuit} visualises a circuit constructed using all t
   \label{fig:circuit}
 \end{figure}
 
-
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
 an shallowly embedded implementation should conform to the following
 types:
 
-\begin{spec}
+\begin{code}
 type Circuit  =  ...
 identity      ::  Int -> Circuit
 fan           ::  Int -> Circuit
 beside        ::  Circuit -> Circuit -> Circuit
 above         ::  Circuit -> Circuit -> Circuit
 stretch       ::  [Int] -> Circuit -> Circuit
-\end{spec}
+\end{code}
 
 The type |Circuit|, representing the semantic domain, is to be filled in with a concrete type according to the semantics.
 Suppose that the semantics of \dsl is to calculate the width of a
@@ -87,12 +87,14 @@ Note that, for this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit.
 For example, running code that represents the circuit shown in Fig~\ref{fig:circuit}
 
-> Prelude  >  :{
-> Prelude  |  (fan 2 `beside` fan 2) `above`
-> Prelude  |  stretch [2,2] (fan 2) `above`
-> Prelude  |  (identity 1 `beside` fan 2 `beside` identity 1)
-> Prelude  |  :}
-> 4
+%format { = "\!\{"
+
+< Prelude  >  :{
+< Prelude  |  (fan 2 `beside` fan 2) `above`
+< Prelude  |  stretch [2,2] (fan 2) `above`
+< Prelude  |  (identity 1 `beside` fan 2 `beside` identity 1)
+< Prelude  |  :}
+< 4
 
 we will get a direct value |4|.
 This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
@@ -106,6 +108,16 @@ language constructs. We will see an interpretation of a more complex domain in S
 \paragraph{Towards OOP}
 A simple, \emph{semantics preserving}, rewriting of the above program is given
 below, where a record with a sole field captures the domain and is declared as a |newtype|:
+
+
+%format Circuit1
+%format identity1
+%format fan1
+%format beside1
+%format above1
+%format stretch1
+%format width1
+
 \begin{code}
 newtype Circuit1   =  Circuit1 {width1  ::  Int}
 identity1 n        =  Circuit1 {width1  =   n}
@@ -121,6 +133,7 @@ OOP program.
 
 \paragraph{Porting to Scala}
 Indeed, we can easily translate the Haskell program into a Scala program:
+
 \begin{spec}
 trait Circuit1 {
   def width: Int
@@ -164,18 +177,19 @@ We can further define some some smart constructors on top of these traits so tha
 we can use this OOP implementation in a manner similar to the FP implementation:
 
 \begin{spec}
-def identity(x: Int)                    =  new Identity1  {val n=x}
-def fan(x: Int)                         =  new Fan1       {val n=x}
-def above(x: Circuit, y: Circuit)       =  new Above1     {val c1=x;   val c2=y}
-def beside(x: Circuit, y: Circuit)      =  new Beside1    {val c1=x;   val c2=y}
-def stretch(xs: List[Int], x: Circuit)  =  new Stretch1   {val ns=xs;  val c=x}
+def identity(x: Int)                     =  new Identity1  {val n=x}
+def fan(x: Int)                          =  new Fan1       {val n=x}
+def above(x: Circuit1, y: Circuit1)      =  new Above1     {val c1=x;   val c2=y}
+def beside(x: Circuit1, y: Circuit1)     =  new Beside1    {val c1=x;   val c2=y}
+def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 \end{spec}
 
-\noindent At this stage, we are able to construct the circuit shown in Fig.~\ref{fig:circuit} again in Scala:
+\noindent At this step, we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
-> scala  >  {
->        |  above(beside(fan(2), fan(2)),
->        |  above(stretch(List(2,2), fan(2)),
->        |  beside(identity(1), beside(fan(2), identity(1))))).width
->        |  }
-> res0: Int = 4
+
+< scala  >  {
+<        |  above(beside(fan(2), fan(2)),
+<        |  above(stretch(List(2,2), fan(2)),
+<        |  beside(identity(1), beside(fan(2), identity(1))))).width
+<        |  }
+< res0: Int = 4

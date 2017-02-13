@@ -1,19 +1,26 @@
 %include lhs2TeX.fmt
+%include polycode.fmt
 %include def.fmt
+
+%format rec1
+%format rec2
+%format title1
+%format title2
+
 \section{Case Study}
-To further illustrate the applicability of our OO approach, we took an existing real-world DSL and rewrote .
+T o further illustrate the applicability of our OO approach, we took an existing real-world DSL~\citep{rompf15} and rewrote it using our approach.
 
 \citet{rompf15} present an external DSL for processing SQL queries using Scala.
 The DSL first parses an SQL query into an relational algebra AST and then executes the query by interpreting that AST.
 Based on LMS framework~\citep{rompf2012lightweight}, the implementation has performance comparable to the hand-written C code while nearly as simple as an intuitive interpreter.
-However, the encoding employs deep embedding techniques such as algebraic datatypes (sealed case classes in Scala) and pattern matching.
+However, the encoding employs deep embedding techniques such as algebraic datatypes (\emph{sealed case classes} in Scala) and pattern matching.
 As a result, the implementation suffers from the Expression Problem for adding new constructs.
-We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language\footnote{\url{http://circumflex.ru/projects/orm/index.html}}\footnote{\url{https://github.com/Kangmo/vigsql}};
+We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language, Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}};
 secondly, the original implementation contains no transformation/optimization.
 With modest effort, we are able to rewrite the implementation using the approach presented in this pearl.
 The resulting implementation is modular without comprimising the performance.
 This section focuses on the rewriting of the interpreter. Similar rewriting is also applicable to the staged compiler based on this interpreter.
-As LMS-related stuff is out of the concern of this pearl.
+We omit LMS-related code so as not to distract the reader.
 
 %Although adding new interpretations is easy for such encoding, adding new constructs become hard.
 %Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
@@ -65,7 +72,7 @@ case class Scan(name: Table) extends Operator
 case class Print(parent: Operator) extends Operator
 case class Project(out: Schema, in: Schema, parent: Operator) extends Operator
 case class Filter(pred: Predicate, parent: Operator) extends Operator
-case class Join(parent1: Operator, parent2: Operator) extends Operator
+case class Join(left: Operator, right: Operator) extends Operator
 
 // filter predicates
 sealed abstract class Predicate
@@ -83,7 +90,7 @@ Some auxilary AST definitions are needed:
 |Predicate| captures conditions (e.g. equal and not equal) in a |where| clause of a query;
 |Ref| captures the fields and literals used in those conditions.
 
-For example, after parsing, we will get the following relational algebra AST for the complex query shown above:
+For example, after parsing, we will get the following relational algebra AST for the complex query above:
 
 >
 > Filter(Ne(Field("title1"),Field("title2")),

@@ -115,7 +115,9 @@
 
 % can be used, for instance, to redefine the code size, by setting the
 % command to \small or something alike
-\newcommand{\hscodestyle}{}
+\newcommand{\hscodestyle}{
+\setlength\leftskip{\parindent}%
+}
 
 % The command \sethscode can be used to switch the code formatting
 % behaviour by mapping the hscode environment in the subst directive
