@@ -6,37 +6,17 @@
 %format rec2
 %format title1
 %format title2
+%format (= "\!("
 
 \section{Case Study}
-T o further illustrate the applicability of our OO approach, we took an existing real-world DSL~\citep{rompf15} and rewrote it using our approach.
+To further illustrate the applicability of our OO approach, we refactored existing DSL implementations to make them modular.
 
-\citet{rompf15} present an external DSL for processing SQL queries using Scala.
-The DSL first parses an SQL query into an relational algebra AST and then executes the query by interpreting that AST.
-Based on LMS framework~\citep{rompf2012lightweight}, the implementation has performance comparable to the hand-written C code while nearly as simple as an intuitive interpreter.
-However, the encoding employs deep embedding techniques such as algebraic datatypes (\emph{sealed case classes} in Scala) and pattern matching.
-As a result, the implementation suffers from the Expression Problem for adding new constructs.
-We found that it is possible to make the implementation as a shallow EDSL: firstly, it is common to embed SQL queries into a general purpose language, Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}};
-secondly, the original implementation contains no transformation/optimization.
-With modest effort, we are able to rewrite the implementation using the approach presented in this pearl.
-The resulting implementation is modular without comprimising the performance.
-This section focuses on the rewriting of the interpreter. Similar rewriting is also applicable to the staged compiler based on this interpreter.
-We omit LMS-related code so as not to distract the reader.
-
-%Although adding new interpretations is easy for such encoding, adding new constructs become hard.
-%Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
-%In other words, sealed case classes suffer from the Expression Problem.
-
-%We found that the implementation is not necessarily to be deep since it does not contain any transformation/optimization.
-%Hence, with modest effort, we can recode that DSL using our approach without comprimising.
-%More importantly, the resulting implementation is modular and extensible,
-%allowing both new constructs and new interpretations to be introduced.
-%deep embedding
-
-\subsection{An SQL Query Processor}
-Suppose that there is a data file, |talks.csv|, containing a list of talks:
+\subsection{Overview}
+SQL is one of the most well-known DSLs for data queries.
+To illustrate, suppose that there is a data file, |talks.csv|, containing a list of talks:
 
 > tid,time,title,room
-> 1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
+> 1,09:00 AM,Erlang 101 - Actor and MultiCore-Programming,New York Central
 > 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
 > ...
 
@@ -58,169 +38,156 @@ Another relative complex query to find all unique talks happening at the same ti
 > join (select time, room, title as title2 from talks.csv)
 > where title1 <> title2
 
+\citet{rompf15} present a SQL to C compiler in Scala.
+Their implementation first parses a SQL query into a relational algebra AST,
+and then executes the query based on that AST.
+By using the LMS framework~\citep{rompf2012lightweight}, the SQL compiler is simple as an intuitive interpreter while having performance comparable to hand-written C code.
+
+Algebraic datatypes (\emph{case classes} in Scala) and pattern matching are used under the hood for encoding and interpreting ASTs.
+These techniques are a natural choice as they make the implementation straightforward.
+However, a problem arises when the implementation evolves with new constructs introduced.
+All existing interpretations have to be modified for dealing with these new constructs,
+suffering from the Expression Problem.
+
+Fortunately, we found that it is possible to rewrite the implementation as a shallow EDSL.
+Firstly, it is common to embed SQL into a general purpose language, for instance Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}} in Scala.
+Secondly, the original implementation contains no transformation/optimization.
+By using the approach presented in this pearl and with only modest effort, the implementation is made modular, without comprimising the performance.
+
+The following subsections focuse on the rewriting of the interpreter presented by~\citet{rompf15}.
+Similar rewriting is also applicable to the staged compiler based on this interpreter.
+%We omit LMS-related code so as not to distract the reader.
+
+%Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
+%In other words, sealed case classes suffer from the Expression Problem.
+
+\begin{figure}
+  \begin{tabular}{ll}
+\begin{minipage}{.55\textwidth}
+\begin{spec}
+sealed abstract class Op
+case class Scan(name: Table) extends Op
+case class Print(o: Op) extends Op
+case class Project(s1: Schema, s2: Schema, o: Op) extends Op
+case class Filter(p: Predicate, o: Op) extends Op
+case class Join(o1: Op, o2: Op) extends Op
+
+def execOp(o: Op)(yld: Record=>Unit): Unit = o match {
+  case Scan(name) =>
+    processCSV(name)(yld)
+  case Print(op) =>
+    execOp(op) { r => printFields(r.fields) }
+  case Project(s1, s2, o) =>
+    execOp(o) { r => yld(Record(r(s1), s2)) }
+  case Filter(p, o) =>
+    execOp(o) { r => if (evalPred(p)(r)) yld(r) }
+  case Join(o1, o2) =>
+    execOp(o1) { r1 =>
+      execOp(o2) { r2 =>
+        val keys = r1.schema intersect r2.schema
+        if (r1(keys) == r2(keys))
+          yld(Record(r1.fields++r2.fields,
+            r1.schema++r2.schema)) }}
+}
+...
+\end{spec}
+\end{minipage}
+&
+\begin{minipage}{.5\textwidth}
+\begin{spec}
+trait Op {
+  def exec(yld: Record => Unit) }
+trait Scan extends Op {
+  val name: Table
+  def exec(yld: Record => Unit) =
+    processCSV(name)(yld) }
+trait Print extends Op {
+  val o: Op
+  def exec(yld: Record => Unit) =
+    o exec { r => printFields(r.fields) }}
+trait Project extends Op {
+  val s1, s2: Schema; val o: Op
+  def exec(yld: Record => Unit) =
+    o exec {r => yld(Record(r(s1), s2))}}
+trait Filter extends Op {
+  val p: Predicate; val o: Op
+  def exec(yld: Record => Unit) =
+    o exec {r => if (p.eval(r)) yld(r) }}
+trait Join extends Op {
+  val o1, o2: Op
+  def exec(yld: Record => Unit) =
+    o1 exec { r1 =>
+      o2 exec { r2 =>
+        val keys = r1.schema intersect r2.schema
+        if (r1(keys) == r2(keys))
+        yld(Record(r1.fields++r2.fields,
+          r1.schema++r2.schema)) }}}
+...
+\end{spec}
+\end{minipage}\\
+\end{tabular}
+\caption{A comparison of implementations}
+\label{comparison}
+\end{figure}
 
 \subsection{Initial Implementation}
-\paragraph{Their Implementation}
-In the original implementation, SQL queries are encoded using strings are firstly parsed as relational algebra ASTs.
-The definition of |Operator|
-
-%\begin{figure}
-\begin{spec}
-// relational algebra ops
-sealed abstract class Operator
-case class Scan(name: Table) extends Operator
-case class Print(parent: Operator) extends Operator
-case class Project(out: Schema, in: Schema, parent: Operator) extends Operator
-case class Filter(pred: Predicate, parent: Operator) extends Operator
-case class Join(left: Operator, right: Operator) extends Operator
-
-// filter predicates
-sealed abstract class Predicate
-case class Eq(a: Ref, b: Ref) extends Predicate
-case class Ne(a: Ref, b: Ref) extends Predicate
-
-sealed abstract class Ref
-case class Field(name: String) extends Ref
-case class Value(x: Any) extends Ref
-\end{spec}
-%\caption{Relation algebra AST}
-%\end{figure}
-
-Some auxilary AST definitions are needed:
-|Predicate| captures conditions (e.g. equal and not equal) in a |where| clause of a query;
-|Ref| captures the fields and literals used in those conditions.
-
-For example, after parsing, we will get the following relational algebra AST for the complex query above:
-
->
-> Filter(Ne(Field("title1"),Field("title2")),
->   Join(
->     Project(Vector("time","room","title"),Vector("time","room","title1"),
->       Scan("talks.csv")),
->     Project(Vector("time","room","title"),Vector("time","room","title2"),
->       Scan("talks.csv"))))
-
-The result of a query can then be given by interpreting the relational algebra AST:
-
-\begin{spec}
-def execOp(o: Operator)(yld: Record => Unit): Unit = o match {
-  case Scan(filename) =>
-    processCSV(filename)(yld)
-  case Print(parent) =>
-    execOp(parent) { rec =>
-      printFields(rec.fields) }
-  case Filter(pred, parent) =>
-    execOp(parent) { rec =>
-      if (evalPred(pred)(rec)) yld(rec) }
-  case Project(newSchema, parentSchema, parent) =>
-    execOp(parent) { rec =>
-      yld(Record(rec(parentSchema), newSchema)) }
-  case Join(left, right) => execOp(left) { rec1 =>
-    execOp(right) { rec2 =>
-      val keys = rec1.schema intersect rec2.schema
-      if (rec1(keys) == rec2(keys))
-        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}
-}
-
-def evalRef(p: Ref)(rec: Record) = p match {
-  case Value(a: String) => a
-  case Field(name) => rec(name)
-}
-
-def evalPred(p: Predicate)(rec: Record) = p match {
-  case Eq(a,b) => evalRef(a)(rec) == evalRef(b)(rec)
-  case Ne(a,b) => evalRef(a)(rec) != evalRef(b)(rec)
-}
-\end{spec}
-|execOp| is a context-sensitive interpretation pretty much like |tlayout| discussed in Section~\ref{}, where |yld| is a callback that accumulates what each operator does to the records. Concretely, |Scan| processes a csv file and produces a record line by line;
+A SQL query can be represented using an relational algebra AST.
+The five case classes that extend |Op| defines the operations that the relational algebra supports, as shown on the left-hand side of Fig.~\ref{comparison}.
+Concretely, |Scan| processes a csv file and produces a record line by line;
 |Print| prints the fields of a record;
-|Filter| filter out a record that does not meet the predicate;
 |Project| rearranges the fields of a record;
-|Join| matches a record from left against to another from right and combines them if their common fields have the same values.
-  With modest modifications on this simple interpreter,
-  The LMS~\cite{} related stuff is not a concern of this pearl
+|Filter| filters out a record that does not meet the predicate;
+|Join| matches a record from |left| against to another from |right|, and combines them if their common fields are of the same values.
 
-\paragraph{Our Implementation}
-Here is our implementation:
-%\begin{figure}
-\begin{spec}
-trait Operator {
-  def exec(yld: Record => Unit): Unit
-  def exec: Unit = exec { _ => }
-}
-trait Scan extends Operator {
-  val name: Table
-  def exec(yld: Record => Unit) = processCSV(name)(yld)
-}
-trait Print extends Operator {
-  val parent: Operator
-  def exec(yld: Record => Unit) =
-    parent.exec { rec => printFields(rec.fields) }
-}
-trait Project extends Operator {
-  val in, out: Schema
-  val parent: Operator
-  def exec(yld: Record => Unit) = parent.exec { rec => yld(Record(rec(in), out)) }
-}
-trait Filter extends Operator {
-  val pred: Predicate
-  val parent: Operator
-  def exec(yld: Record => Unit) = parent.exec { rec => if (pred.eval(rec)) yld(rec) }
-}
-trait Join extends Operator {
-  val left, right: Operator
-  def exec(yld: Record => Unit) =
-    left.exec { rec1 =>
-      right.exec { rec2 =>
-        val keys = rec1.schema intersect rec2.schema
-        if (rec1(keys) == rec2(keys))
-          yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}
-}
+%|Operator| captures the operations supported in relation algebras,
+%|Predicate| captures conditions in a |where| clause of a query, and
+%|Ref| captures the fields and literals used in those conditions.
 
-trait Predicate {
-  def eval(rec: Record): Boolean
-}
-trait Eq extends Predicate {
-  val left, right: Ref
-  def eval(rec: Record) = left.eval(rec) == right.eval(rec)
-}
+%if False
+Some auxiliary definitions are required:
 
-trait Ref {
-  def eval(rec: Record): String
-}
-trait Field extends Ref {
-  val name: String
-  def eval(rec: Record) = rec(name)
-}
-trait Value extends Ref {
-  val x: Any
-  def eval(rec: Record) = x.toString
-}
-\end{spec}
-%\caption{Our SQL engine}
-%\end{figure}
+> type Table   =  String
+> type Schema  =  Vector[String]
+> type Field   =  Vector[String]
+> case class Record(fields: Fields, schema: Schema) {
+>   def apply(name: String)   =  fields(schema indexOf name)
+>   def apply(names: Schema)  =  names map (apply _)
+> }
+%endif
+
+Then feeding a SQL query, e.g. the second query discussed above, to the parser, we will get an AST:
+
+> Filter(Ne(Field("title1"),Field("title2")),
+>   Join(Project(Vector("time","room","title"),Vector("time","room","title1"),Scan("talks.csv")),
+>     Project(Vector("time","room","title"),Vector("time","room","title2"), Scan("talks.csv"))))
+
+The execution of a SQL query can be given by interpreting that AST.
+This is done through pattern matching over the AST as illustrated by |execOp|.
+|execOp| is a context-sensitive interpretation, where |yld| is a callback accumulating what each operator does to the records.
+
+The corresponding implementation using our approach is shown on the right-hand side of Fig.~\ref{comparison}
+
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
-Rompf and Amin~\citet{rompf15} extended their SQL processor for better performance in Section 4.
-Two new operators, aggregations and hash joins, are added:
-The former caches the records from the composed operator; the latter implements a more efficient join algorithm.
-To implement the join algorithm, an auxiliary data structure is needed. further requires a new interpretation to calculate  on operators.
+%Though the implementation presented so far is fairly simple, it is not efficient.
+The achieve better performance,
+\citet{rompf15} extended their SQL processor with two new operators, aggregations and hash joins:
+the former caches the records from the composed operator; the latter implements a more efficient join algorithm.
+Hash joins further require a new interpretation that collects an auxiliary data structure needed in the algorithm.
 In other words, two dimensions of extension are required.
-However, the use of sealed case classes in the orginal implementation disallows modular extensions on both dimensions.
-Whereas our approach
 
 \paragraph{Their Implmenetation}
-In the original implementation, extending constructs is done through adding new case classes to the |Operator| hierarchy.
-However, the definition of |execOp| has to be modified to avoid runtime pattern matching failures.
+%The use of sealed case classes in the orginal implementation disallows modular extensions on both dimensions.
+Extensions were done through revising existing code:
 
 \begin{spec}
-sealed abstract class Operator
+sealed abstract class Op
 ...
-case class HashJoin(parent1: Operator, parent2: Operator) extends Operator
-case class Group(keys: Schema, agg: Schema, parent: Operator) extends Operator
+case class HashJoin(left: Op, right: Op) extends Op
+case class Group(keys: Schema, agg: Schema, parent: Op) extends Op
 
-def execOp(o: Operator)(yld: Record => Unit): Unit = o match {
+def execOp(o: Op)(yld: Record => Unit): Unit = o match {
   ...
   case Group(keys, agg, parent) =>
     val hm = new HashMapAgg(keys, agg)
@@ -237,11 +204,11 @@ def execOp(o: Operator)(yld: Record => Unit): Unit = o match {
     }
 }
 \end{spec}
-
-The |HashJoin| case needs a new interpretation, |resultSchema|, for composing the schema from an operator:
+The definition of |execOp| is modified to give interpretations to the two new operator |Group| and |HashJoin|.
+Also a new interpretation for composing the schema from an operator, |resultSchema| is used in the |HashJoin| case:
 
 \begin{spec}
-def resultSchema(o: Operator): Schema = o match {
+def resultSchema(o: Op): Schema = o match {
   case Scan(_, schema, _, _)     =>  schema
   case Print(parent)             =>  Schema()
   case Project(schema, _, _)     =>  schema
@@ -251,79 +218,74 @@ def resultSchema(o: Operator): Schema = o match {
   case HashJoin(left, right)     =>  resultSchema(left) ++ resultSchema(right)
 }
 \end{spec}
-
 |execOp| becomes both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|) - a non-trivial interpretation very much like |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 
 \paragraph{Our Implementation}
-Our approach makes it simple to add new constructs (|Group| and |HashJoin|) as well as new interpretations (|resultSchema|):
+Our approach makes it simple to add |Group| and |HashJoin| as well as |resultSchema|:
 \begin{spec}
-trait Operator2 extends Operator {
-  def resultSchema: Schema
-}
-trait Scan2 extends Scan with Operator2 {
-  val schema: Schema
-  val delim: Char
-  val extSchema: Boolean
+trait Op2 extends Op {
+  def resultSchema: Schema }
+trait Scan2 extends Scan with Op2 {
+  // field extension
+  val schema: Schema; val delim: Char; val extSchema: Boolean
+  // method overridden
+  override def exec(yld: Record => Unit) =
+    processCSV(name, schema, delim, extSchema)(yld)
   def resultSchema = schema
-  override def exec(yld: Record => Unit) = processCSV(name, schema, delim, extSchema)(yld)
 }
-trait Print2 extends Print with Operator2 {
-  val parent: Operator2
+trait Print2 extends Print with Op2 {
+  val o: Op2
   def resultSchema = Schema()
-  def exec(yld: Record => Unit) = {
-    val schema = parent.resultSchema
+  def exec(yld: Record => Unit) {
+    val schema = o.resultSchema
     printSchema(schema)
-    parent.exec { rec => printFields(rec.fields) }
+    o exec { r => printFields(r.fields) }
   }
 }
-trait Project2 extends Project with Operator2 {
-  val parent: Operator2
-  def resultSchema = out
+trait Project2 extends Project with Op2 {
+  val o: Op2
+  def resultSchema = s2
 }
-trait Filter2 extends Filter with Operator2 {
-  val parent: Operator2
-  def resultSchema = parent.resultSchema
+trait Filter2 extends Filter with Op2 {
+  val o: Op2
+  def resultSchema = o.resultSchema
 }
-trait Join2 extends Join with Operator2 {
-  val left, right: Operator2
-  def resultSchema = left.resultSchema ++ right.resultSchema
+trait Join2 extends Join with Op2 {
+  val o1, o2: Op2
+  def resultSchema = o1.resultSchema ++ o2.resultSchema
 }
-trait Group extends Operator2 {
-  val keys: Schema
-  val agg: Schema
-  val parent: Operator2
+trait Group extends Op2 {
+  val keys, agg: Schema; val o: Op2
   def resultSchema = keys ++ agg
-  def exec(yld: Record => Unit) = {
+  def exec(yld: Record => Unit) {
     val hm = new HashMapAgg(keys, agg)
-    parent.exec { rec =>
-      hm(rec(keys)) += rec(agg)
-    }
-    hm foreach { case (k,a) =>
-      yld(Record(k ++ a, keys ++ agg))
-    }
+    o exec { r => hm(r(keys)) += r(agg) }
+    hm foreach { (k,a) => yld(Record(k ++ a, keys ++ agg)) }
   }
 }
 trait HashJoin extends Join2 {
-  override def exec(yld: Record => Unit) = {
-    val keys = left.resultSchema intersect right.resultSchema
-    val hm = new HashMapBuffer(keys, left.resultSchema)
-    left.exec { rec1 =>
-      hm(rec1(keys)) += rec1.fields
-    }
-    right.exec { rec2 =>
-      hm(rec2(keys)) foreach { rec1 =>
-          yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema))
-      }
-    }
+  override def exec(yld: Record => Unit) {
+    val keys = o1.resultSchema intersect o2.resultSchema
+    val hm = new HashMapBuffer(keys, o1.resultSchema)
+    o1 exec { r1 => hm(r1(keys)) += r1.fields }
+    o2 exec { r2 =>
+      hm(r2(keys)) foreach { r1 =>
+          yld(Record(r1.fields ++ r2.fields, r1.schema ++ r2.schema)) }}
   }
 }
 \end{spec}
+
 The definition of |HashJoin| shows some extra modularity provided by OOP.
 Instead of directly implementing |Operators|, |HashJoin| extends |Join| and overrides the definition of |exec|. This way |resultSchema| as well as field declaration would not be duplicated.
 Moreover, our approach allows modular field extensions on existing constructs, illustrated by |Scan|.
+None of these can be simply done modularly in FP.
 
+Finally, we can define some smart constructors that play the role of a parser:
+\weixin{TODO}
+
+%if False
+\subsection{Discussion}
 Extensions on |Predicate|, such as adding new predicates like |LessThan|, |And| or |Or|, are left as exercises
 on the companion website\footnote{\url{http://scala-lms.github.io/tutorials/query.html}}.
-Such extensions can also be modularly introduced by adding new traits that implement |Predicate|.
-
-% wrappers & client code
+Such extensions can also be modularly introduced.
+%endif

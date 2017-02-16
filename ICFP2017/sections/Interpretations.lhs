@@ -5,7 +5,7 @@
 
 An often stated limitation of shallow embeddings is that they allow only a single
 interpretation. ~\citet{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
-the original code, and thus is non-modular. This section illustrates how various type of
+the original code, and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined in OOP.
 \begin{comment}
 Although a modular solution based on \citep{swierstra2008data}
@@ -38,8 +38,7 @@ width  =  fst
 depth  =  snd
 \end{code}
 
-\noindent A tuple (pair) is used to accommodate multiple interpretations.
-And |width| and |depth| are defined as projections on the tuple.
+\noindent A tuple is used to accommodate multiple interpretations and each interpretation is defined as a projection on the tuple.
 However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
 |depth|) simultaneously. It is not
@@ -108,7 +107,7 @@ In Haskell, dependent interpretations are again defined with tuples in a non-mod
 %format stretch3
 
 \begin{code}
-type Circuit3   =  (Int,Bool)
+type Circuit3  =  (Int,Bool)
 identity3 n    =  (n,True)
 fan3 n         =  (n,True)
 above3 c1 c2   =  (width c1,wellSized c1 && wellSized c2 && width c1==width c2)
@@ -195,12 +194,17 @@ tlayout =  snd
 \end{code}
 %}
 
-|tlayout| is firstly a dependent interpretation, relying on itself as well as |width|.
-More importantly, it is a context-sensitive interpretation.
-A circuit's would be changed when the circuit is stretched or put on the right hand side of another circuit.
-To effectively produce a layout, these changes are lazily applied to the circuit and are accumulated in a parameter.
-The domain |tlayout| is thereby not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
-Then each case of |tlayout| is defined using Haskell's lambda syntax.
+The combinator |stretch| and |beside| will change the layout of a circuit.
+For example, if a circuit is put on the right hand side of another circuit, all the indices of the circuit will be increased by the width of that circuit.
+Hence the interpretation that produces a layout is firstly dependent, relying on itself as well as |width|.
+An intuitive implementation of would perform these changes immediately to the affected circuit.
+Rather, a more efficient implementation would accumulate these changes and apply them all at once.
+|tlayout| takes a accumulating parameter to achieve this goal, thereby makes it context-sensive.
+The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
+An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the function
+to the two elements of the same index and appending the remaining elements from
+the longer list to the resulting list.
+By calling |tlayout| on a circuit and supplying |id| (identity function) as the initial value for the accumulating parameter, we will get the layout.
 
 \paragraph{Context-sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
@@ -246,6 +250,28 @@ def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
 The Scala version is both modular and intuitive, where
 mutable contexts are captured as method arguments.
 
+
+\subsection{Modular Construct Extensions}
+Not only new interpretations, new constructs may be needed when a DSL evolves. For the case of \dsl, we may want to have a |rstretch| (right stretch) combinator which is similar to the stretch combinator but inserts wires from the opposite direction.
+Shallow embeddings make the addition of |rstretch| easy through defining a new function:
+
+< rstretch :: [Int] -> Circuit -> Circuit
+< rstretch = ...
+
+Such simplicity of adding new constructs retains on our OO approach, just through defining new traits that implement |Circuit|:
+
+< trait RStretch extends Circuit {
+<   val ns: List[Int]
+<   val c: Circuit
+<   ...
+< }
+
+As Gibbons and Wu have noticed that
+\begin{quote}
+(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
+tuples generally lack good language support.
+\end{quote}
+
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
 
@@ -254,23 +280,6 @@ mutable contexts are captured as method arguments.
 
 \subsection{Intermediate Interpretations}
 \weixin{Discuss desugaring?}
-
-\subsection{Modular Interpretations}
-\weixin{Discuss adding RStretch and DTC}
-As Gibbons and Wu have noticed that
-\begin{quote}
-(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
-tuples generally lack good language support.
-\end{quote}
-Later sections of
-Two advanced techniques, i.e. tagless final~\citep{carette2009finally} and data type a la carte~\citep{swierstra2008data}, are investigated.
-Dependent interpretation can not be introduced modularly using these techniques.
-% This prevents a new interpretation that depends on existing interpretations from being defined modularly.
-
-\paragraph{Modular Interpretations in Scala}
-
-Figure~\ref{code:variant} shows the Scala implementation, which
-\emph{modularly} defines new traits implementing |Circuit|.
 
 \subsection{Discussion}
 Gibbons and Wu claim that in shallow
@@ -281,7 +290,7 @@ embeddings. In other words, the circuit DSL presented so far does not
 suffer from the Expression Problem. The key point is that procedural
 abstraction combined with OOP features (subtyping, inheritance and
 type-refinement) adds expressiveness over traditional procedural
-abstraction. Gibbons and Wu do discuss a number of advanced techniques that
+abstraction. Gibbons and Wu do discuss a number of advanced techniques~\cite{carette2009finally,swierstra2008data} that
 can solve some of the modularity problems. For example, using type
 classes, \emph{finally tagless}~\cite{carette2009finally} can deal with multiple interpretations in
 Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.

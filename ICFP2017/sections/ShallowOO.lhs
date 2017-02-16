@@ -18,9 +18,9 @@ Essentially, the code can be trivially adapted to any OO language that supports 
 %format x1
 %format x2
 %format xn = "\Varid{x}_{n}"
-\citet{gibbons2014folding} present \dsl~\citep{hinze2004algebra}, a DSL for describing parallel prefix circuits.
+\dsl~\citep{hinze2004algebra} is a DSL for describing parallel prefix circuits.
 Given a associative binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|. Such computation can be performed in parallel for a parallel prefix circuit.
-Prallel prefix circuits have a of applications, including binary addition and sorting algorithms.
+Parallel prefix circuits have a of applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
@@ -41,7 +41,7 @@ all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuit
 $c_1$ and $c_2$ horizontally; $above\ c_1\ c_2$ combines two circuits of the same width vertically;
 \emph{stretch ns c} inserts more wires into the circuit \emph{c} by
 summing up \emph{ns}.
-For example, Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs.
+For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
 the top sub-circuit is a two |fan 2| put side by side;
@@ -85,7 +85,8 @@ stretch ns c   =  sum ns
 
 Note that, for this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit.
-For example, running code that represents the circuit shown in Fig~\ref{fig:circuit}
+For example, running code that represents the circuit shown in Fig.~\ref{fig:circuit}
+we will get a direct value |4|.
 
 %format { = "\!\{"
 
@@ -96,7 +97,6 @@ For example, running code that represents the circuit shown in Fig~\ref{fig:circ
 < Prelude  |  :}
 < 4
 
-we will get a direct value |4|.
 This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language
@@ -126,6 +126,7 @@ beside1 c1 c2      =  Circuit1 {width1  =   width1 c1 + width1 c2}
 above1 c1 c2       =  Circuit1 {width1  =   width1 c1}
 stretch1 ns c      =  Circuit1 {width1  =   sum ns}
 \end{code}
+
 The implementation is still shallow because |newtype| does not add any operational
 behaviour to the program, and hence the two programs are effectively the
 same.  However, having fields makes the program look more like an
@@ -162,19 +163,17 @@ trait Stretch1 extends Circuit1 {
 \end{spec}
 The record type maps to an object interface |Circuit1|, and field
 declaration becomes a method declaration.
-Each case in the semantic function corresponds to a trait with its parameters captured by fields of that trait.
-All these traits are concrete implementations of |Circuit1| that define the |width| method.
+Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
+All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OO language in the first
-place, following the \interp pattern (which uses \textsc{Composite} pattern to
+This implementation is essentially how we would model \dsl with an OO language in the first place, following the \interp pattern (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
 Thus, shallow embeddings and straightforward OO programming are closely
 related.
 
-We can further define some some smart constructors on top of these traits so that
-we can use this OOP implementation in a manner similar to the FP implementation:
+To use this Scala implementation in a manner similar to the Haskell implementation, we define some smart constructors:
 
 \begin{spec}
 def identity(x: Int)                     =  new Identity1  {val n=x}
@@ -188,8 +187,8 @@ def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 
 
 < scala  >  {
-<        |  above(beside(fan(2), fan(2)),
-<        |  above(stretch(List(2,2), fan(2)),
-<        |  beside(identity(1), beside(fan(2), identity(1))))).width
+<        |  above(beside(fan(2),fan(2)),
+<        |  above(stretch(List(2,2),fan(2)),
+<        |  beside(beside(identity(1),fan(2)),identity(1)))).width
 <        |  }
 < res0: Int = 4
