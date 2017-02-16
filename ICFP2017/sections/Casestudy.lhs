@@ -131,18 +131,21 @@ trait Join extends Op {
 \end{figure}
 
 \subsection{Initial Implementation}
+
+\paragraph{Their implementation}
 A SQL query can be represented using an relational algebra AST.
-The five case classes that extend |Op| defines the operations that the relational algebra supports, as shown on the left-hand side of Fig.~\ref{comparison}.
+The five case classes that extend |Op| defines the operators supported by the relational algebra, as shown on the left-hand side of Fig.~\ref{comparison}.
 Concretely, |Scan| processes a csv file and produces a record line by line;
 |Print| prints the fields of a record;
 |Project| rearranges the fields of a record;
 |Filter| filters out a record that does not meet the predicate;
-|Join| matches a record from |left| against to another from |right|, and combines them if their common fields are of the same values.
+|Join| matches a record from |o1| against to another from |o2|, and combines them if their common fields are of the same values.
 
-%|Operator| captures the operations supported in relation algebras,
+%|Operator| captures the supported in relation algebras,
 %|Predicate| captures conditions in a |where| clause of a query, and
 %|Ref| captures the fields and literals used in those conditions.
 
+\weixin{Include other auxilary definitions for completeness?}
 %if False
 Some auxiliary definitions are required:
 
@@ -155,18 +158,20 @@ Some auxiliary definitions are required:
 > }
 %endif
 
-Then feeding a SQL query, e.g. the second query discussed above, to the parser, we will get an AST:
+Feeding a SQL query to the parser, e.g. the second one discussed above,  we will get an AST like this:
 
 > Filter(Ne(Field("title1"),Field("title2")),
 >   Join(Project(Vector("time","room","title"),Vector("time","room","title1"),Scan("talks.csv")),
 >     Project(Vector("time","room","title"),Vector("time","room","title2"), Scan("talks.csv"))))
 
-The execution of a SQL query can be given by interpreting that AST.
-This is done through pattern matching over the AST as illustrated by |execOp|.
-|execOp| is a context-sensitive interpretation, where |yld| is a callback accumulating what each operator does to the records.
+Then the execution of a SQL query can be given by an interpretation on that AST, as done by |execOp|.
+To give each operator a definition, |execOp| pattern matches on the given relational algebra AST |o|.
+It additionally takes a parameter |yld|, which is a callback accumulating what each operator does to the records.
+The implementation for each case is a straightward translation from their meanings.
 
-The corresponding implementation using our approach is shown on the right-hand side of Fig.~\ref{comparison}
-
+\paragraph{Our Implementation} The corresponding implementation using our approach is shown on the right-hand side of Fig.~\ref{comparison}.
+The case class hierarchy is replaced with a trait hierarchy.
+The stand-alone method |execOp| becomes a trait method |exec| implemented by each operation.
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
@@ -220,49 +225,38 @@ def resultSchema(o: Op): Schema = o match {
 \end{spec}
 |execOp| becomes both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|) - a non-trivial interpretation very much like |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 
-\paragraph{Our Implementation}
-Our approach makes it simple to add |Group| and |HashJoin| as well as |resultSchema|:
+\paragraph{Our implementation} In contrast, our approach allows modular extensions on both dimensions:
 \begin{spec}
 trait Op2 extends Op {
   def resultSchema: Schema }
 trait Scan2 extends Scan with Op2 {
-  // field extension
-  val schema: Schema; val delim: Char; val extSchema: Boolean
-  // method overridden
+  val s: Schema; val c: Char; val b: Boolean
   override def exec(yld: Record => Unit) =
-    processCSV(name, schema, delim, extSchema)(yld)
-  def resultSchema = schema
-}
+    processCSV(name, s, c, b)(yld)
+  def resultSchema = schema }
 trait Print2 extends Print with Op2 {
   val o: Op2
   def resultSchema = Schema()
   def exec(yld: Record => Unit) {
     val schema = o.resultSchema
     printSchema(schema)
-    o exec { r => printFields(r.fields) }
-  }
-}
+    o exec { r => printFields(r.fields) }}}
 trait Project2 extends Project with Op2 {
   val o: Op2
-  def resultSchema = s2
-}
+  def resultSchema = s2 }
 trait Filter2 extends Filter with Op2 {
   val o: Op2
-  def resultSchema = o.resultSchema
-}
+  def resultSchema = o.resultSchema }
 trait Join2 extends Join with Op2 {
   val o1, o2: Op2
-  def resultSchema = o1.resultSchema ++ o2.resultSchema
-}
+  def resultSchema = o1.resultSchema ++ o2.resultSchema }
 trait Group extends Op2 {
   val keys, agg: Schema; val o: Op2
   def resultSchema = keys ++ agg
   def exec(yld: Record => Unit) {
     val hm = new HashMapAgg(keys, agg)
     o exec { r => hm(r(keys)) += r(agg) }
-    hm foreach { (k,a) => yld(Record(k ++ a, keys ++ agg)) }
-  }
-}
+    hm foreach { (k,a) => yld(Record(k ++ a, keys ++ agg)) }}}
 trait HashJoin extends Join2 {
   override def exec(yld: Record => Unit) {
     val keys = o1.resultSchema intersect o2.resultSchema
@@ -270,15 +264,13 @@ trait HashJoin extends Join2 {
     o1 exec { r1 => hm(r1(keys)) += r1.fields }
     o2 exec { r2 =>
       hm(r2(keys)) foreach { r1 =>
-          yld(Record(r1.fields ++ r2.fields, r1.schema ++ r2.schema)) }}
-  }
-}
+          yld(Record(r1.fields ++ r2.fields, r1.schema ++ r2.schema)) }}}}
 \end{spec}
-
-The definition of |HashJoin| shows some extra modularity provided by OOP.
-Instead of directly implementing |Operators|, |HashJoin| extends |Join| and overrides the definition of |exec|. This way |resultSchema| as well as field declaration would not be duplicated.
-Moreover, our approach allows modular field extensions on existing constructs, illustrated by |Scan|.
-None of these can be simply done modularly in FP.
+This definition shows some extra modularity enabled by our OOP approach:
+\begin{itemize}
+\item{\bf Field extensions.} The |Scan2| operator extends |Scan| with some extra fields;
+\item{\bf Partial reuse.} |HashJoin| does not directly implement |Op2|. Instead, it extends |Join2| so as to reuse |resultSchema| as well as field declarations from |Join2|.
+\end{itemize}
 
 Finally, we can define some smart constructors that play the role of a parser:
 \weixin{TODO}

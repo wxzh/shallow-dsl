@@ -206,7 +206,7 @@ to the two elements of the same index and appending the remaining elements from
 the longer list to the resulting list.
 By calling |tlayout| on a circuit and supplying |id| (identity function) as the initial value for the accumulating parameter, we will get the layout.
 
-\paragraph{Context-sensitive Interpretations in Scala}
+\paragraph{Context-Sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
 
 %format Identity4
