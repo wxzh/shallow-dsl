@@ -252,13 +252,13 @@ mutable contexts are captured as method arguments.
 
 
 \subsection{Modular Construct Extensions}
-Not only new interpretations, new constructs may be needed when a DSL evolves. For the case of \dsl, we may want to have a |rstretch| (right stretch) combinator which is similar to the stretch combinator but inserts wires from the opposite direction.
+Not only new interpretations, new constructs may be needed when a DSL evolves. For the case of \dsl, we may want to have a |rstretch| (right stretch) combinator which is similar to the |stretch| combinator but inserts wires from the opposite direction.
 Shallow embeddings make the addition of |rstretch| easy through defining a new function:
 
 < rstretch  ::  [Int] -> Circuit -> Circuit
 < rstretch  =   ...
 
-Such simplicity of adding new constructs retains on our OO approach, just through defining new traits that implement |Circuit|:
+Such simplicity of adding new constructs retains on our OO approach, just through a defining a new trait that implements |Circuit|:
 
 < trait RStretch extends Circuit {
 <   val ns: List[Int]

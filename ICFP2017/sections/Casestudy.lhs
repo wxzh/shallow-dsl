@@ -54,9 +54,8 @@ Firstly, it is common to embed SQL into a general purpose language, for instance
 Secondly, the original implementation contains no transformation/optimization.
 By using the approach presented in this pearl and with only modest effort, the implementation is made modular, without comprimising the performance.
 
-The following subsections focuse on the rewriting of the interpreter presented by~\citet{rompf15}.
-Similar rewriting is also applicable to the staged compiler based on this interpreter.
-%We omit LMS-related code so as not to distract the reader.
+The following subsections focuse on rewriting the core of the original implementation - the interpreter for relational algebra operations.
+Similar rewriting is also applicable to the staged version derived from this interpreter as well as other AST related definitions.
 
 %Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
 %In other words, sealed case classes suffer from the Expression Problem.
@@ -172,19 +171,24 @@ The implementation for each case is a straightward translation from their meanin
 \paragraph{Our Implementation} The corresponding implementation using our approach is shown on the right-hand side of Fig.~\ref{comparison}.
 The case class hierarchy is replaced with a trait hierarchy.
 The stand-alone method |execOp| becomes a trait method |exec| implemented by each operation.
+The implementation of |exec| for each operator is almost identical to the corresponding case in |execOp|. One small difference is that we now do |o exec {...}| rather than |execOp (o) {...}| for recursive calls.
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
 %Though the implementation presented so far is fairly simple, it is not efficient.
 The achieve better performance,
-\citet{rompf15} extended their SQL processor with two new operators, aggregations and hash joins:
-the former caches the records from the composed operator; the latter implements a more efficient join algorithm.
-Hash joins further require a new interpretation that collects an auxiliary data structure needed in the algorithm.
+\cite{rompf15} extended the SQL processor in Section 4.
+Two new operators aggregations and hash joins are introduced:
+the former caches the records from the composed operator;
+the latter implements a more efficient join algorithm.
+The introduction of hash joins further requires a new interpretation on the relational algebra operators.
+The new interpretation collects an auxiliary data structure needed in implementing the hash join algorithm.
 In other words, two dimensions of extension are required.
 
 \paragraph{Their Implmenetation}
 %The use of sealed case classes in the orginal implementation disallows modular extensions on both dimensions.
-Extensions were done through revising existing code:
+Due to the lack of modularity in the original implementation,
+extensions were actually done through modifying existing code:
 
 \begin{spec}
 sealed abstract class Op
@@ -209,8 +213,11 @@ def execOp(o: Op)(yld: Record => Unit): Unit = o match {
     }
 }
 \end{spec}
-The definition of |execOp| is modified to give interpretations to the two new operator |Group| and |HashJoin|.
-Also a new interpretation for composing the schema from an operator, |resultSchema| is used in the |HashJoin| case:
+Two new case classes |HashJoin| and |Group| are added to |Op|.
+The definition of |execOp| is modified for giving interpretations to the two new cases.
+For the case of |HashJoin|, an interpretation |resultSchema| is invoked
+for retrieving the schema from the operators it composes.
+Luckily, such new interpretation can be added modularly:
 
 \begin{spec}
 def resultSchema(o: Op): Schema = o match {
@@ -223,16 +230,16 @@ def resultSchema(o: Op): Schema = o match {
   case HashJoin(left, right)     =>  resultSchema(left) ++ resultSchema(right)
 }
 \end{spec}
-|execOp| becomes both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|) - a non-trivial interpretation very much like |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 
-\paragraph{Our implementation} In contrast, our approach allows modular extensions on both dimensions:
+The reader may have noticed that |execOp| becomes very much like the |tlayout| interpretation discussed in Section~\ref{sec:ctxsensitive}, which is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
+
+\paragraph{Our implementation}
+In contrast, our approach allows modular extensions on both dimensions:
 \begin{spec}
 trait Op2 extends Op {
   def resultSchema: Schema }
 trait Scan2 extends Scan with Op2 {
-  val s: Schema; val c: Char; val b: Boolean
-  override def exec(yld: Record => Unit) =
-    processCSV(name, s, c, b)(yld)
+  val s: Schema; val delim: Char; val b: Boolean
   def resultSchema = schema }
 trait Print2 extends Print with Op2 {
   val o: Op2
@@ -266,10 +273,16 @@ trait HashJoin extends Join2 {
       hm(r2(keys)) foreach { r1 =>
           yld(Record(r1.fields ++ r2.fields, r1.schema ++ r2.schema)) }}}}
 \end{spec}
-This definition shows some extra modularity enabled by our OOP approach:
+The new trait |Op2| extends |Op1| with a new method |resultSchema|.
+All operators now implements |Op2| by inheritating their existing implementation and complementing |resultSchema|.
+Two new operators, |Group| and |HashJoin|, are added by implementing |Op2| directly.
+
+The implementation of these extensions also show some extra modularity enabled by our OOP approach:
 \begin{itemize}
-\item{\bf Field extensions.} The |Scan2| operator extends |Scan| with some extra fields;
-\item{\bf Partial reuse.} |HashJoin| does not directly implement |Op2|. Instead, it extends |Join2| so as to reuse |resultSchema| as well as field declarations from |Join2|.
+\item{\bf Field extensions.} Adding new fields can be simply done via some more |val| declarations, as illustrated by |Scan2|. If we would like to do this in the original implementation, the case class definition and every pattern clause referring to this case clas have to be modified.
+\item{\bf Partial reuse.} There may exist some constructs that are only slightly different between each other. Instances of such constructs are |Join| and |HashJoin|.
+|HashJoin| is just a specialized version of |Join|, which shares the same fields and the |resultSchema| definition with |Join|, and only differs in |exec| implementation.
+Such specialization can fulfilled impressed through letting |HashJoin| extend |Join2| and override |exec|, which is not possible in the original implementation.
 \end{itemize}
 
 Finally, we can define some smart constructors that play the role of a parser:
