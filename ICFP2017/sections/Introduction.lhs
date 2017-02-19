@@ -64,9 +64,12 @@ EDSL. We recode that EDSL in Scala\footnote{Available online: \url{https://githu
 From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 
-\bruno{Talk about case study; argue that original implementation is a deep
+\bruno{Weixin: Talk about case study; argue that original implementation is a deep
 embedding with possible multiple interpretations;
 we refactor it to a shallow embedding with multiple interpretations.}
+
+\bruno{Disclaimer about the OOP style promoted here: we promote
+a \emph{functional} OOP style.}
 
 %if False
 If we accept Cook's view on OOP, 

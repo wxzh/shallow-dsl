@@ -9,9 +9,11 @@ DSL presented by ~\citet{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
 implementation in Haskell, and rewrite it towards an ``OO style''.
 Then translating the program into an OO language becomes straightforward.
-We choose Scala as the demonstrating OO language throughout this pearl because of its concise syntax.
-Indeed, none of Scala's fancy functional features is used.
-Essentially, the code can be trivially adapted to any OO language that supports subtyping, inheritance and type-refinements.
+We choose Scala as the demonstrating OO language throughout this pearl 
+because of its relatively elegant syntax and its support for multiple-inheritance
+via traits. % None of Scala's advanced type system features is used.
+%However the code can be adapted to any OO language that supports subtyping, 
+%mulinheritance and type-refinements.
 
 \subsection{\dsl: A DSL for Parallel Prefix Circuits}
 %format * = "\bullet"
@@ -20,7 +22,7 @@ Essentially, the code can be trivially adapted to any OO language that supports 
 %format xn = "\Varid{x}_{n}"
 \dsl~\citep{hinze2004algebra} is a DSL for describing parallel prefix circuits.
 Given a associative binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|. Such computation can be performed in parallel for a parallel prefix circuit.
-Parallel prefix circuits have a of applications, including binary addition and sorting algorithms.
+Parallel prefix circuits have a\bruno{weixin: do you mean "a lot of applications" (or even better "many applications") here?} of applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
@@ -58,7 +60,7 @@ the bottom sub-circuit is a |fan 2| between two |identity 1|.
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
-an shallowly embedded implementation should conform to the following
+a shallowly embedded implementation should conform to the following
 types:
 
 \begin{code}
@@ -97,6 +99,9 @@ we will get a direct value |4|.
 < Prelude  |  :}
 < 4
 
+\bruno{I don't think we need to use the special syntax of ghci that allows multi-line expressions. 
+Just create a definition for this particular circuit, and then show the evaluation 
+on ghci.}
 This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language
@@ -161,12 +166,12 @@ trait Stretch1 extends Circuit1 {
   def width = ns.sum
 }
 \end{spec}
-The record type maps to an object interface |Circuit1|, and field
-declaration becomes a method declaration.
+The record type maps to an object interface (modelled as a |trait| in Scala) |Circuit1|, and field
+declarations becomes method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OO language in the first place, following the \interp pattern (which uses \textsc{Composite} pattern to
+This implementation is essentially how we would model \dsl with an OO language in the first place, following the \interp pattern~\cite{gof} (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
@@ -183,7 +188,7 @@ def beside(x: Circuit1, y: Circuit1)     =  new Beside1    {val c1=x;   val c2=y
 def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 \end{spec}
 
-\noindent At this step, we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
+\noindent At this point, we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
 
 < scala  >  {
@@ -192,3 +197,9 @@ def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 <        |  beside(beside(identity(1),fan(2)),identity(1)))).width
 <        |  }
 < res0: Int = 4
+
+\bruno{same comment as with the Haskell code. We can avoid using such multiline features (which may need to be explained). 
+Just create a definition and then show out to execute the definition.}
+
+\bruno{I think we want to say something like the syntax in Scala is not as compact, but this could be improved. Moreover 
+Scala has advantages in terms of modularity, as we shall see.}
