@@ -15,9 +15,11 @@ multiple interpretations.
 \end{comment}
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
+Besides |width|, we may want to have additional interpretations for \dsl.
+For example, an interpretation that calculates the depth of a circuit.
 
 \paragraph{Multiple Interpretations in Haskell}
-Suppose that we want to have an additional interpretation that calculates the depth of a circuit. Here is ~\citet{gibbons2014folding}'s solution:
+Here is ~\citet{gibbons2014folding}'s solution:
 
 %format Circuit2
 %format identity2
@@ -38,7 +40,7 @@ width  =  fst
 depth  =  snd
 \end{code}
 
-\noindent A tuple is used to accommodate multiple interpretations and each interpretation is defined as a projection on the tuple.
+\noindent A tuple is used to accommodate multiple interpretations, and each interpretation is defined as a projection on the tuple.
 However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
 |depth|) simultaneously. It is not
@@ -87,16 +89,15 @@ The encoding relies on three OOP abstraction mechanisms:
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implements |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with |Circuit2|
-to avoid type mismatches in methods~\citep{eptrivially16}.
+Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
 
 \subsection{Dependent Interpretations}
-\paragraph{Dependent Interpretations in Haskell}
 \emph{Dependent interpretations} are a generalization of multiple
 interpretations. A dependent interpretation does not only depend on itself but also on other interpretations.
 An instance of such interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
 |wellSized| is dependent because combinators such as |above| have width constraints on its circuit components.
 
+\paragraph{Dependent Interpretations in Haskell}
 In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
 
 %format Circuit3
@@ -197,14 +198,14 @@ tlayout =  snd
 The combinator |stretch| and |beside| will change the layout of a circuit.
 For example, if a circuit is put on the right hand side of another circuit, all the indices of the circuit will be increased by the width of that circuit.
 Hence the interpretation that produces a layout is firstly dependent, relying on itself as well as |width|.
-An intuitive implementation of would perform these changes immediately to the affected circuit.
+An intuitive implementation would perform these changes immediately to the affected circuit.
 Rather, a more efficient implementation would accumulate these changes and apply them all at once.
-|tlayout| takes a accumulating parameter to achieve this goal, thereby makes it context-sensive.
+|tlayout| takes an accumulating parameter to achieve this goal, thereby makes it context-sensive.
 The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the function
 to the two elements of the same index and appending the remaining elements from
 the longer list to the resulting list.
-By calling |tlayout| on a circuit and supplying |id| (identity function) as the initial value for the accumulating parameter, we will get the layout.
+By calling |tlayout| on a circuit and supplying |id| as the initial value for the accumulating parameter, we will get the layout.
 
 \paragraph{Context-Sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
@@ -262,6 +263,7 @@ the addition of |rstretch| easy through defining a new function:
 < rstretch  ::  [Int] -> Circuit -> Circuit
 < rstretch  =   ...
 
+
 Such simplicity of adding new constructs is retained in our OO approach.
 All that is needed is a new trait that implements |Circuit|:
 
@@ -285,6 +287,7 @@ All that is needed is a new trait that implements |Circuit|:
 \end{comment}
 
 \subsection{Discussion}
+\begin{comment}
 As Gibbons and Wu notice:
 \begin{quote}
 \emph{
@@ -299,20 +302,43 @@ encoding.  Instead of tuples, objects are used. Objects are
 essentially records/named-tuples. Unlike Haskell tuples objects
 can have subtyping relations. That is, whenever a object of a certain
 type is needed, an object with more field/methods can be used instead.
+\end{comment}
 
-Gibbons and Wu claim that in shallow
-embeddings new language constructs are easy to add, but new
-interpretations are hard. As our OOP approach shows, in OOP both
-language constructs and new interpretations are easy to add in shallow
-embeddings. In other words, the circuit DSL presented so far does not
-suffer from the Expression Problem. The key point is that procedural
-abstraction combined with OOP features (subtyping, inheritance and
-type-refinement) adds expressiveness over traditional procedural
-abstraction. Gibbons and Wu do discuss a number of advanced techniques~\cite{carette2009finally,swierstra2008data} that
-can solve some of the modularity problems. For example, using type
-classes, \emph{finally tagless}~\cite{carette2009finally} can deal with multiple interpretations in
-Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.
-In contrast the approach proposed here is just straightforward OOP, and dependent
+Gibbons and Wu claim that in shallow embeddings new language
+constructs are easy to add, but new interpretations are hard.
+Although it is possible to define multiple interpretations via tuples,
+they have noticed that 
+
+\begin{quote} \emph{ it is not difficult to
+provide multiple interpretations with a shallow embedding ... But this
+is still a bit clumsy: it entails revising existing code each time a
+new interpretation is added, and wide tuples generally lack good
+language support.}~\citep{gibbons2014folding} 
+\end{quote} 
+In other words, Haskell's approach based on tuples is essentially non-modular.
+However, as our OOP approach shows, in OOP both language constructs and new
+interpretations are easy to add in shallow embeddings. In other words,
+the circuit DSL presented so far does not suffer from the Expression
+Problem. The key point is that procedural abstraction combined with
+OOP features (subtyping, inheritance and type-refinement) adds
+expressiveness over traditional procedural abstraction. 
+%%Instead of tuples, traits are used. Traits are
+%%essentially records/named-tuples. Unlike Haskell tuples, traits
+%%can have subtyping relations. That is, whenever a object of a certain
+%%type is needed, an object with more field/methods can be used instead.
+\bruno{Explanation may need some improvement here to explain what is 
+the essential advantage that Scala has over tuples.}
+
+Gibbons and Wu
+do discuss a number of advanced
+techniques~\cite{carette2009finally,swierstra2008data} that can solve
+some of the modularity problems. For example, using type classes,
+\emph{finally tagless}~\cite{carette2009finally} can deal with
+multiple interpretations in Section~\ref{subsec:multiple}. However,
+these techniques complicates the encoding of the EDSL
+significantly. Moreover, tuples are still needed to deal with
+dependent interpretations in Section~\ref{sec:dependent}. In contrast
+the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 
 \begin{comment}

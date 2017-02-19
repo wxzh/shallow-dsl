@@ -1,8 +1,9 @@
+//BEGIN_DEPTH_SCALA
 package depth
 trait Circuit extends width.Circuit { 
   def depth: Int 
 }
-trait Id extends width.Id with Circuit {
+trait Identity extends width.Identity with Circuit {
   def depth = 0
 }
 trait Fan extends width.Fan with Circuit {
@@ -20,3 +21,4 @@ trait Stretch extends width.Stretch with Circuit {
   val c: Circuit
   def depth = c.depth
 }
+//END_DEPTH_SCALA

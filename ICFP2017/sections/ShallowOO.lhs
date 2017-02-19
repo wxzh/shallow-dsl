@@ -22,7 +22,7 @@ via traits. % None of Scala's advanced type system features is used.
 %format xn = "\Varid{x}_{n}"
 \dsl~\citep{hinze2004algebra} is a DSL for describing parallel prefix circuits.
 Given a associative binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|. Such computation can be performed in parallel for a parallel prefix circuit.
-Parallel prefix circuits have a\bruno{weixin: do you mean "a lot of applications" (or even better "many applications") here?} of applications, including binary addition and sorting algorithms.
+Parallel prefix circuits have many applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
@@ -60,7 +60,7 @@ the bottom sub-circuit is a |fan 2| between two |identity 1|.
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
-a shallowly embedded implementation should conform to the following
+a shallowly embedded implementation (in Haskell) should conform to the following
 types:
 
 \begin{code}
@@ -85,26 +85,25 @@ above c1 c2    =  c1
 stretch ns c   =  sum ns
 \end{code}
 
+\bruno{I don't think we need to use the special syntax of ghci that allows multi-line expressions.
+Just create a definition for this particular circuit, and then show the evaluation
+on ghci.}
+\weixin{Addressed}
+Then we are able to construct the circuit in Fig.~\ref{fig:circuit} using these functions:
+
+c = (fan 2 `beside` fan 2) `above`
+  stretch [2,2] (fan 2) `above`
+  (identity 1 `beside` fan 2 `beside` identity 1)
+
 Note that, for this simple interpretation, the Haskell domain is simply |Int|.
-This means that we will get the width right after the construction of a circuit.
-For example, running code that represents the circuit shown in Fig.~\ref{fig:circuit}
-we will get a direct value |4|.
+This means that we will get the width right after the construction of a circuit:
 
-%format { = "\!\{"
-
-< Prelude  >  :{
-< Prelude  |  (fan 2 `beside` fan 2) `above`
-< Prelude  |  stretch [2,2] (fan 2) `above`
-< Prelude  |  (identity 1 `beside` fan 2 `beside` identity 1)
-< Prelude  |  :}
+< Prelude > c
 < 4
 
-\bruno{I don't think we need to use the special syntax of ghci that allows multi-line expressions. 
-Just create a definition for this particular circuit, and then show the evaluation 
-on ghci.}
 This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
-is a good representation. In a call-by-value language
+is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| would be more
 appropriate to deal correctly with potential control-flow
 language constructs. We will see an interpretation of a more complex domain in Section~\ref{sec:ctxsensitive}.
@@ -171,7 +170,7 @@ declarations becomes method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OO language in the first place, following the \interp pattern~\cite{gof} (which uses \textsc{Composite} pattern to
+This implementation is essentially how we would model \dsl with an OO language in the first place, following the \interp pattern~\citep{gamma94design} (which uses \textsc{Composite} pattern to
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
@@ -189,17 +188,22 @@ def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 \end{spec}
 
 \noindent At this point, we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
-
-
-< scala  >  {
-<        |  above(beside(fan(2),fan(2)),
-<        |  above(stretch(List(2,2),fan(2)),
-<        |  beside(beside(identity(1),fan(2)),identity(1)))).width
-<        |  }
-< res0: Int = 4
-
-\bruno{same comment as with the Haskell code. We can avoid using such multiline features (which may need to be explained). 
+\bruno{same comment as with the Haskell code. We can avoid using such multiline features (which may need to be explained).
 Just create a definition and then show out to execute the definition.}
+\weixin{Addressed}
 
-\bruno{I think we want to say something like the syntax in Scala is not as compact, but this could be improved. Moreover 
+\begin{spec}
+val c  = above(beside(fan(2),fan(2)),
+  above(stretch(List(2,2),fan(2)),
+  beside(beside(identity(1),fan(2)),identity(1))))
+\end{spec}
+
+< scala > c.width
+< 4
+
+\bruno{I think we want to say something like the syntax in Scala is not as compact, but this could be improved. Moreover
 Scala has advantages in terms of modularity, as we shall see.}
+
+The syntax of this Scala version is not as compact as the Haskell version.
+This could be improved by, for example, moving combinator constructors to |Circuit1| so that we can call |fan(2) beside fan(2)| rather than |beside(fan(2),fan(2))|.
+Nevertheless, such a Scala implementation has advantages in terms of modularity, as we shall see in later sections.

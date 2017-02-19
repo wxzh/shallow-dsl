@@ -29,8 +29,8 @@ consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 \end{comment}
 
-One way more precisely understand what "\emph{terms in the
-DSL are implemented directly by their semantics}" means in a shallow
+One way more precisely understand what ``\emph{terms in the
+DSL are implemented directly by their semantics}'' means in a shallow
 embedding is to say that terms are implemented using \emph{procedural
 abstraction}~\citep{reynolds94proceduralabstraction}. This is
 the definition of what it means to be a shallow embedding in
@@ -38,7 +38,7 @@ this paper. Such interpretation arises naturally from the domain of
 shallow EDSLs being functions, and procedural abstraction being a way
 to encode data abstractions using functions.
 
-The main goal of our paper is to show the close relationship between
+The main goal of this pearl is to show the close relationship between
 shallow embeddings and OOP, and argue that OOP languages have
 advantages for the implementation of shallow embeddings.
 As~\citet{cook09abstraction} argued, procedural abstraction is also
@@ -67,9 +67,16 @@ Scala version has clear advantages over the Haskell version.
 \bruno{Weixin: Talk about case study; argue that original implementation is a deep
 embedding with possible multiple interpretations;
 we refactor it to a shallow embedding with multiple interpretations.}
+\weixin{Addressed}
+To further illustrate the applicability of our OO approach, we conduct a case study on refactoring an existing DSL implementation to make it modular.
+\citet{rompf15} present a SQL to C compiler in Scala, which is an external DSL but uses deep embedding techniques such as algebraic datatypes and pattern matching underlying.
+The use of deep embedding techniques facilitates multiple interpretations at the price of modular construct extensions.
+We rewrote the implementation as a shallow EDSL.
+The resulting implementation allows both new interpretations and new constructs to be introduced modularly.
 
 \bruno{Disclaimer about the OOP style promoted here: we promote
 a \emph{functional} OOP style.}
+\weixin{Or \emph{pure} OOP according to \citet{cook09abstraction}}
 
 %if False
 If we accept Cook's view on OOP, 

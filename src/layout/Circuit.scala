@@ -4,7 +4,7 @@ trait Circuit extends wellsized.Circuit with depth.Circuit {
   def layout: Layout
   def tlayout(f: Int => Int): Layout
 }
-trait Id extends Circuit with wellsized.Id with depth.Id {
+trait Identity extends Circuit with wellsized.Identity with depth.Identity {
   def layout = List()
   def tlayout(f: Int => Int) = List()
 }
