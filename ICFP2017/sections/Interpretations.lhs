@@ -6,7 +6,7 @@
 An often stated limitation of shallow embeddings is that they allow only a single
 interpretation. ~\citet{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined in OOP.
+interpretations can be \emph{modularly} defined using standard OOP techniques.
 \begin{comment}
 Although a modular solution based on \citep{swierstra2008data}
 is also presented, it complicates the encoding dramatically and may prevent pratical use.
@@ -154,7 +154,7 @@ Essentially, it is sufficient to define |wellSized| while
 knowing only the signature of |width| in |Circuit|.
 
 \subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
-Interpretations may rely on some mutable contexts.
+Interpretations may rely on some contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
@@ -247,18 +247,23 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
 }
 def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
 \end{spec}
-The Scala version is both modular and intuitive, where
-mutable contexts are captured as method arguments.
+The Scala version is both modular and arguably more intuitive, since 
+contexts are captured as method arguments.
 
 
 \subsection{Modular Construct Extensions}
-Not only new interpretations, new constructs may be needed when a DSL evolves. For the case of \dsl, we may want to have a |rstretch| (right stretch) combinator which is similar to the |stretch| combinator but inserts wires from the opposite direction.
-Shallow embeddings make the addition of |rstretch| easy through defining a new function:
+
+Besides new interpretations, new constructs may be needed when a DSL
+evolves. For example, in the case of \dsl, we may want to have a |rstretch| (right
+stretch) combinator which is similar to the |stretch| combinator but
+inserts wires from the opposite direction.  Shallow embeddings make
+the addition of |rstretch| easy through defining a new function:
 
 < rstretch  ::  [Int] -> Circuit -> Circuit
 < rstretch  =   ...
 
-Such simplicity of adding new constructs retains on our OO approach, just through a defining a new trait that implements |Circuit|:
+Such simplicity of adding new constructs is retained in our OO approach.
+All that is needed is a new trait that implements |Circuit|:
 
 < trait RStretch extends Circuit {
 <   val ns: List[Int]
@@ -266,22 +271,35 @@ Such simplicity of adding new constructs retains on our OO approach, just throug
 <   ...
 < }
 
-As Gibbons and Wu have noticed that
-\begin{quote}
-(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
-tuples generally lack good language support.
-\end{quote}
+\bruno{please show the code for rstrech, both in Haskell and in Scala.}
 
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
 
+\begin{comment}
 \subsection{Implicitly Parameterized Interpretations}
 \weixin{Discuss type classes, tagless final, polymorphic embedding, Object Algebras?}
 
 \subsection{Intermediate Interpretations}
 \weixin{Discuss desugaring?}
+\end{comment}
 
 \subsection{Discussion}
+As Gibbons and Wu notice:
+\begin{quote}
+\emph{
+it is not difficult to provide multiple interpretations with a shallow
+embedding ... But this is still a bit clumsy: it entails revising
+existing code each time a new interpretation is added, and wide tuples
+generally lack good language support.}  \end{quote}
+
+\noindent In other words, Haskell's approach based on tuples is essentially non-modular.
+This is precisely where OOP has advantages over the Haskell
+encoding.  Instead of tuples, objects are used. Objects are
+essentially records/named-tuples. Unlike Haskell tuples objects
+can have subtyping relations. That is, whenever a object of a certain
+type is needed, an object with more field/methods can be used instead.
+
 Gibbons and Wu claim that in shallow
 embeddings new language constructs are easy to add, but new
 interpretations are hard. As our OOP approach shows, in OOP both
@@ -296,6 +314,7 @@ classes, \emph{finally tagless}~\cite{carette2009finally} can deal with multiple
 Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.
 In contrast the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
+
 \begin{comment}
 and \emph{data types a la
   carte}~\cite{swierstra2008data} (DTC).
