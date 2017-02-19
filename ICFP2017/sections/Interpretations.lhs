@@ -183,8 +183,8 @@ identity4 n    =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
 beside4 c1 c2  =  (width c1 + width c2
-                  ,\f -> lzw (++) (tlayout c1 f) (tlayout c2 ((width c1+) . f)))
-stretch4 ns c  =  (sum ns,\f -> tlayout c (pred . (scanl1 (+) ns!!) . f))
+                  ,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
+stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (scanl1 (+) ns!!)))
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
 lzw f [ ] ys             =  ys
@@ -229,50 +229,68 @@ trait Fan4 extends Fan1 with Circuit4 {
 }
 trait Above4 extends Above1 with Circuit4 {
   val c1, c2: Circuit4
-  def tlayout(f: Int => Int) = c1.tlayout(f) ++ c2.tlayout(f)
+  def tlayout(f: Int => Int) = (c1 tlayout f) ++ (c2 tlayout f)
 }
 trait Beside4 extends Beside1 with Circuit4 {
   val c1, c2: Circuit4
   def tlayout(f: Int => Int) =
-    lzw (c1.tlayout(f), c2.tlayout(f.andThen(c1.width + _))) (_ ++ _)
+    lzw (c1 tlayout f, c2 tlayout (f compose (c1.width + _))) (_ ++ _)
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
   val c: Circuit4
-  def tlayout(f: Int => Int) = c.tlayout(f.andThen(partialSum(ns)(_) - 1))
+  def tlayout(f: Int => Int) = c tlayout (f compose (partialSum(ns)(_) - 1))
 }
 
 def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
   case (Nil,_)        =>  ys
   case (_,Nil)        =>  xs
-  case (x::xs,y::ys)  =>  f(x,y)::lzw(xs,ys)(f)
+  case (x::xs,y::ys)  =>  f(x,y) :: lzw (xs,ys) (f)
 }
-def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
+def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _) tail
 \end{spec}
-The Scala version is both modular and arguably more intuitive, since 
+The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 
 
-\subsection{Modular Construct Extensions}
+\subsection{Modular Construct Extensions}\label{sec:construct}
 
 Besides new interpretations, new constructs may be needed when a DSL
 evolves. For example, in the case of \dsl, we may want to have a |rstretch| (right
-stretch) combinator which is similar to the |stretch| combinator but
-inserts wires from the opposite direction.  Shallow embeddings make
-the addition of |rstretch| easy through defining a new function:
+stretch) combinator which is similar to the |stretch| combinator except for the direction of stretching.
 
-< rstretch  ::  [Int] -> Circuit -> Circuit
-< rstretch  =   ...
+\paragraph{New Constructs in Haskell}
 
+Shallow embeddings make the addition of |rstretch| easy through defining a new function:
 
+< rstretch        ::  [Int] -> Circuit4 -> Circuit4
+< rstretch  ns c  =  stretch4 (1 : init ns) c `beside` identity (last ns - 1)
+
+|rstretch| happens to be a syntatic sugar that can be defined in terms of existing constructs.
+For non-sugar constructs, we need to define a new function that implements all supported interpretations.
+
+\paragraph{New Constructs in Scala}
 Such simplicity of adding new constructs is retained in our OO approach.
-All that is needed is a new trait that implements |Circuit|:
+Different from the Haskell approach, there is a clear distinction between syntatic sugars and ordinary constructs in our OOP approach.
 
-< trait RStretch extends Circuit {
-<   val ns: List[Int]
-<   val c: Circuit
-<   ...
-< }
+In our OOP approach, a syntatic sugar is defined as a smart constructor upon other smart constructors:
 
+> def rstretch(ns: List[Int], c: Circuit4) = stretch (1 :: ns.init, beside(c, identity(ns.last - 1)))
+
+% All that is needed is
+On the other hand, adding an ordinary construct is done through defining a new trait that implements |Circuit4|.
+If we treated |rstretch| as an ordinary construct, its definition would be:
+
+> trait RStretch extends Stretch4 {
+>   override def tlayout(f: Int => Int) = c tlayout (f compose (rPartialSum (ns) (_)))
+> }
+> def rPartialSum(ns: List[Int]): List[Int] = ns.scanLeft(ns.last - 1)(_ + _) init
+
+Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
+Note that |RStretch| does not implement |Circuit4| directly.
+Instead, it inheritates |Stretch| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch|.
+Inheritance and overriding enable to partial reuse on a construct implementation,
+which is particularly useful for defining specialized constructs.
+However, such partial reuse is hard to achieve in Haskell.
 \bruno{please show the code for rstrech, both in Haskell and in Scala.}
 
 \subsection{Parameterized Interpretations}

@@ -60,7 +60,8 @@ shallow embeddings.
 
 We make our arguments by taking a recent paper by ~\citet{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
-EDSL. We recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
+EDSL. We recode that EDSL in Scala.
+%\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 

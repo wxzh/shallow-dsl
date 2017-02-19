@@ -46,9 +46,9 @@ summing up \emph{ns}.
 For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
-the top sub-circuit is a two |fan 2| put side by side;
-the middle sub-circuit is a |fan 2| stretched by inserting a wire on the left hand side of the first and second wire;
-the bottom sub-circuit is a |fan 2| between two |identity 1|.
+the top sub-circuit is a two |2-fan|s put side by side;
+the middle sub-circuit is a |2-fan| stretched by inserting a wire on the left hand side of its first and second wire;
+the bottom sub-circuit is a |2-fan| between two |1-identity|s.
 
 \begin{figure}
   \center
@@ -91,9 +91,9 @@ on ghci.}
 \weixin{Addressed}
 Then we are able to construct the circuit in Fig.~\ref{fig:circuit} using these functions:
 
-c = (fan 2 `beside` fan 2) `above`
-  stretch [2,2] (fan 2) `above`
-  (identity 1 `beside` fan 2 `beside` identity 1)
+> c = (fan 2 `beside` fan 2) `above`
+>  stretch [2,2] (fan 2) `above`
+>  (identity 1 `beside` fan 2 `beside` identity 1)
 
 Note that, for this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit:

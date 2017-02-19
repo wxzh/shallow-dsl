@@ -276,16 +276,10 @@ trait HashJoin extends Join2 with Op2 {
 \end{spec}
 The new trait |Op2| extends |Op1| with a new method |resultSchema|.
 All operators now implements |Op2| by inheritating their existing implementation and complementing |resultSchema|.
-Two new operators, |Group| and |HashJoin|, are added by implementing |Op2| directly.
-
-The implementation of these extensions also show some extra modularity enabled by our OOP approach:
-\begin{itemize}
-\item{\bf Field extensions.} Adding new fields can be simply done via some more |val| declarations, as illustrated by |Scan2|. If we would like to do this in the original implementation, the case class definition and every pattern clause referring to this case clas have to be modified.
-\item{\bf Specialized constructs.} There may exist some constructs that are only slightly different between each other. Instances of such constructs are |Join| and |HashJoin|.
-|HashJoin| is just a specialized version of |Join|, which shares the same fields and the |resultSchema| definition with |Join|, and only differs in |exec| implementation.
-Using our approach, we are able to implement |HashJoin| through inheriting |Join2| and overriding |exec|.
-Such kind of reuse between construct implementations is hard to achieve in the original implementation as well.
-\end{itemize}
+Two new operators, |Group| and |HashJoin|, are added modularly.
+As |HashJoin| is a specialized version of |Join|, we hence implement it following the definition of |RStretch| in Section~\ref{sec:construct}.
+Moreover, adding new fields can be simply done via some more |val| declarations, as illustrated by |Scan2|.
+If we would like to do this in the original implementation, the case class definition and every pattern clause referring to this case clas have to be modified.
 
 Finally, we can define some smart constructors that play the role of a parser:
 \weixin{TODO}
