@@ -52,7 +52,8 @@ suffering from the Expression Problem.
 Fortunately, we found that it is possible to rewrite the implementation as a shallow EDSL.
 Firstly, it is common to embed SQL into a general purpose language, for instance Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}} in Scala.
 Secondly, the original implementation contains no transformation/optimization.
-By using the approach presented in this pearl and with only modest effort, the implementation is made modular, without comprimising the performance.
+With only modest effort, we rewrote the implementation using the approach presented in this pearl.
+The resulting implementation is modular without comprimising the performance.
 
 The following subsections focuse on rewriting the core of the original implementation - the interpreter for relational algebra operations.
 Similar rewriting is also applicable to the staged version derived from this interpreter as well as other AST related definitions.
@@ -280,9 +281,9 @@ Two new operators, |Group| and |HashJoin|, are added by implementing |Op2| direc
 The implementation of these extensions also show some extra modularity enabled by our OOP approach:
 \begin{itemize}
 \item{\bf Field extensions.} Adding new fields can be simply done via some more |val| declarations, as illustrated by |Scan2|. If we would like to do this in the original implementation, the case class definition and every pattern clause referring to this case clas have to be modified.
-\item{\bf Partial reuse.} There may exist some constructs that are only slightly different between each other. Instances of such constructs are |Join| and |HashJoin|.
+\item{\bf Specialized constructs.} There may exist some constructs that are only slightly different between each other. Instances of such constructs are |Join| and |HashJoin|.
 |HashJoin| is just a specialized version of |Join|, which shares the same fields and the |resultSchema| definition with |Join|, and only differs in |exec| implementation.
-Such specialization can fulfilled impressed through letting |HashJoin| extend |Join2| and override |exec|, which is not possible in the original implementation.
+Such specialization can be fulfilled through letting |HashJoin| extend |Join2| and override |exec|, which is not possible in the original implementation.
 \end{itemize}
 
 Finally, we can define some smart constructors that play the role of a parser:

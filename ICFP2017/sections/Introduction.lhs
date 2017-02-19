@@ -29,8 +29,8 @@ consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 \end{comment}
 
-One way more precisely understand what "\emph{terms in the
-DSL are implemented directly by their semantics}" means in a shallow
+One way more precisely understand what ``\emph{terms in the
+DSL are implemented directly by their semantics}'' means in a shallow
 embedding is to say that terms are implemented using \emph{procedural
 abstraction}~\citep{reynolds94proceduralabstraction}. This is
 the definition of what it means to be a shallow embedding in

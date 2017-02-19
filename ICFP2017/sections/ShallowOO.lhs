@@ -60,7 +60,7 @@ the bottom sub-circuit is a |fan 2| between two |identity 1|.
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
-a shallowly embedded implementation should conform to the following
+an shallowly embedded implementation (in Haskell) should conform to the following
 types:
 
 \begin{code}
@@ -104,7 +104,7 @@ Just create a definition for this particular circuit, and then show the evaluati
 on ghci.}
 This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
-is a good representation. In a call-by-value language
+is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| would be more
 appropriate to deal correctly with potential control-flow
 language constructs. We will see an interpretation of a more complex domain in Section~\ref{sec:ctxsensitive}.
