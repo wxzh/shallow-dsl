@@ -9,13 +9,14 @@ attributed to ~\citet{Boulton92dsl}. The difference between these
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
-With a \emph{deep embedding}, terms in the DSL are implemented simply to
+\emph{With a \emph{deep embedding}, terms in the DSL are implemented simply to
 construct an abstract syntax tree (AST), which is subsequently
 transformed for optimization and traversed for evaluation. With a
 \emph{shallow embedding}, terms in the DSL are implemented directly by
-their semantics, bypassing the intermediate AST and its traversal.~\citep{gibbons2014folding}
+their semantics, bypassing the intermediate AST and its traversal.}~\citep{gibbons2014folding}
 \end{quote}
 
+\begin{comment}
 \noindent Although the above definition is quite reasonable and widely accepted,
 it leaves some space to (mis)interpretation. For example it is unclear
 how to classify an EDSL implemented using the {\sc Composite} or {\sc Interpreter}
@@ -26,28 +27,34 @@ OOP EDSLs ~\citep{rompf2012scala,scherrc2015} consider a {\sc Composite} to be a
 embedding. Some other authors~\citep{gibbons2014folding,barringer2011tracecontract}
 consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
+\end{comment}
 
-To avoid ambiguitity, we propose defining shallow embeddings as EDSLs implemented using \emph{procedural abstraction}~\citep{reynolds94proceduralabstraction}. Such
-interpretation arises naturally from the domain of shallow EDSLs being
-functions, and procedural abstraction being a way to encode
-data abstractions using functions. As~\citet{cook09abstraction} argued,
-procedural abstraction is also the essence of OOP.
-Thus, according to our definition, the implementation of a shallow
-EDSL in OOP languages should simply correspond to a standard
-object-oriented program.
+One way to be more precise about what it means for "\emph{terms in the
+DSL are implemented directly by their semantics}" in a shallow
+embedding is to say that terms are implemented using \emph{procedural
+abstraction}~\citep{reynolds94proceduralabstraction}.  This is
+precisely the definition of what it means to be a shallow embedding in
+this paper. Such interpretation arises naturally from the domain of
+shallow EDSLs being functions, and procedural abstraction being a way
+to encode data abstractions using functions.
 
 The main goal of our paper is to show the close relationship between
 shallow embeddings and OOP, and argue that OOP languages have
 advantages for the implementation of shallow embeddings.
-It is perhaps partly due to those advantages that some authors
-have considered  {\sc Composite}-based implementations to be deep
-embeddings. However, we argue that the OOP
-mechanisms do not change the essence of the implementation, which is
-still shallow (i.e. using procedural abstraction).
+As~\citet{cook09abstraction} argued, procedural abstraction is also
+the essence of OOP. Thus, according to our definition, the
+implementation of a shallow EDSL in OOP languages should simply
+correspond to a standard object-oriented program.
+
+%%It is perhaps partly due to those advantages that some authors
+%%have considered  {\sc Composite}-based implementations to be deep
+%%embeddings. However, we argue that the OOP
+%%mechanisms do not change the essence of the implementation, which is
+%%still shallow (i.e. using procedural abstraction).
 An often stated limitation of shallow EDSLs is that they only support \emph{single} interpretation.
 We show that OOP abstractions, including \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
-helpful to address this problem.
-We can employ a recently proposed design pattern~\citep{eptrivially16}, which provides a simple
+helpful to address this problem, and to allow multiple-interpretations to co-exist in shallow
+embeddings. The key idea is to employ a recently proposed design pattern~\citep{eptrivially16}, which provides a simple
 solution to the \emph{Expression Problem}~\citep{expPb} in OOP languages. Thus
 using just standard OOP mechanisms enables \emph{multiple modular
   interpretations} to co-exist and be combined in shallow embeddings.
