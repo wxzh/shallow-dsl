@@ -68,7 +68,7 @@ Scala version has clear advantages over the Haskell version.
 embedding with possible multiple interpretations;
 we refactor it to a shallow embedding with multiple interpretations.}
 \weixin{Addressed}
-To further illustrate the applicability of our OO approach, we conduct a case study on refactoring existing DSL implementations to make it modular.
+To further illustrate the applicability of our OO approach, we conduct a case study on refactoring an existing DSL implementation to make it modular.
 \citet{rompf15} present a SQL to C compiler in Scala, which is an external DSL but uses deep embedding techniques such as algebraic datatypes and pattern matching underlying.
 The use of deep embedding techniques facilitates multiple interpretations at the price of modular construct extensions.
 We rewrote the implementation as a shallow EDSL.

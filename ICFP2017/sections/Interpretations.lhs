@@ -15,7 +15,8 @@ multiple interpretations.
 \end{comment}
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
-Suppose that we want to have an additional interpretation that calculates the depth of a circuit.
+Besides |width|, we may want to have additional interpretations for \dsl.
+For example, an interpretation that calculates the depth of a circuit.
 
 \paragraph{Multiple Interpretations in Haskell}
 Here is ~\citet{gibbons2014folding}'s solution:
@@ -39,7 +40,7 @@ width  =  fst
 depth  =  snd
 \end{code}
 
-\noindent A tuple is used to accommodate multiple interpretations and each interpretation is defined as a projection on the tuple.
+\noindent A tuple is used to accommodate multiple interpretations, and each interpretation is defined as a projection on the tuple.
 However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
 |depth|) simultaneously. It is not
@@ -88,8 +89,7 @@ The encoding relies on three OOP abstraction mechanisms:
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implements |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with |Circuit2|
-to avoid type mismatches in methods~\citep{eptrivially16}.
+Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
 
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -259,19 +259,13 @@ Shallow embeddings make the addition of |rstretch| easy through defining a new f
 < rstretch  ::  [Int] -> Circuit -> Circuit
 < rstretch  =   ...
 
-Such simplicity of adding new constructs retains on our OO approach, just through a defining a new trait that implements |Circuit|:
+Such simplicity of adding new constructs retains on our OO approach, just through defining a new trait that implements |Circuit|:
 
 < trait RStretch extends Circuit {
 <   val ns: List[Int]
 <   val c: Circuit
 <   ...
 < }
-
-As Gibbons and Wu have noticed that
-\begin{quote}
-(Providing mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
-tuples generally lack good language support.
-\end{quote}
 
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
@@ -285,7 +279,13 @@ tuples generally lack good language support.
 \subsection{Discussion}
 Gibbons and Wu claim that in shallow
 embeddings new language constructs are easy to add, but new
-interpretations are hard. As our OOP approach shows, in OOP both
+interpretations are hard.
+Although it is possible to define multiple interpretations via tuples, they have noticed that
+\begin{quote}
+\emph{(Defining mutiple interpretations via tuples) is still a bit clumsy: it entails revising existing code each time a new interpretation is added, and wide
+tuples generally lack good language support.}~\citep{gibbons2014folding}
+\end{quote}
+As our OOP approach shows, in OOP both
 language constructs and new interpretations are easy to add in shallow
 embeddings. In other words, the circuit DSL presented so far does not
 suffer from the Expression Problem. The key point is that procedural
@@ -294,7 +294,7 @@ type-refinement) adds expressiveness over traditional procedural
 abstraction. Gibbons and Wu do discuss a number of advanced techniques~\cite{carette2009finally,swierstra2008data} that
 can solve some of the modularity problems. For example, using type
 classes, \emph{finally tagless}~\cite{carette2009finally} can deal with multiple interpretations in
-Section~\ref{subsec:multiple}. However tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.
+Section~\ref{subsec:multiple}. However, these techniques complicates the encoding of the EDSL significantly. Moreover, tuples are still needed to deal with dependent interpretations in Section~\ref{sec:dependent}.
 In contrast the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 \begin{comment}

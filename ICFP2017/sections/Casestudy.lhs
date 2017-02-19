@@ -245,7 +245,7 @@ trait Scan2 extends Scan with Op2 {
 trait Print2 extends Print with Op2 {
   val o: Op2
   def resultSchema = Schema()
-  def exec(yld: Record => Unit) {
+  override def exec(yld: Record => Unit) {
     val schema = o.resultSchema
     printSchema(schema)
     o exec { r => printFields(r.fields) }}}
