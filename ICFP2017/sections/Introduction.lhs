@@ -38,7 +38,7 @@ this paper. Such interpretation arises naturally from the domain of
 shallow EDSLs being functions, and procedural abstraction being a way
 to encode data abstractions using functions.
 
-The main goal of our paper is to show the close relationship between
+The main goal of this pearl is to show the close relationship between
 shallow embeddings and OOP, and argue that OOP languages have
 advantages for the implementation of shallow embeddings.
 As~\citet{cook09abstraction} argued, procedural abstraction is also
@@ -67,6 +67,12 @@ Scala version has clear advantages over the Haskell version.
 \bruno{Weixin: Talk about case study; argue that original implementation is a deep
 embedding with possible multiple interpretations;
 we refactor it to a shallow embedding with multiple interpretations.}
+\weixin{Addressed}
+To further illustrate the applicability of our OO approach, we conduct a case study on refactoring existing DSL implementations to make it modular.
+\citet{rompf15} present a SQL to C compiler in Scala, which is an external DSL but uses deep embedding techniques such as algebraic datatypes and pattern matching underlying.
+The use of deep embedding techniques facilitates multiple interpretations at the price of modular construct extensions.
+We rewrote the implementation as a shallow EDSL.
+The resulting implementation allows both new interpretations and new constructs to be introduced modularly.
 
 \bruno{Disclaimer about the OOP style promoted here: we promote
 a \emph{functional} OOP style.}

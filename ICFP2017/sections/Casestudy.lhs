@@ -9,7 +9,7 @@
 %format (= "\!("
 
 \section{Case Study}
-To further illustrate the applicability of our OO approach, we refactored existing DSL implementations to make them modular.
+To further illustrate the applicability of our OO approach, we refactored an existing DSL implementation to make it modular.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
@@ -265,7 +265,7 @@ trait Group extends Op2 {
     val hm = new HashMapAgg(keys, agg)
     o exec { r => hm(r(keys)) += r(agg) }
     hm foreach { (k,a) => yld(Record(k ++ a, keys ++ agg)) }}}
-trait HashJoin extends Join2 {
+trait HashJoin extends Join2 with Op2 {
   override def exec(yld: Record => Unit) {
     val keys = o1.resultSchema intersect o2.resultSchema
     val hm = new HashMapBuffer(keys, o1.resultSchema)
@@ -283,7 +283,8 @@ The implementation of these extensions also show some extra modularity enabled b
 \item{\bf Field extensions.} Adding new fields can be simply done via some more |val| declarations, as illustrated by |Scan2|. If we would like to do this in the original implementation, the case class definition and every pattern clause referring to this case clas have to be modified.
 \item{\bf Specialized constructs.} There may exist some constructs that are only slightly different between each other. Instances of such constructs are |Join| and |HashJoin|.
 |HashJoin| is just a specialized version of |Join|, which shares the same fields and the |resultSchema| definition with |Join|, and only differs in |exec| implementation.
-Such specialization can be fulfilled through letting |HashJoin| extend |Join2| and override |exec|, which is not possible in the original implementation.
+Using our approach, we are able to implement |HashJoin| through inheriting |Join2| and overriding |exec|.
+Such kind of reuse between construct implementations is hard to achieve in the original implementation as well.
 \end{itemize}
 
 Finally, we can define some smart constructors that play the role of a parser:
