@@ -76,6 +76,7 @@ The resulting implementation allows both new interpretations and new constructs 
 
 \bruno{Disclaimer about the OOP style promoted here: we promote
 a \emph{functional} OOP style.}
+\weixin{Or \emph{pure} OOP according to \citet{cook09abstraction}}
 
 %if False
 If we accept Cook's view on OOP, 
