@@ -29,11 +29,11 @@ consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 \end{comment}
 
-One way to be more precise about what it means for "\emph{terms in the
-DSL are implemented directly by their semantics}" in a shallow
+One way more precisely understand what "\emph{terms in the
+DSL are implemented directly by their semantics}" means in a shallow
 embedding is to say that terms are implemented using \emph{procedural
-abstraction}~\citep{reynolds94proceduralabstraction}.  This is
-precisely the definition of what it means to be a shallow embedding in
+abstraction}~\citep{reynolds94proceduralabstraction}. This is
+the definition of what it means to be a shallow embedding in
 this paper. Such interpretation arises naturally from the domain of
 shallow EDSLs being functions, and procedural abstraction being a way
 to encode data abstractions using functions.
@@ -44,27 +44,29 @@ advantages for the implementation of shallow embeddings.
 As~\citet{cook09abstraction} argued, procedural abstraction is also
 the essence of OOP. Thus, according to our definition, the
 implementation of a shallow EDSL in OOP languages should simply
-correspond to a standard object-oriented program.
-
-%%It is perhaps partly due to those advantages that some authors
-%%have considered  {\sc Composite}-based implementations to be deep
-%%embeddings. However, we argue that the OOP
-%%mechanisms do not change the essence of the implementation, which is
-%%still shallow (i.e. using procedural abstraction).
-An often stated limitation of shallow EDSLs is that they only support \emph{single} interpretation.
-We show that OOP abstractions, including \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
-helpful to address this problem, and to allow multiple-interpretations to co-exist in shallow
-embeddings. The key idea is to employ a recently proposed design pattern~\citep{eptrivially16}, which provides a simple
-solution to the \emph{Expression Problem}~\citep{expPb} in OOP languages. Thus
-using just standard OOP mechanisms enables \emph{multiple modular
-  interpretations} to co-exist and be combined in shallow embeddings.
+correspond to a standard object-oriented program.  An often stated
+limitation of shallow EDSLs is that they only support \emph{single}
+interpretation. This is often a motivation to switch to a deep
+embedding instead, since deep embeddings allow for multiple
+interpretations. We show that OOP abstractions, including
+\emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
+helpful to address this problem, and to allow multiple-interpretations
+to co-exist in shallow embeddings. The key idea is to employ a
+recently proposed design pattern~\citep{eptrivially16}, which provides
+a simple solution to the \emph{Expression Problem}~\citep{expPb} in
+OOP languages. Thus using just standard OOP mechanisms enables
+\emph{multiple modular interpretations} to co-exist and be combined in
+shallow embeddings.
 
 We make our arguments by taking a recent paper by ~\citet{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
-EDSL, and we recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
+EDSL. We recode that EDSL in Scala\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 
+\bruno{Talk about case study; argue that original implementation is a deep
+embedding with possible multiple interpretations;
+we refactor it to a shallow embedding with multiple interpretations.}
 
 %if False
 If we accept Cook's view on OOP, 
