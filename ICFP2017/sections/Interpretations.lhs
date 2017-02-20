@@ -262,13 +262,13 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
-There are some minor syntax differences that are explained as follows.
+There are some minor syntax differences between that are explained as follows.
 In |Fan4|, a for comprehension is used for producing a list of connections.
-The parameter list of annonymous functions is omitted.
-Instead, we refer to these using underscores (|_|) instead.
-For example, in |Beside4|, |c1.width + _| is short for |(i: Int) => c1.width + i|.
-Function composition is achieved through |compose|, which has a different composition order as oppososed to |.| in Haskell.
-The |lzw| is a curried function in Scala, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
+The parameter list of annonymous functions is omitted for simplicity.
+Still, we are able to refer to th parameters of such annonymous functions using underscores (|_|).
+For example, in |Beside4|, |c1.width + _| is a shorthand of |(i: Int) => c1.width + i|.
+Function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
+|lzw| is implemented as a curried function in Scala, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
 
 \bruno{I think some more explanation is needed here, specially on Scala 
 code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
@@ -316,7 +316,7 @@ If we treated |rstretch| as an ordinary construct, its definition would be:
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
-Inheritance and overriding enable partial reuse of a existing language construct implementation,
+Inheritance and overriding enable partial reuse of an existing language construct implementation,
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
@@ -340,7 +340,7 @@ it is not difficult to provide multiple interpretations with a shallow
 embedding ... But this is still a bit clumsy: it entails revising
 existing code each time a new interpretation is added, and wide tuples
 generally lack good language support.}  \end{quote}
-
+\weixin{the first sentence of the quote contradicts with the first sentence of this paragraph.}
 \noindent In other words, Haskell's approach based on tuples is essentially non-modular.
 This is precisely where OOP has advantages over the Haskell
 encoding.  Instead of tuples, objects are used. Objects are
