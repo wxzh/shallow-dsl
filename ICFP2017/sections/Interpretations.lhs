@@ -256,7 +256,8 @@ contexts are captured as method arguments.
 \bruno{I think some more explanation is needed here, specially on Scala 
 code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
 Do not use mix-fix syntax in |Above4| and other places: it only serves the purpose of 
-confusing readers or requiring extra explanation. you do need to explain compose.}
+confusing readers or requiring extra explanation. you do need to explain compose. 
+Explain what "_" means in Scala.}
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 
