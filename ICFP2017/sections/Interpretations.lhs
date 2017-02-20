@@ -88,8 +88,9 @@ The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
-Concrete cases, for instance |Above2|, implements |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
+Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
+Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations. Importantly, all definitions 
+for |width| in Section~\ref{subsec:shallow} are reused here.
 
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -152,10 +153,12 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
 Essentially, it is sufficient to define |wellSized| while
-knowing only the signature of |width| in |Circuit|.
+knowing only the signature of |width| in |Circuit|. 
+In the definition of |Above3|, for example, it is possible 
+to, not only call |wellSized|, but also |width|. 
 
 \subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
-Interpretations may rely on some contexts.
+Interpretations may rely on some context.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
@@ -165,7 +168,7 @@ For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 
 
 \paragraph{Context-Sensitive Interpretations in Haskell}
-The following Haskell code models the interpretation described above:
+The following Haskell code implements (non-modularly) the interpretation described above:
 
 %format Circuit4
 %format identity4
@@ -200,7 +203,7 @@ For example, if a circuit is put on the right hand side of another circuit, all 
 Hence the interpretation that produces a layout is firstly dependent, relying on itself as well as |width|.
 An intuitive implementation would perform these changes immediately to the affected circuit.
 Rather, a more efficient implementation would accumulate these changes and apply them all at once.
-|tlayout| takes an accumulating parameter to achieve this goal, thereby makes it context-sensive.
+|tlayout| takes an accumulating parameter to achieve this goal, which makes it context-sensive.
 The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the function
 to the two elements of the same index and appending the remaining elements from
@@ -250,17 +253,20 @@ def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _) tail
 \end{spec}
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
+\bruno{I think some more explanation is needed here, specially on Scala 
+code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
+Do not use mix-fix syntax in |Above4| and other places: it only serves the purpose of 
+confusing readers or requiring extra explanation. you do need to explain compose.}
 
+\subsection{Modular Language Constructs}\label{sec:construct}
 
-\subsection{Modular Construct Extensions}\label{sec:construct}
-
-Besides new interpretations, new constructs may be needed when a DSL
+Besides new interpretations, new language constructs may be needed when a DSL
 evolves. For example, in the case of \dsl, we may want to have a |rstretch| (right
 stretch) combinator which is similar to the |stretch| combinator except for the direction of stretching.
 
 \paragraph{New Constructs in Haskell}
 
-Shallow embeddings make the addition of |rstretch| easy through defining a new function:
+Shallow embeddings make the addition of |rstretch| easy by defining a new function:
 
 < rstretch        ::  [Int] -> Circuit4 -> Circuit4
 < rstretch  ns c  =  stretch4 (1 : init ns) c `beside` identity (last ns - 1)
@@ -270,7 +276,8 @@ For non-sugar constructs, we need to define a new function that implements all s
 
 \paragraph{New Constructs in Scala}
 Such simplicity of adding new constructs is retained in our OO approach.
-Different from the Haskell approach, there is a clear distinction between syntatic sugars and ordinary constructs in our OOP approach.
+Differently from the Haskell approach, there is a clear distinction between 
+syntatic sugar and ordinary constructs in the OOP approach.
 
 In our OOP approach, a syntatic sugar is defined as a smart constructor upon other smart constructors:
 
@@ -285,13 +292,13 @@ If we treated |rstretch| as an ordinary construct, its definition would be:
 > }
 > def rPartialSum(ns: List[Int]): List[Int] = ns.scanLeft(ns.last - 1)(_ + _) init
 
+\bruno{mixfix being used again}
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
-Instead, it inheritates |Stretch| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch|.
-Inheritance and overriding enable to partial reuse on a construct implementation,
+Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
+Inheritance and overriding enable partial reuse of a language construct implementation,
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
-\bruno{please show the code for rstrech, both in Haskell and in Scala.}
 
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
@@ -340,12 +347,13 @@ the circuit DSL presented so far does not suffer from the Expression
 Problem. The key point is that procedural abstraction combined with
 OOP features (subtyping, inheritance and type-refinement) adds
 expressiveness over traditional procedural abstraction. 
+%%Instead 
+%%of tuples, we can use objects. 
 %%Instead of tuples, traits are used. Traits are
 %%essentially records/named-tuples. Unlike Haskell tuples, traits
 %%can have subtyping relations. That is, whenever a object of a certain
 %%type is needed, an object with more field/methods can be used instead.
-\bruno{Explanation may need some improvement here to explain what is 
-the essential advantage that Scala has over tuples.}
+
 
 Gibbons and Wu
 do discuss a number of advanced
@@ -354,8 +362,9 @@ some of the modularity problems. For example, using type classes,
 \emph{finally tagless}~\cite{carette2009finally} can deal with
 multiple interpretations in Section~\ref{subsec:multiple}. However,
 these techniques complicates the encoding of the EDSL
-significantly. Moreover, tuples are still needed to deal with
-dependent interpretations in Section~\ref{sec:dependent}. In contrast
+significantly. Moreover, 
+dependent interpretations (see Section~\ref{sec:dependent}) are still non-modular 
+because an encoding via tuples is still needed. In contrast
 the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 
