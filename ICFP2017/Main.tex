@@ -1,0 +1,134 @@
+\documentclass[acmlarge, anonymous, review]{acmart}\settopmatter{printfolios=true}
+
+\usepackage{xspace}
+\usepackage{url}
+\usepackage{syntax}
+\newcommand{\dsl}{\textsc{Scans}\xspace}
+\newcommand{\interp}{\textsc{Interpreter}\xspace}
+\newcommand{\an}[3]{{\color{#2} {\sc #1}:#3}}
+\newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
+\newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
+
+%% for comments
+\input{Preamble}
+
+\makeatletter\if@ACM@journal\makeatother
+%% Journal information (used by PACMPL format)
+%% Supplied to authors by publisher for camera-ready submission
+\acmJournal{PACMPL}
+\acmVolume{1}
+\acmNumber{1}
+\acmArticle{1}
+\acmYear{2017}
+\acmMonth{1}
+\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+\startPage{1}
+\else\makeatother
+%% Conference information (used by SIGPLAN proceedings format)
+%% Supplied to authors by publisher for camera-ready submission
+\acmConference[PL'17]{ACM SIGPLAN Conference on Programming Languages}{January 01--03, 2017}{New York, NY, USA}
+\acmYear{2017}
+\acmISBN{978-x-xxxx-xxxx-x/YY/MM}
+\acmDOI{10.1145/nnnnnnn.nnnnnnn}
+\startPage{1}
+\fi
+
+
+%% Copyright information
+%% Supplied to authors (based on authors' rights management selection;
+%% see authors.acm.org) by publisher for camera-ready submission
+\setcopyright{none}             %% For review submission
+%\setcopyright{acmcopyright}
+%\setcopyright{acmlicensed}
+%\setcopyright{rightsretained}
+%\copyrightyear{2017}           %% If different from \acmYear
+
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%% Note: author/year citations are required for papers published as an
+%% issue of PACMPL.
+\citestyle{acmauthoryear}   %% For author/year citations
+
+% Document starts
+\begin{document}
+
+% Title portion
+\title{Shallow EDSLs and Object-Oriented Programming}
+\subtitle{Functional Pearl}
+\author{First1 Last1}
+\authornote{with author1 note}          %% \authornote is optional;
+                                        %% can be repeated if necessary
+\orcid{nnnn-nnnn-nnnn-nnnn}             %% \orcid is optional
+\affiliation{
+  \position{Position1}
+  \department{Department1}              %% \department is recommended
+  \institution{Institution1}            %% \institution is required
+  \streetaddress{Street1 Address1}
+  \city{City1}
+  \state{State1}
+  \postcode{Post-Code1}
+  \country{Country1}
+}
+\email{first1.last1@inst1.edu}          %% \email is recommended
+
+\begin{abstract}
+Shallow Embedded Domain Specific Languages (EDSLs) use
+\emph{procedural abstraction} to directly encode a DSL into an existing host language. Procedural abstraction has
+been argued to be the essence of Object-Oriented Programming (OOP).
+%Given
+%that OO languages have evolved over more than 50 years
+%to improve the use of procedural abstraction, they ought to have some
+%advantages to encode shallow EDSLs.
+This paper argues that OOP abstractions
+(including \emph{inheritance}, \emph{subtyping} and
+\emph{type-refinement})
+increase the modularity and reuse of shallow
+EDSLs when compared to classical procedural abstraction. We make this
+argument by taking a recent paper by Gibbons and Wu, where procedural
+abstraction is used in Haskell to model a simple shallow EDSL, and we recode
+that EDSL in Scala. From the \emph{semantic}
+and \emph{modularity} point of view the Scala version has clear advantages
+over the Haskell version.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10011007.10011006.10011008</concept_id>
+<concept_desc>Software and its engineering~General programming languages</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10003456.10003457.10003521.10003525</concept_id>
+<concept_desc>Social and professional topics~History of programming languages</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~General programming languages}
+\ccsdesc[300]{Social and professional topics~History of programming languages}
+
+\keywords{keyword1, keyword2, keyword3}
+
+\maketitle
+
+\input{sections/Introduction}
+
+\input{sections/ShallowOO}
+
+\input{sections/Interpretations}
+
+\input{sections/Casestudy}
+
+\input{sections/Conclusion}
+
+% Bibliography
+\bibliography{Main}
+
+% History dates
+%\received{February 2007}{March 2009}{June 2009}
+
+\end{document}

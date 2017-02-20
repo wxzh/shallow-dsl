@@ -121,7 +121,7 @@ constructs in \name.
 The new constructs are: \emph{stretch ns c} which inserts additional wires into the circuit \emph{c} by
 summing up \emph{ns} and $above\ c_1\ c_2$ which combines two circuits of the same width vertically.
 Their types are given below:
-\lstinputlisting[language=haskell,linerange=39-40]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+\lstinputlisting[language=haskell,linerange=29-30]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
 
 
 %\lstinputlisting[linerange=56-68]{../src/paper/sec3/Circuit.java}%APPLY:SYNTAX
@@ -223,7 +223,7 @@ So do other interfaces.
 Shallow embedding makes it easy to add new syntax, both in FP and OOP.
 Suppose that we would like to add two new constructs to the language:
 
-\lstinputlisting[language=haskell,linerange=39-40]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
+\lstinputlisting[language=haskell,linerange=29-30]{./code/shallowCircuit.hs}%APPLY:SYNTAX_TYPES
 \emph{stretch ns c} inserts additional wires into the circuit \emph{c} by
 summing up \emph{ns} and $above c_1 c_2$ combines two circuits of the same width vertically.
 With these new constructs, more complex circuits can be constructed.
@@ -231,7 +231,7 @@ For example, Figure~\ref{sec:oo} shows the circuit constructed by \emph{stretch 
 
 To accomplish this task in Haskell, we can simply define two more cases,
 \texttt{stretch} and \texttt{above}, for the semantic function:
-\lstinputlisting[language=haskell,linerange=44-45]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
+\lstinputlisting[language=haskell,linerange=34-35]{./code/shallowCircuit.hs}%APPLY:SYNTAX_HS
 Similarly, defining two new interfaces
 \texttt{Stretch} and \texttt{Above} that both extend \texttt{Circuit} and
 implement the \texttt{width} method is all we need to do in Java:

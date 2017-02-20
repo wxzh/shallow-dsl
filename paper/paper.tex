@@ -1,4 +1,4 @@
-\documentclass[10pt,preprint,numbers,nocopyrightspace]{sigplanconf}
+\documentclass{jfp1}
 
 % The following \documentclass options may be useful:
 
@@ -7,39 +7,13 @@
 % 11pt          To set in 11-point type instead of 9-point.
 % numbers       To obtain numeric citation style instead of author/year.
 
-\usepackage{amsmath}
 \usepackage{color}
 \usepackage{listings}
-\usepackage{balance}
-\usepackage{amsmath}
-\usepackage{stmaryrd}
-\usepackage{graphicx}
-\usepackage{amssymb}
-\usepackage{fancyvrb}
 \usepackage{url}
-\usepackage{pstricks,pst-node,pst-tree}
-\usepackage{theorem}
-\usepackage{bbm}
-\usepackage{pgf}
-\usepackage{multirow}
-\usepackage{rotating}
-\usepackage{verbatim}
-\usepackage{graphicx}
-\usepackage{wrapfig}
 \usepackage{xspace}
-\usepackage{mdwlist}
-\usepackage{morefloats}
-\usepackage[T1]{fontenc}
-\usepackage[scaled=0.85]{beramono}
-\usepackage{mathptmx}
-\usepackage[normalem]{ulem}
-\usepackage{booktabs}
-\usepackage{tablefootnote}
-\usepackage{enumitem}
-\usepackage{stmaryrd}
 \usepackage{syntax}
+\usepackage{comment}
 
-\newcommand{\name}{\textbf{@Family}\xspace}
 \newcommand{\dsl}{\emph{scans}\xspace}
 \newcommand{\interp}{\textsc{Interpreter}\xspace}
 
@@ -101,24 +75,18 @@ belowskip=-1pt
 \setlength{\pdfpageheight}{\paperheight}
 \setlength{\pdfpagewidth}{\paperwidth}
 
-\conferenceinfo{CONF 'yy}{Month d--d, 20yy, City, ST, Country}
-\copyrightyear{20yy}
-\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}
-\copyrightdoi{nnnnnnn.nnnnnnn}
-
 % Uncomment the publication rights you want to use.
 %\publicationrights{transferred}
 %\publicationrights{licensed}     % this is the default
 %\publicationrights{author-pays}
 
-\titlebanner{banner above paper title}        % These are ignored unless
-\preprintfooter{short description of paper}   % 'preprint' option specified.
-
 \title{Shallow EDSLs and Object-Oriented Programming}
+\subtitle{(Functional Pearl)}
 
-\authorinfo{}
-           {}
-           {}
+\author[W. Zhang and B. C. d. S. Oliveira]
+        {WEIXIN ZHANG and BRUNO C. d. S. OLIVEIRA\\
+         The University of Hong Kong, Hong Kong\\
+         \email{bruno@cs.hku.hk}}
 %\authorinfo{Name}
 %           {Affiliation2/3}
 %           {Email2/3}
@@ -140,7 +108,7 @@ This paper argues that OOP abstractions
 increase the modularity and reuse of shallow
 EDSLs when compared to classical procedural abstraction. We make this
 argument by taking a recent paper by Gibbons and Wu, where procedural
-abstraction is used in Haskell to model a simple EDSL, and we recode
+abstraction is used in Haskell to model a simple shallow EDSL, and we recode
 that EDSL in Scala. From the \emph{semantic}
 and \emph{modularity} point of view the Scala version has clear advantages 
 over the Haskell version. 
@@ -170,8 +138,9 @@ keyword1, keyword2
 \input{sections/Introduction.tex}
 \input{sections/ShallowOO.tex}
 \input{sections/Interpretations.tex}
-\input{sections/Transformations.tex}
-\input{sections/RelatedWorkShort.tex}
+%\input{sections/Transformations.tex}
+%\input{sections/RelatedWorkShort.tex}
+\input{sections/Conclusion.tex}
 %\input{sections/Modularity.tex}
 %\input{sections/Overview.tex}
 %\input{sections/Tool.tex}
@@ -179,7 +148,6 @@ keyword1, keyword2
 %\input{sections/RelatedWork.tex}
 %\input{sections/Discussion.tex}
 %\acks
-
 
 %Acknowledgments, if needed.
 

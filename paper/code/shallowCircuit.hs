@@ -25,16 +25,6 @@ width3 :: Circuit3 -> Int
 width3 (Circuit3 n) = n
 --END_CIRCUIT2
 
-
---BEGIN_CIRCUIT3
-newtype Circuit2 = Circuit2 { width :: Int }
-id2 n         = Circuit2 { width = n }
-fan2 n        = Circuit2 { width = n }
-beside2 c1 c2 = Circuit2 {
-  width = width c1 + width c2
-}
---END_CIRCUIT3
-
 --BEGIN_SYNTAX_TYPES
 stretch :: [Int] -> Circuit -> Circuit
 above   :: Circuit -> Circuit -> Circuit
