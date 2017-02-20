@@ -9,15 +9,26 @@
 %format (= "\!("
 
 \section{Case Study}
-To further illustrate the applicability of our OO approach, we refactored an existing DSL implementation to make it modular.
+To further illustrate the applicability of shallow OO embeddings, 
+we refactored an existing \emph{external} DSL implementation to make it modular
+and embedded.
+
+\bruno{I think that in this section we need to tone done significantly on the code 
+that we show. I suggest that we do not show code for their approach. Instead 
+show code only for our approach. Even for the code of our approach we should tone 
+down on the code and make the existing code pretty. 
+Don't think of this section so much as a detailed comparison with their work. 
+Instead focus on writing this section as a more practical illustration of our 
+technqiues. 
+}
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
-To illustrate, suppose that there is a data file, |talks.csv|, containing a list of talks:
+To illustrate it, suppose that there is a data file, |talks.csv|, containing a list of talks:
 
-> tid,time,title,room
-> 1,09:00 AM,Erlang 101 - Actor and MultiCore-Programming,New York Central
-> 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
+> tid,  time,      title,                                         room
+> 1,    09:00 AM,  Erlang 101 - Actor and MultiCore-Programming,  New York Central
+> 2,    09:00 AM,  Program Synthesis Using miniKarnren,           Illinois Central
 > ...
 
 Each item in the file records the identity, time, title and room of a talk.
@@ -31,7 +42,8 @@ For example, a query to find all talks at 9am with their room and title printed 
 
 > select room, title from talks.csv from talks.csv where time='09:00 AM'
 
-Another relative complex query to find all unique talks happening at the same time in the same room is:
+\bruno{Are we supposed to have "from talks.csv" twioce here?}
+Another relatively complex query to find all unique talks happening at the same time in the same room is:
 
 > select *
 > from (select time, room, title as title1 from talks.csv)
@@ -49,14 +61,21 @@ However, a problem arises when the implementation evolves with new constructs in
 All existing interpretations have to be modified for dealing with these new constructs,
 suffering from the Expression Problem.
 
-Fortunately, we found that it is possible to rewrite the implementation as a shallow EDSL.
-Firstly, it is common to embed SQL into a general purpose language, for instance Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}} in Scala.
-Secondly, the original implementation contains no transformation/optimization.
-With only modest effort, we rewrote the implementation using the approach presented in this pearl.
-The resulting implementation is modular without comprimising the performance.
+Fortunately, it is possible to rewrite the implementation as a shallow
+EDSL, which has several benefits. Firstly, it is common to embed SQL
+into a general purpose language, for instance Circumflex
+ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and
+VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}} do this in
+Scala. Secondly, the original implementation contains no
+transformations/optimizations on ASTs. Therefore, with only modest
+effort, we rewrote the implementation using the approach presented in
+this pearl.  The resulting implementation is modular without
+comprimising the performance.
 
-The following subsections focuse on rewriting the core of the original implementation - the interpreter for relational algebra operations.
-Similar rewriting is also applicable to the staged version derived from this interpreter as well as other AST related definitions.
+The following subsections focus on rewriting the core of the original
+implementation - the interpreter for relational algebra operations.
+Similar rewritings are also applicable to the staged version derived
+from this interpreter as well as other AST related definitions.
 
 %Sealed case classes forces definitions for new constructs appeared on the same file and modifications on existing interpretations to avoid pattern matching failures.
 %In other words, sealed case classes suffer from the Expression Problem.
