@@ -9,7 +9,7 @@ DSL presented by ~\citet{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
 implementation in Haskell, and rewrite it towards an ``OO style''.
 Then translating the program into an OO language becomes straightforward.
-We choose Scala as the demonstrating OO language throughout this pearl 
+We choose Scala to illustrate the code throughout this pearl 
 because of its relatively elegant syntax and its support for multiple-inheritance
 via traits. % None of Scala's advanced type system features is used.
 %However the code can be adapted to any OO language that supports subtyping, 
@@ -46,9 +46,10 @@ summing up \emph{ns}.
 For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
-the top sub-circuit is a two |2-fan|s put side by side;
+the top sub-circuit is a two |2-fan| put side by side;
 the middle sub-circuit is a |2-fan| stretched by inserting a wire on the left hand side of its first and second wire;
-the bottom sub-circuit is a |2-fan| between two |1-identity|s.
+the bottom sub-circuit is a |2-fan| between two |1-identity|.
+\bruno{spacing in |2-fan| and others is ugly.}
 
 \begin{figure}
   \center
@@ -72,9 +73,9 @@ above         ::  Circuit -> Circuit -> Circuit
 stretch       ::  [Int] -> Circuit -> Circuit
 \end{code}
 
-The type |Circuit|, representing the semantic domain, is to be filled in with a concrete type according to the semantics.
+\noindent The type |Circuit|, representing the semantic domain, is to be filled in with a concrete type according to the semantics.
 Suppose that the semantics of \dsl is to calculate the width of a
-circuit. The definitions would be:
+circuit. The definitions are:
 
 \begin{code}
 type Circuit   =  Int
@@ -85,11 +86,7 @@ above c1 c2    =  c1
 stretch ns c   =  sum ns
 \end{code}
 
-\bruno{I don't think we need to use the special syntax of ghci that allows multi-line expressions.
-Just create a definition for this particular circuit, and then show the evaluation
-on ghci.}
-\weixin{Addressed}
-Then we are able to construct the circuit in Fig.~\ref{fig:circuit} using these functions:
+\noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
 > c = (fan 2 `beside` fan 2) `above`
 >  stretch [2,2] (fan 2) `above`
@@ -101,16 +98,16 @@ This means that we will get the width right after the construction of a circuit:
 < Prelude > c
 < 4
 
-This domain is a degenerate case of procedural abstraction, where |Int| can be viewed
+Note that the |Int| domain for |width| is a degenerate case of procedural abstraction, where |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,
-a no-argument function |() -> Int| would be more
+a no-argument function |() -> Int| is more
 appropriate to deal correctly with potential control-flow
 language constructs. We will see an interpretation of a more complex domain in Section~\ref{sec:ctxsensitive}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}
-A simple, \emph{semantics preserving}, rewriting of the above program is given
+A simple, \emph{semantics preserving}, rewriting of the |width| interpretation is given
 below, where a record with a sole field captures the domain and is declared as a |newtype|:
 
 
@@ -165,8 +162,8 @@ trait Stretch1 extends Circuit1 {
   def width = ns.sum
 }
 \end{spec}
-The record type maps to an object interface (modelled as a |trait| in Scala) |Circuit1|, and field
-declarations becomes method declarations.
+Haskell's record type maps to an object interface (modelled as a |trait| in Scala) |Circuit1|, and Haskell's field
+declarations become method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
@@ -174,7 +171,7 @@ This implementation is essentially how we would model \dsl with an OO language i
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
-Thus, shallow embeddings and straightforward OO programming are closely
+Therefore, shallow embeddings and straightforward OO programming are closely
 related.
 
 To use this Scala implementation in a manner similar to the Haskell implementation, we define some smart constructors:
@@ -187,23 +184,23 @@ def beside(x: Circuit1, y: Circuit1)     =  new Beside1    {val c1=x;   val c2=y
 def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 \end{spec}
 
-\noindent At this point, we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
-\bruno{same comment as with the Haskell code. We can avoid using such multiline features (which may need to be explained).
-Just create a definition and then show out to execute the definition.}
-\weixin{Addressed}
+\noindent Now we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
 \begin{spec}
-val c  = above(beside(fan(2),fan(2)),
-  above(stretch(List(2,2),fan(2)),
-  beside(beside(identity(1),fan(2)),identity(1))))
+val c  = above(  beside(fan(2),fan(2)),
+                 above(  stretch(List(2,2),fan(2)),
+                         beside(beside(identity(1),fan(2)),identity(1))))
 \end{spec}
+
+\noindent Finally, the width of a circuit is computed by calling the |width| method.
 
 < scala > c.width
 < 4
 
-\bruno{I think we want to say something like the syntax in Scala is not as compact, but this could be improved. Moreover
-Scala has advantages in terms of modularity, as we shall see.}
-
-The syntax of this Scala version is not as compact as the Haskell version.
-This could be improved by, for example, moving combinator constructors to |Circuit1| so that we can call |fan(2) beside fan(2)| rather than |beside(fan(2),fan(2))|.
-Nevertheless, such a Scala implementation has advantages in terms of modularity, as we shall see in later sections.
+The syntax of the Scala code is not as compact as the Haskell version.
+There is some extra verbosity due to trait declarations and smart
+constructors.  It would be nice if Scala directly supported
+constructors for traits, but unfortunatelly this is not supported.
+Nevertheless the code is still quite compact and elegant, and the
+Scala implementation has advantages in terms of modularity, as we
+shall see in later sections.
