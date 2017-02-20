@@ -29,28 +29,37 @@ consider implementations using tuples and/or the  {\sc Composite}
 pattern to be a shallow embedding.
 \end{comment}
 
-One way more precisely understand what ``\emph{terms in the
-DSL are implemented directly by their semantics}'' means in a shallow
+One way to more precisely understand what ``\emph{terms in the DSL are
+implemented directly by their semantics}'' means in a shallow
 embedding is to say that terms are implemented using \emph{procedural
-abstraction}~\citep{reynolds94proceduralabstraction}. This is
-the definition of what it means to be a shallow embedding in
-this paper. Such interpretation arises naturally from the domain of
-shallow EDSLs being functions, and procedural abstraction being a way
-to encode data abstractions using functions.
+abstraction}~\citep{reynolds94proceduralabstraction}. This is the
+definition of a shallow embedding in this paper. Such interpretation
+arises naturally from the domain of shallow EDSLs being functions, and
+procedural abstraction being a way to encode data abstractions using
+functions.
 
-The main goal of this pearl is to show the close relationship between
-shallow embeddings and OOP, and argue that OOP languages have
-advantages for the implementation of shallow embeddings.
+The first goal of this pearl is to show the close relationship between
+shallow embeddings and OOP.
 As~\citet{cook09abstraction} argued, procedural abstraction is also
-the essence of OOP. Thus, according to our definition, the
-implementation of a shallow EDSL in OOP languages should simply
-correspond to a standard object-oriented program.  An often stated
-limitation of shallow EDSLs is that they only support \emph{single}
-interpretation. This is often a motivation to switch to a deep
-embedding instead, since deep embeddings allow for multiple
+the essence of OOP. Although OOP is often associated with stateful
+(imperative) objects, it is possible to have functional objects that
+have no mutable state. Indeed \citet{cook09abstraction} calls such
+style \emph{pure OOP}, and argues that it captures the essence of OOP.
+Although such pure OOP definition may be controversial for OOP
+programmers, it fits very well with functional programming.  Since pure OOP
+is essentially procedural abstraction, the implementation of a shallow
+EDSL in OOP languages should simply correspond to a standard
+object-oriented program.
+
+The second goal of this pearl is to argue that OOP languages have
+advantages for the implementation of shallow embeddings.
+An often stated limitation of shallow EDSLs is that they only support
+a \emph{single} interpretation. This is frequently a motivation to switch to
+a deep embedding instead, since deep embeddings allow for multiple
 interpretations. We show that OOP abstractions, including
-\emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, are
-helpful to address this problem, and to allow multiple-interpretations
+\emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, 
+add expressive power to procedural abstraction, and 
+enable multiple-interpretations
 to co-exist in shallow embeddings. The key idea is to employ a
 recently proposed design pattern~\citep{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\citep{expPb} in
@@ -65,19 +74,32 @@ EDSL. We recode that EDSL in Scala.
 From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version.
 
-\bruno{Weixin: Talk about case study; argue that original implementation is a deep
-embedding with possible multiple interpretations;
-we refactor it to a shallow embedding with multiple interpretations.}
-\weixin{Addressed}
-To further illustrate the applicability of our OO approach, we conduct a case study on refactoring an existing DSL implementation to make it modular.
-\citet{rompf15} present a SQL to C compiler in Scala, which is an external DSL but uses deep embedding techniques such as algebraic datatypes and pattern matching underlying.
-The use of deep embedding techniques facilitates multiple interpretations at the price of modular construct extensions.
-We rewrote the implementation as a shallow EDSL.
-The resulting implementation allows both new interpretations and new constructs to be introduced modularly.
+To further illustrate the applicability of our OO approach, we conduct
+a case study on refactoring an existing DSL implementation to make it
+modular. \citet{rompf15} present a SQL to C compiler in Scala, which
+is an external DSL but uses deep embedding techniques such as
+algebraic datatypes and pattern matching in the implementation. The use of deep
+embedding techniques facilitates multiple interpretations at the price
+of modular language extensions. We rewrote the implementation as a
+shallow Scala EDSL. The resulting implementation allows both new
+interpretations and new constructs to be introduced modularly, and 
+can be used directly (as an EDSL) in Scala.
 
-\bruno{Disclaimer about the OOP style promoted here: we promote
-a \emph{functional} OOP style.}
-\weixin{Or \emph{pure} OOP according to \citet{cook09abstraction}}
+\begin{comment}
+Finally we remark that the OOP style used by us is essentially 
+\emph{functional}. Although OOP is often associated with stateful 
+(imperative) objects, it is possible to have functional objects 
+that have no mutable state. Indeed \citet{cook09abstraction} calls 
+such style \emph{pure OOP}, and argues that it captures the essence of OOP.
+Although such pure OOP definition may be controversial for OOP programmers, 
+it fits very well with functional programming. This pearl shows that 
+shallow DSLs are a good application domain for pure OOP.
+\end{comment}
+
+
+%\bruno{Disclaimer about the OOP style promoted here: we promote
+%a \emph{functional} OOP style.}
+%\weixin{Or \emph{pure} OOP according to \citet{cook09abstraction}}
 
 %if False
 If we accept Cook's view on OOP, 
