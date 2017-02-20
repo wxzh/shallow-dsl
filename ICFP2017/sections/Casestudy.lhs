@@ -40,9 +40,8 @@ For example, a query to find all talks at 9am with their room and title printed 
 %format from = "\mathbf{from}"
 %format join = "\mathbf{join}"
 
-> select room, title from talks.csv from talks.csv where time='09:00 AM'
+> select room, title from talks.csv where time='09:00 AM'
 
-\bruno{Are we supposed to have "from talks.csv" twioce here?}
 Another relatively complex query to find all unique talks happening at the same time in the same room is:
 
 > select *

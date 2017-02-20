@@ -15,8 +15,9 @@ multiple interpretations.
 \end{comment}
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
-Besides |width|, we may want to have additional interpretations for \dsl.
-For example, an interpretation that calculates the depth of a circuit.
+A single interpretation may not be enough for realistic DSLs.
+For example, besides |width|, we may want to have an additional interpretation
+that calculates the depth of a circuit in \dsl.
 
 \paragraph{Multiple Interpretations in Haskell}
 Here is ~\citet{gibbons2014folding}'s solution:
@@ -89,8 +90,8 @@ The encoding relies on three OOP abstraction mechanisms:
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations. Importantly, all definitions 
-for |width| in Section~\ref{subsec:shallow} are reused here.
+Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
+Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are reused here.
 
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -118,6 +119,7 @@ stretch3 ns c  =  (sum ns,wellSized c && length ns==width c)
 
 wellSized  =  snd
 \end{code}
+\noindent where |width| is called in the definition of |wellSized| for |above3| and |stretch3|.
 
 \paragraph{Dependent Interpretations in Scala}\label{sec:dependent}
 Fortunately, an OO approach does not have such restriction:
@@ -166,9 +168,15 @@ For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 
 > [[(0,1), (2,3)], [(1,3)], [(1,2)]]
 
+The combinator |stretch| and |beside| will change the layout of a circuit.
+For example, if a circuit is put on the right hand side of another circuit, all the indices of the circuit will be increased by the width of that circuit.
+Hence the interpretation, let us call it |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
+An intuitive implementation of |tlayout| would perform these changes immediately to the affected circuit.
+Rather, a more efficient implementation would accumulate these changes and apply them all at once.
+An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensive.
 
 \paragraph{Context-Sensitive Interpretations in Haskell}
-The following Haskell code implements (non-modularly) the interpretation described above:
+The following Haskell code implements (non-modular) |tlayout|:
 
 %format Circuit4
 %format identity4
@@ -187,7 +195,8 @@ fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
 beside4 c1 c2  =  (width c1 + width c2
                   ,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
-stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (scanl1 (+) ns!!)))
+stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (vs!!)))
+  where vs = scanl1 (+) ns
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
 lzw f [ ] ys             =  ys
@@ -198,15 +207,11 @@ tlayout =  snd
 \end{code}
 %}
 
-The combinator |stretch| and |beside| will change the layout of a circuit.
-For example, if a circuit is put on the right hand side of another circuit, all the indices of the circuit will be increased by the width of that circuit.
-Hence the interpretation that produces a layout is firstly dependent, relying on itself as well as |width|.
-An intuitive implementation would perform these changes immediately to the affected circuit.
-Rather, a more efficient implementation would accumulate these changes and apply them all at once.
-|tlayout| takes an accumulating parameter to achieve this goal, which makes it context-sensive.
 The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
-An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the function
-to the two elements of the same index and appending the remaining elements from
+An anonymous function that takes as an accumulating parameter |f| is constructed for each case.
+Note that |f| is accumulated in |beside4| and |stretch4| through function composition, propagated in |above4|, and finally applied to wire connections in |fan4|\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}.
+An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the binary operator
+to elements of the same index, and appending the remaining elements from
 the longer list to the resulting list.
 By calling |tlayout| on a circuit and supplying |id| as the initial value for the accumulating parameter, we will get the layout.
 
@@ -218,6 +223,8 @@ Context-sensitive interpretations in our OO approach are unproblematic as well:
 %format Beside4
 %format Above4
 %format Stretch4
+%format (="\!("
+%format [="\!["
 
 \begin{spec}
 type Layout = List[List[Tuple2[Int,Int]]]
@@ -232,16 +239,18 @@ trait Fan4 extends Fan1 with Circuit4 {
 }
 trait Above4 extends Above1 with Circuit4 {
   val c1, c2: Circuit4
-  def tlayout(f: Int => Int) = (c1 tlayout f) ++ (c2 tlayout f)
+  def tlayout(f: Int => Int) = c1.tlayout(f) ++ c2.tlayout(f)
 }
 trait Beside4 extends Beside1 with Circuit4 {
   val c1, c2: Circuit4
-  def tlayout(f: Int => Int) =
-    lzw (c1 tlayout f, c2 tlayout (f compose (c1.width + _))) (_ ++ _)
+  def tlayout(f: Int => Int) = lzw (c1.tlayout(f), c2.tlayout(f.compose(c1.width + _))) (_ ++ _)
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
   val c: Circuit4
-  def tlayout(f: Int => Int) = c tlayout (f compose (partialSum(ns)(_) - 1))
+  def tlayout(f: Int => Int) = {
+    val vs = ns.scanLeft(0)(_ + _).tail
+    c.tlayout(f.compose(vs(_) - 1))
+  }
 }
 
 def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
@@ -249,10 +258,18 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
   case (_,Nil)        =>  xs
   case (x::xs,y::ys)  =>  f(x,y) :: lzw (xs,ys) (f)
 }
-def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _) tail
 \end{spec}
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
+The implementation of |tlayout| is a direct translation from the Haskell version.
+There are some minor syntax differences that are explained as follows.
+In |Fan4|, a for comprehension is used for producing a list of connections.
+The parameter list of annonymous functions is omitted.
+Instead, we refer to these using underscores (|_|) instead.
+For example, in |Beside4|, |c1.width + _| is short for |(i: Int) => c1.width + i|.
+Function composition is achieved through |compose|, which has a different composition order as oppososed to |.| in Haskell.
+The |lzw| is a curried function in Scala, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
+
 \bruno{I think some more explanation is needed here, specially on Scala 
 code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
 Do not use mix-fix syntax in |Above4| and other places: it only serves the purpose of 
@@ -289,15 +306,17 @@ On the other hand, adding an ordinary construct is done through defining a new t
 If we treated |rstretch| as an ordinary construct, its definition would be:
 
 > trait RStretch extends Stretch4 {
->   override def tlayout(f: Int => Int) = c tlayout (f compose (rPartialSum (ns) (_)))
+>   override def tlayout(f: Int => Int) = {
+>     val vs = ns.scanLeft(ns.last - 1)(_ + _).init
+>     c.tlayout(f.compose(vs(_)))
+>   }
 > }
-> def rPartialSum(ns: List[Int]): List[Int] = ns.scanLeft(ns.last - 1)(_ + _) init
 
 \bruno{mixfix being used again}
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
-Inheritance and overriding enable partial reuse of a language construct implementation,
+Inheritance and overriding enable partial reuse of a existing language construct implementation,
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 

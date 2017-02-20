@@ -35,21 +35,20 @@ The grammar of \dsl is given below:
  \alt `stretch' <positive-numbers> <circuit>
 \end{grammar}
 
+
 \noindent \dsl has five constructs: two primitives
-(\emph{identity} and \emph{fan}) and three combinators (\emph{beside}, \emph{above} and \emph{stretch}).
-Their meanings are: \emph{identity n} contains \emph{n} parallel wires;
-\emph{fan n} has \emph{n} vertical wires with its first wire connected to
-all the remaining wires from top to bottom; $beside\ c_1\ c_2$ joins two circuits
-$c_1$ and $c_2$ horizontally; $above\ c_1\ c_2$ combines two circuits of the same width vertically;
-\emph{stretch ns c} inserts more wires into the circuit \emph{c} by
-summing up \emph{ns}.
+(|identity| and |fan|) and three combinators (|beside|, |above| and |stretch|).
+Their meanings are: |identity n| contains |n| parallel wires;
+|fan n| has |n| vertical wires with its first wire connected to
+all the remaining wires from top to bottom; |beside c1 c2| joins two circuits
+|c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
+|stretch ns c| inserts more wires into the circuit |c| by summing up |ns|.
 For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
-the top sub-circuit is a two |2-fan| put side by side;
-the middle sub-circuit is a |2-fan| stretched by inserting a wire on the left hand side of its first and second wire;
-the bottom sub-circuit is a |2-fan| between two |1-identity|.
-\bruno{spacing in |2-fan| and others is ugly.}
+the top sub-circuit is a two 2-|fan| put side by side;
+the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left hand side of its first and second wire;
+the bottom sub-circuit is a 2-|fan| between two 1-|identity|.
 
 \begin{figure}
   \center
@@ -88,9 +87,9 @@ stretch ns c   =  sum ns
 
 \noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
-> c = (fan 2 `beside` fan 2) `above`
->  stretch [2,2] (fan 2) `above`
->  (identity 1 `beside` fan 2 `beside` identity 1)
+> c  =  ( fan 2 `beside` fan 2) `above`
+>       stretch [2,2] (fan 2) `above`
+>       (identity 1 `beside` fan 2 `beside` identity 1)
 
 Note that, for this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit:
