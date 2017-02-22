@@ -3,7 +3,7 @@ package wellsized
 trait Circuit extends width.Circuit { 
   def wellSized: Boolean 
 }
-trait Identity extends width.Identity with Circuit {
+class Identity(n: Int) extends width.Identity(n) with Circuit {
   def wellSized = n > 0
 }
 trait Fan extends width.Fan with Circuit {

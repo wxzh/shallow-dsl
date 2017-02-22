@@ -1,11 +1,12 @@
 package object layout {
   import javax.swing._
 
-  def id(x: Int) = new Id{val n=x}
+  def identity(x: Int) = new Identity{val n=x}
   def fan(x: Int) = new Fan{val n=x}
   def above(x: Circuit, y: Circuit) = new Above{val c1=x; val c2=y}
   def beside(x: Circuit, y: Circuit) = new Beside{val c1=x; val c2=y}
   def stretch(xs: List[Int], x: Circuit) = new Stretch{val ns=xs; val c=x}
+  def rstretch(ns: List[Int], c: Circuit) = stretch (1 :: ns, beside(c, identity(ns.last - 1)))
 
   type IntPair = Tuple2[Int,Int]
   type Layout = List[List[IntPair]] 
@@ -20,7 +21,8 @@ package object layout {
   def shift(w: Int)(layout: Layout) = layout.map(_.map(pmap(w+_)))
   def connect(ns: List[Int])(p: IntPair) =
     pmap ((i: Int) => partialSum(ns)(i) - 1) (p)
-  def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _).tail
+  def partialSum(ns: List[Int]): List[Int] = ns.scanLeft(0)(_ + _) tail
+  def rPartialSum(ns: List[Int]): List[Int] = ns.scanLeft(ns.last)(_ + _) init
 
   def draw(layout: Layout) = SwingUtilities.invokeLater(new Runnable() {
     override def run {
