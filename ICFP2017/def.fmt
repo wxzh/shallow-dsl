@@ -15,6 +15,7 @@
 %format sealed = "\mathbf{sealed}"
 %format abstract = "\mathbf{abstract}"
 %format override = "\mathbf{override}"
+%format implicit = "\mathbf{implicit}"
 %format in = "in"
 %format s1
 %format s2
@@ -24,6 +25,7 @@
 %format r2
 
 %format Op2
+%format Operator2
 %format Scan2
 %format Print2
 %format Project2

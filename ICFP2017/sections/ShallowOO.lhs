@@ -183,7 +183,7 @@ def beside(x: Circuit1, y: Circuit1)     =  new Beside1    {val c1=x;   val c2=y
 def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
 \end{spec}
 
-\noindent Now we are able to construct and calculate the width of the circuit shown in Fig.~\ref{fig:circuit} in Scala:
+\noindent Now we are able to construct circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
 \begin{spec}
 val c  = above(  beside(fan(2),fan(2)),

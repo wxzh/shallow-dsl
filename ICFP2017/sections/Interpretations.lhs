@@ -262,13 +262,13 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
-There are some minor syntax differences between that are explained as follows.
-In |Fan4|, a for comprehension is used for producing a list of connections.
-The parameter list of annonymous functions is omitted for simplicity.
-Still, we are able to refer to th parameters of such annonymous functions using underscores (|_|).
-For example, in |Beside4|, |c1.width + _| is a shorthand of |(i: Int) => c1.width + i|.
-Function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
-|lzw| is implemented as a curried function in Scala, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
+There are some minor syntax differences that need explainations.
+First, in |Fan4|, a \emph{for comprehension} is used for producing a list of connections.
+Second, for simplicity, annonymous functions are created without specifying their parameters.
+Still, we are able to refer to these parameters via underscores (|_|) in the body of t.
+For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
+Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
+Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
 
 \bruno{I think some more explanation is needed here, specially on Scala 
 code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
@@ -286,10 +286,15 @@ stretch) combinator which is similar to the |stretch| combinator except for the 
 
 Shallow embeddings make the addition of |rstretch| easy by defining a new function:
 
-< rstretch        ::  [Int] -> Circuit4 -> Circuit4
-< rstretch  ns c  =  stretch4 (1 : init ns) c `beside` identity (last ns - 1)
+%{
+%format ( = "\;("
 
-|rstretch| happens to be a syntatic sugar that can be defined in terms of existing constructs.
+> rstretch        ::  [Int] -> Circuit4 -> Circuit4
+> rstretch  ns c  =   stretch4 (1 : init ns) c `beside` identity (last ns - 1)
+
+%}
+
+\noindent |rstretch| happens to be a syntatic sugar that can be defined in terms of existing constructs.
 For non-sugar constructs, we need to define a new function that implements all supported interpretations.
 
 \paragraph{New Constructs in Scala}
@@ -333,14 +338,7 @@ However, such partial reuse is hard to achieve in Haskell.
 
 \subsection{Discussion}
 \begin{comment}
-As Gibbons and Wu notice:
-\begin{quote}
-\emph{
-it is not difficult to provide multiple interpretations with a shallow
-embedding ... But this is still a bit clumsy: it entails revising
-existing code each time a new interpretation is added, and wide tuples
-generally lack good language support.}  \end{quote}
-\weixin{the first sentence of the quote contradicts with the first sentence of this paragraph.}
+
 \noindent In other words, Haskell's approach based on tuples is essentially non-modular.
 This is precisely where OOP has advantages over the Haskell
 encoding.  Instead of tuples, objects are used. Objects are
@@ -351,15 +349,11 @@ type is needed, an object with more field/methods can be used instead.
 
 Gibbons and Wu claim that in shallow embeddings new language
 constructs are easy to add, but new interpretations are hard.
-Although it is possible to define multiple interpretations via tuples,
-they have noticed that 
-
-\begin{quote} \emph{ it is not difficult to
-provide multiple interpretations with a shallow embedding ... But this
+It is possible to define multiple interpretations via tuples,
+\emph{but this
 is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
-language support.}~\citep{gibbons2014folding} 
-\end{quote} 
+language support.}~\citep{gibbons2014folding}
 In other words, Haskell's approach based on tuples is essentially non-modular.
 However, as our OOP approach shows, in OOP both language constructs and new
 interpretations are easy to add in shallow embeddings. In other words,
@@ -379,7 +373,7 @@ Gibbons and Wu
 do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 some of the modularity problems. For example, using type classes,
-\emph{finally tagless}~\cite{carette2009finally} can deal with
+\emph{tagless-final} approach~\cite{carette2009finally} can deal with
 multiple interpretations in Section~\ref{subsec:multiple}. However,
 these techniques complicates the encoding of the EDSL
 significantly. Moreover, 
