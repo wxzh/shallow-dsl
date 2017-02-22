@@ -14,19 +14,10 @@
 %format [="\!["
 %format - = "\!-"
 
-\section{Case Study}
+\section{An Embedded DSL for SQL Queries}
 To further illustrate the applicability of shallow OO embeddings,
-we refactored an existing \emph{external} DSL implementation to make it modular
-and embedded.
-
-\bruno{I think that in this section we need to tone done significantly on the code 
-that we show. I suggest that we do not show code for their approach. Instead 
-show code only for our approach. Even for the code of our approach we should tone 
-down on the code and make the existing code pretty. 
-Don't think of this section so much as a detailed comparison with their work. 
-Instead focus on writing this section as a more practical illustration of our 
-technqiues. 
-}
+we refactored an existing \emph{deep external} DSL implementation for SQL queries
+to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
@@ -63,24 +54,26 @@ the SQL compiler is simple as an intuitive interpreter while having performance 
 
 However, the implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching, for encoding and interpreting ASTs.
 These techniques are a natural choice as they make the implementation straightforward.
-But problems arise when the implementation evolves with new constructs introduced.
+But problems arise when the implementation evolves with new language constructs.
 All existing interpretations have to be modified for dealing with these new constructs,
 suffering from the Expression Problem.
 
-Fortunately, it is possible to rewrite the implementation as a shallow
-EDSL, because: firstly, it is common to embed SQL
+Fortunately, it is possible to rewrite \citet{rompf15}
+implementation as a shallow EDSL, because the original implementation
+contains no transformations/optimizations on ASTs.\bruno{earlier in
+the paper (prob intro) we need to mention that transformations are
+still not supported.} Therefore, with only modest effort, we rewrote
+their implementation using the approach presented in this pearl. The
+resulting implementation is modular without comprimising the
+performance\bruno{need to be careful about performance claims. What exactly
+is meant here}. Moreover it is common to embed SQL
 into a general purpose language, for instance Circumflex
 ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} and
 VigSQL\footnote{\url{https://github.com/Kangmo/vigsql}} do this in
-Scala; secondly, the original implementation contains no
-transformations/optimizations on ASTs. Therefore, with only modest
-effort, we rewrote the implementation using the approach presented in
-this pearl.  The resulting implementation is modular without
-comprimising the performance.
+Scala. Thus, instead of providing an external DSL, we provide an embedded SQL EDSL. 
+To illustrate, let us rewrite the queries shown above using our SQL EDSL:
 
-To illustrate, let us rewrite the queries shown above using the SQL EDSL:
-
-\weixin{TODO: can not show not matched single quote for Scala symbols}
+\weixin{TODO: can not show not matched single quote for Scala symbols}\bruno{I don't understand what you mean here...}
 > val q1  =  SELECT (room, title) FROM ("talks.csv" WHERE time === "09:00 AM")
 > val q2  =  (
 >            SELECT ()
@@ -89,10 +82,16 @@ To illustrate, let us rewrite the queries shown above using the SQL EDSL:
 >            WHERE title1 <> title2)
 >            )
 
-Thanks to Scala's concise syntax, we can hardly tell the difference between SQL queries written in our EDSL and those written in an external DSL.
-% The minor differences are that keywords are captialized, fields are represented using Scala symbol
-Moreover, the EDSL approach has benefits of reusing the mechanisms provided by the host language for free.
-For example, through variable declarations, we can build a complex query from parts or reuse common queries to improve the readability and modularity of the embedded programs.
+Thanks to Scala's concise syntax, we can hardly tell the difference
+between SQL queries written in our EDSL and those written in an
+external DSL.
+%% The minor differences are that keywords are
+%%captialized, fields are represented using Scala symbol
+Moreover, the EDSL approach has the benefit of reusing the mechanisms
+provided by the host language for free.  For example, through variable
+declarations, we can build a complex query from parts or reuse common
+queries to improve the readability and modularity of the embedded
+programs.
 
 The following subsections focus on rewriting the core of the original
 implementation - the interpreter for relational algebra operations.
@@ -100,7 +99,7 @@ Similar rewritings are also applicable to staged versions derived
 from this interpreter. % as well as other AST related definitions.
 
 \subsection{A Relational Algebra Interpreter}
-A SQL query can be represented using relational algebras:
+A SQL query can be represented using relational algebra:
 
 \begin{spec}
 trait Operator {
@@ -125,16 +124,20 @@ class Join(op1: Operator, op2: Operator) extends Operator {
 }
 \end{spec}
 
-The |Operator| hierarchy defines the supported relation algebra operators.
-Concretely, |Scan| processes a csv file and produces a record line by line;
+The |Operator| hierarchy defines the supported relational algebra operators.
+Concretely, |Scan| processes a csv file and produces a record line by line\bruno{scan is not a relational algebra operator!};
 |Project| rearranges the fields of a record;
 |Filter| keeps only records that meet a certain predicate;
 |Join| matches a record against to another, and combines them if their common fields share the same values.
 
-A context-sensitive interpretation |execOp| is implemented throughout the hierarchy.
-It executes a SQL query through taking a callback |yld| and accumulating what each operator does to records in |yld|.
-The implementation of |execOp| for each operator is straightward, reflecting their respective meanings.
-Another interpretation |exec| defined inside |Operator| is a wrapper of |execOp|, which supplies |execOp| with a callback that does nothing as the initial value.
+A \emph{context-sensitive interpretation} |execOp| is implemented
+throughout the hierarchy.  It executes a SQL query by taking a
+callback |yld| and accumulating what each operator does to records in
+|yld|. The implementation of |execOp| for each operator is
+straightforward, reflecting their respective meanings. Another
+interpretation |exec| defined inside |Operator| is a wrapper of
+|execOp|, which supplies |execOp| with a callback that does nothing as
+the initial value.
 
 \weixin{TODO: override |==| and |!=| in lhs2tex}
 Some auxiliary definitions that are used in defining the |Operator| hierarchy are given below:
@@ -171,7 +174,7 @@ case class Record(fields: Fields, schema: Schema) {
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query the data file. That is why we need SQL as a surface language for queries.
-In the original implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
+In \citet{rompf2015} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 To simulate the syntax of SQL queries in our shallow EDSL implementation, we define
  some smart constructors:
 
@@ -209,7 +212,7 @@ class Field(name: String) extends Ref {
 \end{spec}
 
 Some smart constructors such as |JOIN| are defined as member methods to obtain infix notation.
-We use Scala's implicit methods for automic lifting on the literals expressed in a SQL query.
+We use Scala's implicit methods for automatically lifting the literals expressed in a SQL query.
 To distinguish fields from string literals, Scala symbols are used.
 
 With these definitions, we can write SQL queries (e.g. |q1| and |q2|) in a way close to the original syntax.
@@ -226,17 +229,17 @@ To actually run a query, we call the |exec| method:
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
-The achieve better performance, \citet{rompf15} extend the SQL processor in Section 4 of their paper.
+To achieve better performance, Rompf and Amin extend the SQL processor.
 Two new operators - aggregations and hash joins - are introduced:
 the former caches the records from the composed operator;
 the latter implements a more efficient join algorithm.
-The introduction of hash joins further requires a new interpretation on the relational algebra operators.
+The introduction of hash joins additionally requires a new interpretation on the relational algebra operators.
 This new interpretation collects an auxiliary data structure that is needed in implementing the hash join algorithm.
-Therefore, two dimensions of extension are required.
+Therefore, two dimensions of extensibility are required.
 
 However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
-In contrast, our implementation allow these extensions to be introduced modularly:
+In contrast, our implementation allows these extensions to be introduced modularly:
 
 \begin{spec}
 // interpretation extension
@@ -273,24 +276,27 @@ trait HashJoin(op1: Operator2, op2: Operator2) extends Join2 {
           yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
 }
 \end{spec}
+\bruno{I don't feel very confident that invalid Scala code (i.e. code that does not type-check).
+The code presented in the paper needs to be carefully checked; possibly pasting it back into Eclipse and
+checking that that compiles.}
 
 The new trait |Operator2| extends |Operator| with a new interpretation |resultSchema| for collecting a schema from a operator.
-All operators implement |Operator2| by inheritating their previous version and complementing |resultSchema|.
-Two new objectors, |Group| and |HashJoin|, are defined.
+All operators implement |Operator2| by inheriting their previous version and complementing |resultSchema|.
+Two new operators, |Group| and |HashJoin|, are defined.
 As |HashJoin| is a specialized version of |Join|, we implement it following the definition of |RStretch| in Section~\ref{sec:construct}.
-The reader may have noticed that the interpretation |execOp| becomes very much like the  interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
+The reader may notice that the interpretation |execOp| becomes very much like the  interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
 
 The extension illustrates yet another strength of our approach - \emph{field extensions}.
 To support processing data from a richer format of files, |Scan2| is extended with new fields.
-The extended fields would not affect existing interpretations that are not concerned with them.
+The extended fields would not affect existing interpretations that do not have them.
 This would not be possible in an approach using algebraic datatypes and pattern matching.
 The pattern has to be changed even if an interpretation does not use these extended fields.
 
 The implementation presented so far only supports a subset of SQL queries.
 There is plenty of room for extensions.
 Not only operators, new predicates such as logical expressions can be modularly extended in a similar way.
-However, to actually use the extensions, a set of smart constructors has to be defined for each version.
+However, to actually use the extensions, a set of smart constructors\bruno{you mean for the syntax right? You can be more specific.} has to be defined for each version.
 These smart constructors are not modular because of the explicit reference to the names from |Operator| hierarchy.
 With advanced type system features from Scala~\citep{zenger05independentlyextensible},
 these smart constructors can be made modular at the cost of making the implementation complicated.
