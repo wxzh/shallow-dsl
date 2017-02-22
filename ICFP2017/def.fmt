@@ -19,8 +19,8 @@
 %format in = "in"
 %format s1
 %format s2
-%format o1
-%format o2
+%format op1
+%format op2
 %format r1
 %format r2
 

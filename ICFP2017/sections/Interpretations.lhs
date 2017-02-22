@@ -160,7 +160,7 @@ In the definition of |Above3|, for example, it is possible
 to, not only call |wellSized|, but also |width|. 
 
 \subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
-Interpretations may rely on some context.
+Interpretations may rely on some contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
@@ -169,7 +169,7 @@ For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 > [[(0,1), (2,3)], [(1,3)], [(1,2)]]
 
 The combinator |stretch| and |beside| will change the layout of a circuit.
-For example, if a circuit is put on the right hand side of another circuit, all the indices of the circuit will be increased by the width of that circuit.
+For example, if two circuits are put side by side, all the indices of the right circuit will be increased by the width of the left circuit.
 Hence the interpretation, let us call it |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
 An intuitive implementation of |tlayout| would perform these changes immediately to the affected circuit.
 Rather, a more efficient implementation would accumulate these changes and apply them all at once.
@@ -193,8 +193,7 @@ type Circuit4  =  (Int,(Int -> Int) -> Layout)
 identity4 n    =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
-beside4 c1 c2  =  (width c1 + width c2
-                  ,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
+beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
 stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (vs!!)))
   where vs = scanl1 (+) ns
 
@@ -209,7 +208,7 @@ tlayout =  snd
 
 The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
 An anonymous function that takes as an accumulating parameter |f| is constructed for each case.
-Note that |f| is accumulated in |beside4| and |stretch4| through function composition, propagated in |above4|, and finally applied to wire connections in |fan4|\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}.
+Note that |f| is accumulated in |beside4| and |stretch4| through function composition\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}, propagated in |above4|, and finally applied to wire connections in |fan4|.
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the binary operator
 to elements of the same index, and appending the remaining elements from
 the longer list to the resulting list.
@@ -265,7 +264,7 @@ The implementation of |tlayout| is a direct translation from the Haskell version
 There are some minor syntax differences that need explainations.
 First, in |Fan4|, a \emph{for comprehension} is used for producing a list of connections.
 Second, for simplicity, annonymous functions are created without specifying their parameters.
-Still, we are able to refer to these parameters via underscores (|_|) in the body of t.
+Still, we are able to refer to these parameters via underscores (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
 Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
@@ -298,7 +297,7 @@ Shallow embeddings make the addition of |rstretch| easy by defining a new functi
 For non-sugar constructs, we need to define a new function that implements all supported interpretations.
 
 \paragraph{New Constructs in Scala}
-Such simplicity of adding new constructs is retained in our OO approach.
+Such simplicity of adding new constructs is retained in our OOP approach.
 Differently from the Haskell approach, there is a clear distinction between 
 syntatic sugar and ordinary constructs in the OOP approach.
 
@@ -350,12 +349,12 @@ type is needed, an object with more field/methods can be used instead.
 Gibbons and Wu claim that in shallow embeddings new language
 constructs are easy to add, but new interpretations are hard.
 It is possible to define multiple interpretations via tuples,
-\emph{but this
+"but this
 is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
-language support.}~\citep{gibbons2014folding}
+language support"~\citep{gibbons2014folding}.
 In other words, Haskell's approach based on tuples is essentially non-modular.
-However, as our OOP approach shows, in OOP both language constructs and new
+However, as our OOP approach shows, in OOP both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,
 the circuit DSL presented so far does not suffer from the Expression
 Problem. The key point is that procedural abstraction combined with

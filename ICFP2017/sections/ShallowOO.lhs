@@ -3,11 +3,11 @@
 %include def.fmt
 \section{Shallow Object-Oriented Programming}\label{sec:oo}
 
-This section shows that an OO approach and shallow embeddings using
+This section shows that an OOP approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
 DSL presented by ~\citet{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
-implementation in Haskell, and rewrite it towards an ``OO style''.
+implementation in Haskell, and rewrite it towards an ``OOP style''.
 Then translating the program into an OO language becomes straightforward.
 We choose Scala to illustrate the code throughout this pearl 
 because of its relatively elegant syntax and its support for multiple-inheritance
@@ -130,7 +130,7 @@ stretch1 ns c      =  Circuit1 {width1  =   sum ns}
 The implementation is still shallow because |newtype| does not add any operational
 behaviour to the program, and hence the two programs are effectively the
 same.  However, having fields makes the program look more like an
-OOP program.
+OO program.
 
 \paragraph{Porting to Scala}
 Indeed, we can easily translate the Haskell program into a Scala program:

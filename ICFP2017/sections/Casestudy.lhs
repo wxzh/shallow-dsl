@@ -6,6 +6,8 @@
 %format q2
 %format rec1
 %format rec2
+%format ref1
+%format ref2
 %format title1
 %format title2
 %format (="\!("
@@ -37,7 +39,7 @@ Consider a data file |talks.csv| that contains a list of talks:
 
 Each item in the file records the identity, time, title and room of a talk.
 Here are some SQL queries on this file.
-For example, a query to find all talks at 9am with their room and title printed is:
+For example, a query to find all talks at 9am with their room and title selected is:
 
 %format select = "\mathbf{select}"
 %format as = "\mathbf{as}"
@@ -102,59 +104,59 @@ A SQL query can be represented using relational algebras:
 
 \begin{spec}
 trait Operator {
-  def execOp(yld: Record => Unit)
+  def execOp(yld: Record => Unit): Unit
   def exec = execOp { _ => }
 }
 class Scan(name: String) extends Operator {
   def execOp(yld: Record => Unit) = processCSV(name)(yld)
 }
-class Project(s2: Schema, s1: Schema, o: Operator) extends Operator {
-  def execOp(yld: Record => Unit) = o.execOp {r => yld(Record(r(s1), s2))}
+class Project(out: Schema, in: Schema, op: Operator) extends Operator {
+  def execOp(yld: Record => Unit) = o.execOp {rec => yld(Record(rec(in), out))}
 }
-class Filter(p: Predicate, o: Operator) extends Operator {
-  def execOp(yld: Record => Unit) = o.execOp {r => if (p.eval(r)) yld(r) }
+class Filter(pred: Predicate, op: Operator) extends Operator {
+  def execOp(yld: Record => Unit) = o.execOp {rec => if (pred.eval(rec)) yld(rec) }
 }
-class Join(o1: Operator, o2: Operator) extends Operator {
-  def execOp(yld: Record => Unit) = o1.execOp { r1 =>
-    o2.execOp { r2 =>
-      val keys = r1.schema intersect r2.schema
-      if (r1(keys) == r2(keys))
-      yld(Record(r1.fields++r2.fields, r1.schema++r2.schema)) }}
+class Join(op1: Operator, op2: Operator) extends Operator {
+  def execOp(yld: Record => Unit) = op1.execOp { rec1 =>
+    op2.execOp { rec2 =>
+      val keys = rec1.schema intersect rec2.schema
+      if (rec1(keys) == rec2(keys))
+      yld(Record(rec1.fields++rec2.fields, rec1.schema++rec2.schema)) }}
 }
 \end{spec}
 
 The |Operator| hierarchy defines the supported relation algebra operators.
 Concretely, |Scan| processes a csv file and produces a record line by line;
-|Project| rearranges the fields of a record, where |s1| ;
-|Filter| keeps only records that meets a certain predicate;
+|Project| rearranges the fields of a record;
+|Filter| keeps only records that meet a certain predicate;
 |Join| matches a record against to another, and combines them if their common fields share the same values.
 
 A context-sensitive interpretation |execOp| is implemented throughout the hierarchy.
 It executes a SQL query through taking a callback |yld| and accumulating what each operator does to records in |yld|.
 The implementation of |execOp| for each operator is straightward, reflecting their respective meanings.
-Another interpretation |exec| defined inside |Operator| is a wrapper of |execOp|, which supplies |execOp| a callback that does nothing as the initial value.
+Another interpretation |exec| defined inside |Operator| is a wrapper of |execOp|, which supplies |execOp| with a callback that does nothing as the initial value.
 
 \weixin{TODO: override |==| and |!=| in lhs2tex}
 Some auxiliary definitions that are used in defining the |Operator| hierarchy are given below:
 \begin{spec}
 trait Predicate {
-  def eval(r: Record): Boolean
+  def eval(rec: Record): Boolean
 }
-class Eq(r1: Ref, r2: Ref) extends Predicate {
-  def eval(r: Record) = r1.eval(r) == r2.eval(r)
+class Eq(ref1: Ref, ref2: Ref) extends Predicate {
+  def eval(rec: Record) = ref1.eval(rec) == ref2.eval(rec)
 }
-class Ne(r1: Ref, r2: Ref) extends Predicate {
-  def eval(r: Record) = r1.eval(r) != r2.eval(r)
+class Ne(rec1: Ref, rec2: Ref) extends Predicate {
+  def eval(rec: Record) = ref1.eval(rec) != ref2.eval(rec)
 }
 
 trait Ref {
-  def eval(r: Record): String
+  def eval(rec: Record): String
 }
 class Field(name: String) extends Ref {
-  def eval(r: Record) = r(name)
+  def eval(rec: Record) = rec(name)
 }
 class Value(x: Any) extends Ref {
-  def eval(r: Record) = x.toString
+  def eval(rec: Record) = x.toString
 }
 
 type Schema  =  Vector[String]
@@ -169,7 +171,7 @@ case class Record(fields: Fields, schema: Schema) {
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query the data file. That is why we need SQL as a surface language for queries.
-In the original implementation, SQL queries are encoded using strings, and a parser will parse a query into an operator.
+In the original implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 To simulate the syntax of SQL queries in our shallow EDSL implementation, we define
  some smart constructors:
 
@@ -185,14 +187,14 @@ case class SELECT(fields: Tuple2[String,String]*) {
 
 trait Operator {
   ...
-  def WHERE(x: Predicate)  =  new Filter(x, this)
-  def JOIN(that: Op)       =  new Join(this, that)
+  def WHERE(pred: Predicate)  =  new Filter(pred, this)
+  def JOIN(that: Operator)    =  new Join(this, that)
 }
 
-implicit def scan(s: String)   =  new Scan(s)
-implicit def field(s: Symbol)  =  new Field(s.toString)
-implicit def value(v: Any)     =  new Value(v)
-implicit def noAS(s: Symbol)   =  (s.toString, s.toString)
+implicit def scan(file: String)  =  new Scan(file)
+implicit def field(sym: Symbol)  =  new Field(sym.toString)
+implicit def value(x: Any)       =  new Value(x)
+implicit def noAS(sym: Symbol)   =  (sym.toString, sym.toString)
 
 trait Ref {
   ...
@@ -202,12 +204,12 @@ trait Ref {
 
 class Field(name: String) extends Ref {
   ...
-  def AS(s: Symbol) = (name, s.toString)
+  def AS(sym: Symbol) = (name, sym.toString)
 }
 \end{spec}
 
 Some smart constructors such as |JOIN| are defined as member methods to obtain infix notation.
-We use Scala's implicit methods for automic lifting the literals expressed in a SQL query.
+We use Scala's implicit methods for automic lifting on the literals expressed in a SQL query.
 To distinguish fields from string literals, Scala symbols are used.
 
 With these definitions, we can write SQL queries (e.g. |q1| and |q2|) in a way close to the original syntax.
@@ -244,31 +246,31 @@ trait Operator2 extends Operator {
 class Scan2(name: Table, s: Schema, delim: Char, b: Boolean) extends Scan(name) with Operator2 {
   def resultSchema = schema
 }
-class Project2(o: Operator2) extends Project(o) with Operator2 {
-  def resultSchema = s2
+class Project2(op: Operator2) extends Project(o) with Operator2 {
+  def resultSchema = out
 }
-trait Filter2(p: Predicate, o: Operator2) extends Filter(o) with Operator2 {
-  def resultSchema = o.resultSchema
+trait Filterec2(p: Predicate, op: Operator2) extends Filter(op) with Operator2 {
+  def resultSchema = op.resultSchema
 }
-trait Join2(o1: Operator2, o2: Operator2) extends Join(o1,o2) with Operator2 {
-  def resultSchema = o1.resultSchema ++ o2.resultSchema
+trait Join2(op1: Operator2, op2: Operator2) extends Join(op1,op2) with Operator2 {
+  def resultSchema = op1.resultSchema ++ op2.resultSchema
 }
 // operator extension
 trait Group(keys: Schema, agg: Schema, o: Operator2) extends Operator2 {
   def resultSchema = keys ++ agg
   def exec(yld: Record => Unit) {
     val hm = new HashMapAgg(keys, agg)
-    o.exec { r => hm(r(keys)) += r(agg) }
+    o.exec { rec => hm(rec(keys)) += rec(agg) }
     hm.foreach { (k,a) => yld(Record(k ++ a, keys ++ agg)) }}
 }
-trait HashJoin(o1: Operator2, o2: Operator2) extends Join2 {
+trait HashJoin(op1: Operator2, op2: Operator2) extends Join2 {
   override def exec(yld: Record => Unit) {
-    val keys = o1.resultSchema intersect o2.resultSchema
-    val hm = new HashMapBuffer(keys, o1.resultSchema)
-    o1.exec { r1 => hm(r1(keys)) += r1.fields }
-    o2.exec { r2 =>
-      hm(r2(keys)) foreach { r1 =>
-          yld(Record(r1.fields ++ r2.fields, r1.schema ++ r2.schema)) }}}
+    val keys = op1.resultSchema intersect op2.resultSchema
+    val hm = new HashMapBuffer(keys, op1.resultSchema)
+    op1.exec { rec1 => hm(rec1(keys)) += rec1.fields }
+    op2.exec { rec2 =>
+      hm(rec2(keys)) foreach { rec1 =>
+          yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
 }
 \end{spec}
 
