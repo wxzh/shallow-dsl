@@ -35,8 +35,11 @@ def processDSV(file: String, c: Char)(yld: Record => Unit) {
   }
 }
 def processCSV(file: String) = processDSV(file, ',')_
+
 def printFields(fields: Fields) = 
   printf(fields.map{_ => "%s"}.mkString("", ",", "\n"), fields: _*)
+
+def printSchema(schema: Schema) = println(schema.mkString(","))
 
 case class Record(fields: Fields, schema: Schema) {
   def apply(key: String): String = fields(schema indexOf key)

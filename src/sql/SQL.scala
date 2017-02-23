@@ -1,6 +1,5 @@
 package sql
 
-import scala.collection.mutable.{HashMap,ArrayBuffer}
 import Utils._
 
 object SQL extends App {
@@ -22,15 +21,15 @@ trait Print extends Operator {
   def show = s"Print(${op.show})"
 }
 trait Project extends Operator {
-  val out, in: Schema
+  val so, si: Schema
   val op: Operator
-  def execOp(yld: Record => Unit) = op.execOp {rec => yld(Record(rec(in), out))}
-  def show = s"Project($out,$in,${op.show})"
+  def execOp(yld: Record => Unit) = op.execOp {rec => yld(Record(rec(si), so))}
+  def show = s"Project($so,$si,${op.show})"
 }
 trait Filter extends Operator {
   val pred: Predicate 
   val op: Operator
-  def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
+  def execOp(yld: Record => Unit) = op.execOp { rec => if (pred.eval(rec)) yld(rec)}
   def show = s"Filter(${pred.show},${op.show})"
 }
 trait Join extends Operator {
@@ -59,44 +58,41 @@ trait Ne extends Predicate {
 trait Ref { 
   def eval(r: Record): String 
   def show: String
-  def ===(that: Ref)  =  new Eq{val ref1=Ref.this; val ref2=that}
-  def <>(that: Ref)   =  new Ne{val ref1=Ref.this; val ref2=that}
+  def ===(that: Ref)  =  new Eq  {  val ref1=Ref.this; val ref2=that}
+  def <>(that: Ref)   =  new Ne  {  val ref1=Ref.this; val ref2=that}
 }
 trait Field extends Ref {
   val name: String
-  def AS(s: String) = (name, s)
+  def AS(s: Symbol) = (name, s.name)
   def show = s"Field(${name.toString})"
   def eval(rec: Record) = rec(name) 
 }
 trait Value extends Ref {
   val v: Any
   def show = s"Value($v)"
-  def eval(r: Record) = v.toString 
+  def eval(rec: Record) = v.toString 
 }
-
 case class SELECT(fields: Tuple2[String,String]*) {
   def FROM(o: Operator) = 
     if (fields.isEmpty) o
     else {
       val (xs, ys) = fields.toVector.unzip
-      new Project{val in=xs;val out=ys;val op=o}
+      new Project{val si=xs;val so=ys;val op=o}
     }
 }
-implicit def scan(file: String)            =  new Scan{val name=file}
-implicit def fieldAs(sym: Symbol)          =  new Field{val name=sym2str(sym)}
-implicit def field(sym: Symbol)            =  (sym2str(sym), sym2str(sym))
-implicit def value(x: Any)                 =  new Value{val v=x}
-implicit def sym2str(sym: Symbol): String  =  sym.toString.tail
+implicit def file2scan(file: String)      =  new Scan   {val name=file}
+implicit def sym2field(sym: Symbol)       =  new Field  {val name=sym.name}
+implicit def str2value(x: String)         =  new Value  {val v=x}
+implicit def int2value(x: Int)            =  new Value  {val v=x}
+implicit def sym2pair(sym: Symbol)        =  (sym.name, sym.name)
 
 
+val q1  =  SELECT ('room, 'title) FROM ("talks.csv" WHERE 'time === "09:00 AM")
+val q2  =  (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN 
+          (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
+val q3  =  SELECT () FROM (q2 WHERE 'title1 <> 'title2)
 
-val q0 = SELECT () FROM "talks.csv"
-val q1 = SELECT ('room AS 'where, 'title AS 'what) FROM "talks.csv"
-val q2 = SELECT ('room, 'title) FROM ("talks.csv" WHERE 'time === "09:00 AM")
-val join = (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
-val q3 = SELECT () FROM (join WHERE 'title1 <> 'title2)
-
-List(q0,q1,q2,q3).foreach { q => 
+List(q1,q2,q3).foreach { q => 
   println(q.show)
   println(q.exec)
 }

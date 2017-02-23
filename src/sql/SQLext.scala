@@ -1,14 +1,16 @@
 package sql
 
 import scala.collection.mutable.{HashMap,ArrayBuffer}
+import Utils._
+import SQL._
 
 object SQLext extends App {
-  import Utils._
-  import SQL._
+// interpretation extension 
 trait Operator2 extends Operator {
   def resultSchema: Schema
-  def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
+  override def exec = new Print2{val op=Operator2.this} execOp { _ => }
   override def WHERE(p: Predicate) = new Filter2{val pred=p; val op=Operator2.this}
+  def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
   def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
   case class SumClause(o: Operator2, xs: Field*) {
     object SUM {
@@ -28,23 +30,18 @@ trait Print2 extends Print with Operator2 {
   override def execOp(yld: Record => Unit) {
     val schema = op.resultSchema
     printSchema(schema)
-    op execOp { r => printFields(r.fields) }
+    op.execOp{rec => printFields(rec.fields)}
   }
 }
-def printSchema(schema: Schema) = println(schema.mkString(","))
-
 trait Project2 extends Project with Operator2 {
   val op: Operator2
-  def resultSchema = out
+  def resultSchema = so
 }
 trait Filter2 extends Filter with Operator2 {
   val op: Operator2
   def resultSchema = op.resultSchema
 }
-trait Join2 extends Join with Operator2 {
-  val op1, op2: Operator2
-  def resultSchema = op1.resultSchema ++ op2.resultSchema 
-}
+// operator extension
 trait Group extends Operator2 {
   val keys, agg: Schema
   val op: Operator2
@@ -60,40 +57,41 @@ trait Group extends Operator2 {
   }
   def show = "Group(" + keys + "," + agg + op.show + ")"
 }
-trait HashJoin extends Join2 {
-  override def show = "HashJoin(" + op1.show + "," + op2.show + ")"
-  override def execOp(yld: Record => Unit) {
+trait HashJoin extends Operator2 {
+  val op1, op2: Operator2
+  def resultSchema = op1.resultSchema ++ op2.resultSchema 
+  def show = "HashJoin(" + op1.show + "," + op2.show + ")"
+  def execOp(yld: Record => Unit) {
     val keys = op1.resultSchema intersect op2.resultSchema
     val hm = new HashMap[Fields,ArrayBuffer[Record]]
     op1.execOp { rec1 =>
       val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
-      buf += rec1
-    }
+      buf += rec1 }
     op2.execOp { rec2 =>
       hm.get(rec2(keys)) foreach { _.foreach { rec1 =>
-        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema))
-      }}
-    }
-  }
+        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
 }
 case class SELECT(fields: Tuple2[String,String]*) {
   def FROM(o: Operator2) = 
     if (fields.isEmpty) o
     else {
       val (xs, ys) = fields.toVector.unzip
-      new Project2{val in=xs;val out=ys;val op=o}
-    }
+      new Project2{val si=xs;val so=ys;val op=o}}
 }
-implicit def scan(file: String)            =  SCAN(file,',')
+implicit def scan(file: String)   =  SCAN(file,',')
 def SCAN(file: String, c: Char)   =  new Scan2{val name=file; val delim=c}
 
 val join = (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
 val q3 = SELECT () FROM (join WHERE 'title1 <> 'title2)
-val q4 = SELECT () FROM (SCAN("t1gram.csv", ' ') WHERE 'Phrase==="Auswanderung")
-val q5 = SELECT () FROM (SCAN("t1gram.csv", ' ') GROUP_BY ('Phrase) SUM ('MatchCount))
+val q4 = SELECT () FROM (SCAN("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung")
+val q5 = SELECT () FROM (SCAN("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount))
+val q6 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice)) 
+val q7 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)) 
+val q8 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)) 
 
-List(q3,q4,q5).foreach { q => 
+List(join,q3,q4,q5,q6,q7,q8).foreach { q => 
   println(q.show)
+  println(q.resultSchema)
   println(q.exec)
 }
 }

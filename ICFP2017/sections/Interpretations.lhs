@@ -150,7 +150,7 @@ trait Beside3 extends Beside1 with Circuit3 {
 }
 trait Stretch3 extends Stretch1 with Circuit3 {
   val c: Circuit3
-  def wellSized = c.wellSized && c2.wellSized && ns.length==c.width
+  def wellSized = c.wellSized && ns.length==c.width
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
@@ -262,12 +262,12 @@ The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
 There are some minor syntax differences that need explainations.
-First, in |Fan4|, a \emph{for comprehension} is used for producing a list of connections.
+First, in |Fan4|, a |for comprehension| is used for producing a list of connections.
 Second, for simplicity, annonymous functions are created without specifying their parameters.
 Still, we are able to refer to these parameters via underscores (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
-Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference.
+Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
 
 \bruno{I think some more explanation is needed here, specially on Scala 
 code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
@@ -289,7 +289,7 @@ Shallow embeddings make the addition of |rstretch| easy by defining a new functi
 %format ( = "\;("
 
 > rstretch        ::  [Int] -> Circuit4 -> Circuit4
-> rstretch  ns c  =   stretch4 (1 : init ns) c `beside` identity (last ns - 1)
+> rstretch  ns c  =   stretch4 (1 : init ns) c `beside4` identity4 (last ns - 1)
 
 %}
 
@@ -309,12 +309,14 @@ In our OOP approach, a syntatic sugar is defined as a smart constructor upon oth
 On the other hand, adding an ordinary construct is done through defining a new trait that implements |Circuit4|.
 If we treated |rstretch| as an ordinary construct, its definition would be:
 
-> trait RStretch extends Stretch4 {
->   override def tlayout(f: Int => Int) = {
->     val vs = ns.scanLeft(ns.last - 1)(_ + _).init
->     c.tlayout(f.compose(vs(_)))
->   }
-> }
+\begin{spec}
+trait RStretch extends Stretch4 {
+  override def tlayout(f: Int => Int) = {
+    val vs = ns.scanLeft(ns.last - 1)(_ + _).init
+    c.tlayout(f.compose(vs(_)))
+  }
+}
+\end{spec}
 
 \bruno{mixfix being used again}
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.

@@ -16,12 +16,12 @@ via traits. % None of Scala's advanced type system features is used.
 %mulinheritance and type-refinements.
 
 \subsection{\dsl: A DSL for Parallel Prefix Circuits}
-%format * = "\bullet"
+%format @ = "\bullet"
 %format x1
 %format x2
 %format xn = "\Varid{x}_{n}"
 \dsl~\citep{hinze2004algebra} is a DSL for describing parallel prefix circuits.
-Given a associative binary operator |*|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1*x2,...,x1*x2* ... *xn|. Such computation can be performed in parallel for a parallel prefix circuit.
+Given a associative binary operator |@|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1@x2,...,x1@x2@ ... @xn|. Such computation can be performed in parallel for a parallel prefix circuit.
 Parallel prefix circuits have many applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:
@@ -76,14 +76,12 @@ stretch       ::  [Int] -> Circuit -> Circuit
 Suppose that the semantics of \dsl is to calculate the width of a
 circuit. The definitions are:
 
-\begin{code}
-type Circuit   =  Int
-identity n     =  n
-fan n          =  n
-beside c1 c2   =  c1 + c2
-above c1 c2    =  c1
-stretch ns c   =  sum ns
-\end{code}
+> type Circuit   =  Int
+> identity n     =  n
+> fan n          =  n
+> beside c1 c2   =  c1 + c2
+> above c1 c2    =  c1
+> stretch ns c   =  sum ns
 
 \noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
@@ -135,6 +133,9 @@ OO program.
 \paragraph{Porting to Scala}
 Indeed, we can easily translate the Haskell program into a Scala program:
 
+%format (="\!("
+%format [="\!["
+
 \begin{spec}
 trait Circuit1 {
   def width: Int
@@ -176,18 +177,18 @@ related.
 To use this Scala implementation in a manner similar to the Haskell implementation, we define some smart constructors:
 
 \begin{spec}
-def identity(x: Int)                     =  new Identity1  {val n=x}
-def fan(x: Int)                          =  new Fan1       {val n=x}
-def above(x: Circuit1, y: Circuit1)      =  new Above1     {val c1=x;   val c2=y}
-def beside(x: Circuit1, y: Circuit1)     =  new Beside1    {val c1=x;   val c2=y}
-def stretch(xs: List[Int], x: Circuit1)  =  new Stretch1   {val ns=xs;  val c=x}
+def identity(x: Int)                  =  new Identity1  {val n=x}
+def fan(x: Int)                       =  new Fan1       {val n=x}
+def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
+def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
+def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c=x}
 \end{spec}
 
 \noindent Now we are able to construct circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
 \begin{spec}
 val c  = above(  beside(fan(2),fan(2)),
-                 above(  stretch(List(2,2),fan(2)),
+                 above(  stretch(fan(2),2,2),
                          beside(beside(identity(1),fan(2)),identity(1))))
 \end{spec}
 
