@@ -10,18 +10,14 @@ trait Operator2 extends Operator {
   def resultSchema: Schema
   override def exec = new Print2{val op=Operator2.this} execOp { _ => }
   override def WHERE(p: Predicate) = new Filter2{val pred=p; val op=Operator2.this}
+  def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
   override def SELECT(fields: Field*) = {
     val (in,out) = fields.unzip(f => (f.name,f.alias))
     new Project2{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator2.this}
   }
-  def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
   def GROUP_BY(xs: Field*) = SumClause(this,Schema(xs.map(_.name):_*))
   case class SumClause(o: Operator2, xs: Schema) {
-    object SUM {
-      def apply(ys: Field*) = 
-        new Group{val keys=xs; val agg=Schema(ys.map(_.name):_*); val op=o}
-    }
-  }
+    object SUM { def apply(ys: Field*) = new Group{val keys=xs; val agg=Schema(ys.map(_.name):_*); val op=o} }}
 }
 trait Scan2 extends Scan with Operator2 {
   val delim: Char 
@@ -55,9 +51,9 @@ trait Group extends Operator2 {
     op.execOp { rec =>
       val kvs = rec(keys)
       val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
-      hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped map (_ + _)
+      hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped.map(_ + _)
     }
-    hm foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }
+    hm.foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }
   }
   def show = "Group(" + keys + "," + agg + op.show + ")"
 }

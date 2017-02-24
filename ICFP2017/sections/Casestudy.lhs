@@ -2,6 +2,7 @@
 %include polycode.fmt
 %include def.fmt
 
+%format q0
 %format q1
 %format q2
 %format q3
@@ -26,7 +27,8 @@ to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
-Consider a data file |talks.csv| that contains a list of talks:
+Consider a data file |talks.csv| that contains a list of talks,
+where each item  records the identity, time, title and room of a talk:
 
 \begin{spec}
 1,09:00 AM,Erlang 101 - Actor and MultiCore-Programming,New York Central
@@ -34,10 +36,6 @@ Consider a data file |talks.csv| that contains a list of talks:
 ...
 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
 \end{spec}
-
-Each item in the file records the identity, time, title and room of a talk.
-Here are some SQL queries on this file.
-For example, a query to find all talks at 9am with their room and title selected is:
 
 %format select = "\mathbf{select}"
 %format as = "\mathbf{as}"
@@ -47,9 +45,16 @@ For example, a query to find all talks at 9am with their room and title selected
 %format by = "\mathbf{by}"
 %format sum = "\mathbf{sum}"
 
+Here are some SQL queries on this file.
+A simplest query to list all the items in |talks.csv| is:
+
+> select * from talks.csv
+
+Another query to find all talks at 9am with their room and title selected is:
+
 > select room, title from talks.csv where time='09:00 AM'
 
-Another relatively complex query to find all unique talks happening at the same time in the same room is:
+Yet another relatively complex query to find all unique talks happening at the same time in the same room is:
 
 > select  *
 > from    (    select time, room, title as title1 from talks.csv)
@@ -59,8 +64,8 @@ Another relatively complex query to find all unique talks happening at the same 
 \citet{rompf15} present a SQL to C compiler in Scala.
 Their implementation first parses a SQL query into a relational algebra AST,
 and then executes the query based on that AST.
-Based on the LMS framework~\citep{rompf2012lightweight},
-the SQL compiler is simple as an intuitive interpreter while having performance comparable to hand-written C code.
+Using the LMS framework~\citep{rompf2012lightweight},
+the SQL compiler is nearly as simple as an intuitive interpreter while having the performance comparable to hand-written C code.
 
 However, the implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching, for encoding and interpreting ASTs.
 These techniques are a natural choice as they make the implementation straightforward.
@@ -72,9 +77,9 @@ Fortunately, it is possible to rewrite \citet{rompf15}
 implementation as a shallow EDSL, because the original implementation
 contains no transformations/optimizations on ASTs.\bruno{earlier in
 the paper (prob intro) we need to mention that transformations are
-still not supported.} Therefore, with only modest effort, we rewrote
+still not supported.} Therefore, with only modest effort, we refactored
 their implementation using the approach presented in this pearl. The
-resulting implementation is modular with almost the same source lines of code.
+resulting implementation is modular without increasing the source lines of code.
 \bruno{need to be careful about performance claims. What exactly
 is meant here}. \weixin{cite LINQ?} Moreover, it is common to embed SQL
 into a general purpose language, for instance Circumflex
@@ -85,26 +90,26 @@ To illustrate, let us rewrite the queries shown above using our SQL EDSL:
 \weixin{should have some space before \textquotesingle}
 %format ` = "\textquotesingle"
 
-> val q1    =  SELECT (`room, `title) FROM ("talks.csv" WHERE ^^ `time === "09:00 AM")
-> val q2    =  (SELECT (`time, `room, `title AS ^^ `title1) FROM "talks.csv") JOIN
->              (SELECT (`time, `room, `title AS ^^ `title2) FROM "talks.csv")
-> val q3    =  SELECT () FROM (q2 WHERE ^^ `title1 <> ^^ `title2)
+> val q0     =  FROM ("talks.csv")
+> val q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
+> val q2     =  q0 SELECT (`time, `room, `title AS ^^ `title1)    JOIN
+>               (q0 SELECT (`time, `room, `title AS ^^ `title2))  WHERE
+>               `title1 <> `title2
 
-Thanks to Scala's concise syntax, we can hardly tell the difference
-between SQL queries written in our EDSL and those written in an
-external DSL.
-%% The minor differences are that keywords are
-%%captialized, fields are represented using Scala symbol
-Moreover, the EDSL approach has the benefit of reusing the mechanisms
+Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
+A difference between queries written in our EDSL and those in an external DSL is the |select| clause.
+In our EDSL, a query is terminated rather than starts with a |SELECT|.
+A query without a |SELECT| clause, e.g. |q0|, denotes that everything is selected (|select *|).
+Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
-declarations, we can build a complex query from parts (e.g. |q3|) or reuse common
-queries to improve the readability and modularity of the embedded
+declarations, we can build a complex query from parts or reuse common
+queries (e.g. |q2|), to improve the readability and modularity of the embedded
 programs.
 
 The following subsections focus on rewriting the core of the original
 implementation - the interpreter for relational algebra operations.
 Similar rewritings are also applicable to staged versions derived
-from this interpreter. % as well as other AST related definitions.
+from this interpreter.
 
 \subsection{A Relational Algebra Interpreter}
 A SQL query can be represented using relational algebra:
@@ -160,8 +165,7 @@ interpretation |exec| defined inside |Operator| is the interface to execute a qu
 It first wraps an operator as a |Print| for displaying the result of execution,
 and then calls |execOp| with a callback that does nothing as the initial value.
 
-\weixin{TODO: override |==| and |!=| in lhs2tex}
-\weixin{TODO: reduce space after |in|.}
+\weixin{TODO: override |==|, |+=| and |!=| in lhs2tex}
 Some auxiliary definitions that are used in defining the |Operator| hierarchy are given below:
 \begin{spec}
 trait Predicate {
@@ -196,7 +200,7 @@ case class Record(fields: Fields, schema: Schema) {
 }
 \end{spec}
 \noindent |Predicate| captures conditions expressed in |where| clauses, e.g. equality tests (|Eq| and |Ne|).
-|Ref| refers to the fields or literals used in those conditions.
+|Ref| refers to the fields or literals used in a query.
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query the data file. That is why we need SQL as a surface language for queries.
@@ -205,18 +209,15 @@ To simulate the syntax of SQL queries in our shallow EDSL implementation, we def
  some smart constructors:
 
 \begin{spec}
-case class SELECT(fields: Tuple2[String,String]*) {
-  def FROM(o: Operator) =
-    if (fields.isEmpty) o
-    else {
-      val (xs, ys) = fields.toVector.unzip
-      new Project{val in=xs;val out=ys;val op=o}
-    }
-}
 trait Operator {
   ...
+
   def WHERE(p: Predicate)   =  new Filter  {  val pred=p; val op=Operator.this}
   def JOIN(that: Operator)  =  new Join    {  val op1=Operator.this; val op2=that}
+  def SELECT(fields: Field*) = {
+    val (in,out) = fields.unzip(f => (f.name,f.alias))
+    new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
+  }
 }
 trait Ref {
   ...
@@ -224,26 +225,24 @@ trait Ref {
   def <>(that: Ref)   =  new Ne  {  val ref1=Ref.this; val ref2=that}
 }
 trait Field extends Ref {
-  val name: String
-  def AS(sym: Symbol) = (name, sym.name)
+  ...
+  var alias: String
+  def AS(sym: Symbol) = { alias = sym.name; this }
 }
-
-implicit def file2scan(file: String)      =  new Scan   {val name=file}
-implicit def sym2field(sym: Symbol)       =  new Field  {val name=sym.name}
-implicit def str2value(x: String)         =  new Value  {val v=x}
-implicit def int2value(x: Int)            =  new Value  {val v=x}
-implicit def sym2pair(sym: Symbol)        =  (sym.name, sym.name)
+def FROM(file: String)                =  new Scan   {val name=file}
+implicit def Field(sym: Symbol)       =  new Field  {val name=sym.name; var alias=name}
+implicit def Value(x: String)         =  new Value  {val v=x}
+implicit def Value(x: Int)            =  new Value  {val v=x}
 \end{spec}
-Every SQL query starts with a |SELECT| clause for projecting a sequence of fields (possibly renamed using |AS|) from the result.
-An empty sequence of fields (|SELECT ()|) means every field is selected (equivalent to |select^^*|).
-To obtain infix notations, some smart constructors such as |JOIN| are defined as member methods.
-In the end, a series of |implicit methods| are defined, for automatically lifting fields or literals expressed in a SQL query.
-To distinguish fields from string literals, Scala symbols (starting with a \textquotesingle) are used.
-Consequently, for a condition like |`time === "09:00"|, |`time| will be lifted as a |Field| while "09:00" will be lifted as a |Value|.
 
-With these definitions, we can write SQL queries (e.g. |q1|) in a way close to the original syntax.
+To obtain infix notations, smart constructors for combinators (e.g. |JOIN|) are defined as member methods.
+Smart constructors for |Field| and |Value| are defined as |implicit| methods for automatic liftings.
+To distinguish fields from string literals, symbols (starting with a \textquotesingle) are used.
+Consequently, |`time| and |"09:00"| in the condition |`time === "09:00"| would be lifted as |Field| and |Value| respectively.
+
+Now, we are able to write SQL queries (e.g. |q1|) in a way close to the original syntax.
 Beneath the surface syntax, a relational algebra operator is actually constructed.
-For example, we will get the following operator representation for |q3|:
+For example, we will get the following operator representation for |q2|:
 
 > Filter(  Ne(Field("title1"),Field("title2")),
 >          Join(  Project(Vector("time","room","title1"),Vector("time","room","title"),Scan("talks.csv")),
@@ -280,16 +279,12 @@ trait Operator2 extends Operator {
 }
 trait Scan2 extends Scan with Operator2 {
   val delim: Char
-  def resultSchema = Vector()
+  def resultSchema = Schema()
   override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
 }
 trait Print2 extends Print with Operator2 {
   val op: Operator2
-  def resultSchema = Vector()
-  override def execOp(yld: Record => Unit) {
-    val schema = op.resultSchema
-    printSchema(schema)
-    op.execOp { rec => printFields(r.fields) }}
+  def resultSchema = Schema()
 }
 trait Project2 extends Project with Operator2 {
   val op: Operator2
@@ -306,7 +301,7 @@ trait Group extends Operator2 {
   def resultSchema = keys ++ agg
   def execOp(yld: Record => Unit) {
     val hm = new HashMap[Fields,Seq[Int]]
-    op execOp { rec =>
+    op.execOp { rec =>
       val kvs = rec(keys)
       val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
       hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped map (_ + _)}
@@ -322,7 +317,7 @@ trait HashJoin extends Join with Operator2 {
       val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
       buf += rec1 }
     op2.execOp { rec2 =>
-      hm.get(rec2(keys)) foreach { _.foreach { rec1 =>
+      hm.get(rec2(keys)).foreach { _.foreach { rec1 =>
         yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
 }
 \end{spec}
@@ -351,28 +346,25 @@ There is still plenty of room for extensions.
 Not only operators, new predicates such as logical expressions can be modularly added in a similar way.
 
 \paragraph{Syntax}
-To support the syntax for the extended version of the relational operator interpreter, some extra smart constructors need to be defined. For example,
+To support the syntax for the extended version of the relational operator interpreter, a new set of smart constructors need to be defined.
+We not only need to define a new smart construtor for |Group| but also redefine
+existing smart constructors because they refer to outdated names.
+Smart constructors declared as member methods may cause some troubles:
 
 \begin{spec}
 trait Operator2 extends Operator {
   ...
-  override def WHERE(p: Predicate) = new Filter2{val pred=p; val op=Operator2.this}
-  def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
-  def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
-  case class SumClause(o: Operator2, xs: Field*) {
-    object SUM {
-      def apply(ys: Field*) =
-        new Group{val keys=xs.map{_.name}.toVector; val agg=ys.map(_.name).toVector; val op=o}
-    }
-  }
+  override def WHERE(p: Predicate)  =  new Filter2   {val pred=p; val op=Operator2.this}
+  def JOIN(that: Operator2)         =  new HashJoin  {val op1=Operator2.this; val op2=that}
 }
 \end{spec}
 \bruno{you mean for the syntax right? You can be more specific.}
-|GROUP_BY| and |SumClause| are new smart constructors defined for |Group|.
-Meanwhile, some existing smart constructors need to be redefined because of the explicit reference to the names in a older version.
-However, smart constructors declared as member methods like |JOIN| may cause some troubles.
-We cannot override |JOIN| because covariant refinement on arguments is not possible in our approach.
-Instead, an overloaded |JOIN| that takes a |Operator2| is introduced.
-As a result, the object interface |Operator2| is polluted and there is a risk that the wrong version is invoked.
-To tackle this problem, we have also implemented another version of the SQL EDSL.
-The implementation uses advanced type system features from Scala~\citep{zenger05independentlyextensible} and is more complicated than the version presented in this section.
+
+Covariant type refinements can be performed on return types but not argument types.
+As a result, |WHERE| is overridable but |JOIN| is not.
+This is a limitation of the approach we adopted~\citep{eptrivially16}.
+A workaround here is to overload another |JOIN| method.
+But this will pollute the object interface |Operator2| and has a risk that a wrong version of |JOIN| is invoked.
+This problem can be tackled with advanced type system features from Scala~\citep{zenger05independentlyextensible}.
+The price to pay is the complication of the implementation.
+We also provide such a version for reference.

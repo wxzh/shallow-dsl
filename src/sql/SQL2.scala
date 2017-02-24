@@ -71,7 +71,6 @@ trait Value extends Ref { self: R=>
   def eval(r: Record) = v.toString 
 }
 def FROM(file: String): O
-def FROM(o: O) = o
 def Print(op: O): O
 def Project(out: Schema, in: Schema, o: O): O
 def Join(o1: O, o2: O): O

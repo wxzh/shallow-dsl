@@ -79,17 +79,16 @@ trait Value extends Ref {
 }
 
 def FROM(file: String) = new Scan   {val name=file}
-def FROM(op: Operator) = op
 implicit def Field(sym: Symbol)       =  new Field  {val name=sym.name; var alias=name}
 implicit def Value(x: String)         =  new Value  {val v=x}
 implicit def Value(x: Int)            =  new Value  {val v=x}
 
 
-val talks = FROM ("talks.csv")
-val q1  =  talks WHERE 'time === "09:00 AM" SELECT ('room, 'title)
-val q2  =  talks SELECT ('time, 'room, 'title AS 'title1) JOIN 
-           (talks SELECT ('time, 'room, 'title AS 'title2)) WHERE 
-           'title1 <> 'title2
+val talks  =  FROM ("talks.csv")
+val q1     =  talks WHERE 'time === "09:00 AM" SELECT ('room, 'title)
+val q2     =  talks SELECT ('time, 'room, 'title AS 'title1) JOIN 
+              (talks SELECT ('time, 'room, 'title AS 'title2)) WHERE 
+              'title1 <> 'title2
 
 List(q1,q2).foreach{ q =>
   println(q.show)

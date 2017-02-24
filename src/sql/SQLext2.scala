@@ -43,8 +43,8 @@ trait SQLext2 extends SQL2 {
       op execOp { rec =>
         val kvs = rec(keys)
         val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
-        hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped map (_ + _) }
-      hm foreach { case (k,a) =>
+        hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped.map(_ + _) }
+      hm.foreach { case (k,a) =>
         yld(Record(k ++ a.map(_.toString), keys ++ agg)) }}
   }
   trait Join extends super.Join with Operator { self: O =>

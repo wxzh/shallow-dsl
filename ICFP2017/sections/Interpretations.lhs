@@ -326,6 +326,23 @@ Inheritance and overriding enable partial reuse of an existing language construc
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
+\weixin{Discuss multiple trait inheritance?}
+
+\begin{spec}
+trait Circuit5 extends Circuit2 with Circuit3 with Circuit4
+trait Identity5 extends Identity2 with Identity3 with Identity4 with Circuit5
+trait Fan5 extends Fan2 with Fan3 with Fan4 with Circuit5
+trait Beside5 extends Beside2 with Beside3 with Beside4 with Circuit5 {
+  val c1, c2: Circuit5
+}
+trait Above5 extends Above2 with Above3 with Above4 with Circuit5 {
+  val c1, c2: Circuit5
+}
+trait Stretch5 extends Stretch2 with Stretch3 with Stretch4 with Circuit5 {
+  val c: Circuit5
+}
+\end{spec}
+
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
 
