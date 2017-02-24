@@ -10,12 +10,16 @@ trait Operator2 extends Operator {
   def resultSchema: Schema
   override def exec = new Print2{val op=Operator2.this} execOp { _ => }
   override def WHERE(p: Predicate) = new Filter2{val pred=p; val op=Operator2.this}
+  override def SELECT(fields: Field*) = {
+    val (in,out) = fields.unzip(f => (f.name,f.alias))
+    new Project2{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator2.this}
+  }
   def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
-  def GROUP_BY(xs: Symbol*) = SumClause(this,Symbol2Schema(xs:_*))
+  def GROUP_BY(xs: Field*) = SumClause(this,Schema(xs.map(_.name):_*))
   case class SumClause(o: Operator2, xs: Schema) {
     object SUM {
-      def apply(ys: Symbol*) = 
-        new Group{val keys=xs; val agg=Symbol2Schema(ys:_*); val op=o}
+      def apply(ys: Field*) = 
+        new Group{val keys=xs; val agg=Schema(ys.map(_.name):_*); val op=o}
     }
   }
 }
@@ -71,28 +75,21 @@ trait HashJoin extends Operator2 {
       hm.get(rec2(keys)) foreach { _.foreach { rec1 =>
         yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
 }
-case class SELECT(fields: Tuple2[String,String]*) {
-  def FROM(o: Operator2) = 
-    if (fields.isEmpty) o
-    else {
-      val (xs, ys) = fields.unzip
-      new Project2{val si=Schema(xs:_*);val so=Schema(ys:_*);val op=o}
-    }
-}
-implicit def scan(file: String)   =  SCAN(file,',')
-def SCAN(file: String, c: Char)   =  new Scan2{val name=file; val delim=c}
 
-val join = (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
-val q3 = SELECT () FROM (join WHERE 'title1 <> 'title2)
-val q4 = SELECT () FROM (SCAN("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung")
-val q5 = SELECT () FROM (SCAN("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount))
-val q6 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice)) 
-val q7 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)) 
-val q8 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)) 
+def FROM(file: String): Operator2 =  FROM(file,',')
+def FROM(file: String, c: Char)   =  new Scan2{val name=file; val delim=c}
+
+val join = FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title1) JOIN (FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title2))
+val q3 = join WHERE 'title1 <> 'title2
+val q4 = FROM ("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung"
+val q5 = FROM ("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount)
+val q6 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice)
+val q7 = FROM ("orders.csv") GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)
+val q8 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)
 
 List(join,q3,q4,q5,q6,q7,q8).foreach { q => 
   println(q.show)
   println(q.resultSchema)
-  println(q.exec)
+  q.exec
 }
 }

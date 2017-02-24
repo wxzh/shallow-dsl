@@ -8,6 +8,10 @@ trait Operator {
   def exec = new Print{val op=Operator.this} execOp { _ => }
   def WHERE(p: Predicate) = new Filter{val pred=p; val op=Operator.this}
   def JOIN(that: Operator) = new Join{val op1=Operator.this; val op2=that}
+  def SELECT(fields: Field*) = {
+    val (in,out) = fields.unzip(f => (f.name,f.alias))
+    new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
+  }
   def show: String
 }
 trait Scan extends Operator {
@@ -63,8 +67,9 @@ trait Ref {
 }
 trait Field extends Ref {
   val name: String
-  def AS(s: Symbol) = (name, s.name)
-  def show = s"Field(${name.toString})"
+  var alias: String
+  def AS(sym: Symbol) = { alias = sym.name; this }
+  def show = s"Field(${name})"
   def eval(rec: Record) = rec(name) 
 }
 trait Value extends Ref {
@@ -73,25 +78,21 @@ trait Value extends Ref {
   def eval(rec: Record) = v.toString 
 }
 
-case class SELECT(fields: Tuple2[String,String]*) {
-  def FROM(o: Operator) = 
-    if (fields.isEmpty) o
-    else {
-      val (xs, ys) = fields.unzip
-      new Project{val si=Schema(xs:_*);val so=Schema(ys:_*);val op=o}
-    }
+def FROM(file: String) = new Scan   {val name=file}
+def FROM(op: Operator) = op
+implicit def Field(sym: Symbol)       =  new Field  {val name=sym.name; var alias=name}
+implicit def Value(x: String)         =  new Value  {val v=x}
+implicit def Value(x: Int)            =  new Value  {val v=x}
+
+
+val talks = FROM ("talks.csv")
+val q1  =  talks WHERE 'time === "09:00 AM" SELECT ('room, 'title)
+val q2  =  talks SELECT ('time, 'room, 'title AS 'title1) JOIN 
+           (talks SELECT ('time, 'room, 'title AS 'title2)) WHERE 
+           'title1 <> 'title2
+
+List(q1,q2).foreach{ q =>
+  println(q.show)
+  q.exec
 }
-implicit def file2scan(file: String)      =  new Scan   {val name=file}
-implicit def sym2field(sym: Symbol)       =  new Field  {val name=sym.name}
-implicit def str2value(x: String)         =  new Value  {val v=x}
-implicit def int2value(x: Int)            =  new Value  {val v=x}
-implicit def sym2pair(sym: Symbol)        =  (sym.name, sym.name)
-
-
-val q1  =  SELECT ('room, 'title) FROM ("talks.csv" WHERE 'time === "09:00 AM")
-val q2  =  (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN 
-           (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
-val q3  =  SELECT () FROM (q2 WHERE 'title1 <> 'title2)
-
-List(q1,q2,q3).foreach(_.exec)
 }

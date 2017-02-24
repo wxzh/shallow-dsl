@@ -9,10 +9,10 @@ trait SQLext2 extends SQL2 {
   trait Operator extends super.Operator { self: O =>
     def resultSchema: Schema
     override def JOIN(that: O) = Join(this, that)
-    def GROUP_BY(xs: Symbol*) = SumClause(this,xs:_*)
-      case class SumClause(o: O, xs: Symbol*) {
+    def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
+      case class SumClause(o: O, xs: Field*) {
         object SUM {
-          def apply(ys: Symbol*) = Group(Symbol2Schema(xs:_*), Symbol2Schema(ys:_*),o)
+          def apply(ys: Field*) = Group(Schema(xs.map(_.name):_*),Schema(ys.map(_.name):_*),o)
       }
     }
   }
@@ -60,7 +60,6 @@ trait SQLext2 extends SQL2 {
           yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
   }
 }
-  def SCAN(name: String, delim: Char): O
 }
 
 object SQLext2Syntax extends App with SQLext2 {
@@ -68,8 +67,9 @@ type O = Operator
 type P = Predicate
 type R = Ref
 
-def SCAN(file: String, c: Char)         = new Scan {val name=file; val delim=c}
-implicit def Scan(file: String)         = SCAN(file, ',')
+
+def FROM(file: String)                  = FROM(file,',')
+def FROM(file: String, c: Char)         = new Scan {val name=file; val delim=c}
 def Print(o: O)                         = new Print   {val op=o}
 def Project(x: Schema, y: Schema, o: O) = new Project {val si=x; val so=y; val op=o}
 def Join(o1: O, o2: O)                  = new Join {val op1=o1; val op2=o2}
@@ -77,17 +77,18 @@ def Filter(p: P, o: O)                  = new Filter {val pred=p; val op=o}
 def Group(x: Schema, y: Schema, o: O)   = new Group {val keys=x; val agg=y; val op=o}
 def Eq(r1: R, r2: R)                    = new Eq {val ref1=r1; val ref2=r2}
 def Ne(r1: R, r2: R)                    = new Ne {val ref1=r1; val ref2=r2}
-implicit def Field(sym: Symbol)         = new Field  {val x=sym}
+implicit def Field(sym: Symbol)         = new Field  {val name=sym.name; var alias=name}
 implicit def Value(x: String)           = new Value  {val v=x}
 implicit def Value(x: Int)              = new Value  {val v=x}
 
-val join = (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
-val q3 = SELECT () FROM (join WHERE 'title1 <> 'title2)
-val q4 = SELECT () FROM (SCAN("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung")
-val q5 = SELECT () FROM (SCAN("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount))
-val q6 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice)) 
-val q7 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)) 
-val q8 = SELECT () FROM ("orders.csv" GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)) 
+
+val join = FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title1) JOIN (FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title2))
+val q3 = join WHERE 'title1 <> 'title2
+val q4 = FROM ("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung"
+val q5 = FROM ("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount)
+val q6 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice)
+val q7 = FROM ("orders.csv") GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)
+val q8 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)
 
 List(join,q3,q4,q5,q6,q7,q8).foreach(_.exec)
 }

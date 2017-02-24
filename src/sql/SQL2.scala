@@ -12,6 +12,10 @@ trait Operator { self: O =>
   def exec = Print(this).execOp { _ => }
   def WHERE(p: P): O = Filter(p,this)
   def JOIN(that: O): O = Join(this,that)
+  def SELECT(fields: Field*) = {
+    val (in,out) = fields.unzip(f => (f.name,f.alias))
+    Project(Schema(in:_*), Schema(out:_*), this)
+  }
 }
 
 trait Scan extends Operator { self: O =>
@@ -57,34 +61,23 @@ trait Ref { self: R =>
   def <>(that: R): P   =  Ne(this,that)
 }
 trait Field extends Ref { self: R=>
-  val x: Symbol
-  def AS(y: Symbol) = (x.name, y.name)
-  def eval(rec: Record) = rec(x.name) 
+  val name: String
+  var alias: String
+  def AS(sym: Symbol) = { alias = sym.name; this }
+  def eval(rec: Record) = rec(name) 
 }
 trait Value extends Ref { self: R=>
   val v: Any
   def eval(r: Record) = v.toString 
 }
-// modular syntax
-case class SELECT(fields: Tuple2[String,String]*) {
-  def FROM(o: O): O = 
-    if (fields.isEmpty) o
-    else {
-      val (xs, ys) = fields.toVector.unzip
-      Project(xs,ys,o)
-    }
-}
-def Scan(file: String): O
+def FROM(file: String): O
+def FROM(o: O) = o
 def Print(op: O): O
 def Project(out: Schema, in: Schema, o: O): O
 def Join(o1: O, o2: O): O
 def Filter(p: P, o: O): O
 def Eq(r1: R, r2: R): P
 def Ne(r1: R, r2: R): P
-def Field(s: Symbol): R
-def Value(x: String): R
-def Value(x: Int): R
-implicit def sym2pair(sym: Symbol)      = (sym.name, sym.name)
 }
 
 object SQL2Syntax extends App with SQL2 {
@@ -92,21 +85,22 @@ type O = Operator
 type P = Predicate
 type R = Ref
 
-implicit def Scan(file: String)         = new Scan   {val name=file}
+def FROM(file: String)                  = new Scan   {val name=file}
 def Print(o: O)                         = new Print  {val op=o}
 def Project(x: Schema, y: Schema, o: O) = new Project{val si=x; val so=y; val op=o}
 def Join(o1: O, o2: O)                  = new Join   {val op1=o1; val op2=o2}
 def Filter(p: P, o: O)                  = new Filter {val pred=p; val op=o}
 def Eq(r1: R, r2: R)                    = new Eq     {val ref1=r1; val ref2=r2}
 def Ne(r1: R, r2: R)                    = new Ne     {val ref1=r1; val ref2=r2}
-implicit def Field(sym: Symbol)         = new Field  {val x=sym}
+implicit def Field(sym: Symbol)         = new Field  {val name=sym.name; var alias=name}
 implicit def Value(x: String)           = new Value  {val v=x}
 implicit def Value(x: Int)              = new Value  {val v=x}
 
-val q1  =  SELECT ('room, 'title) FROM ("talks.csv" WHERE 'time === "09:00 AM")
-val q2  =  (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN 
-           (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
-val q3  =  SELECT () FROM (q2 WHERE 'title1 <> 'title2)
+val talks = FROM ("talks.csv")
+val q1  =  talks WHERE 'time === "09:00 AM" SELECT ('room, 'title) 
+val q2  =  talks SELECT ('time, 'room, 'title AS 'title1) JOIN 
+           (talks SELECT ('time, 'room, 'title AS 'title2))
+val q3  =  q2 WHERE 'title1 <> 'title2
 
 List(q1,q2,q3).foreach(_.exec)
 }
