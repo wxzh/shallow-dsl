@@ -38,9 +38,9 @@ def processCSV(file: String) = processDSV(file, ',')_
 
 def printFields(fields: Fields) = 
   printf(fields.map{_ => "%s"}.mkString("", ",", "\n"), fields: _*)
-
 def printSchema(schema: Schema) = println(schema.mkString(","))
-
+def Symbol2Schema(schema: Symbol*): Schema = Schema(schema.map(_.name):_*)
+def Schema(schema: String*): Schema = schema.toVector
 case class Record(fields: Fields, schema: Schema) {
   def apply(key: String): String = fields(schema indexOf key)
   def apply(keys: Schema): Fields = keys map (apply _)

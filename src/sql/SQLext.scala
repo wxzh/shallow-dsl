@@ -11,22 +11,22 @@ trait Operator2 extends Operator {
   override def exec = new Print2{val op=Operator2.this} execOp { _ => }
   override def WHERE(p: Predicate) = new Filter2{val pred=p; val op=Operator2.this}
   def JOIN(that: Operator2) = new HashJoin{val op1=Operator2.this; val op2=that}
-  def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
-  case class SumClause(o: Operator2, xs: Field*) {
+  def GROUP_BY(xs: Symbol*) = SumClause(this,Symbol2Schema(xs:_*))
+  case class SumClause(o: Operator2, xs: Schema) {
     object SUM {
-      def apply(ys: Field*) = 
-        new Group{val keys=xs.map{_.name}.toVector; val agg=ys.map(_.name).toVector; val op=o}
+      def apply(ys: Symbol*) = 
+        new Group{val keys=xs; val agg=Symbol2Schema(ys:_*); val op=o}
     }
   }
 }
 trait Scan2 extends Scan with Operator2 {
   val delim: Char 
-  def resultSchema = Vector()
+  def resultSchema = Schema()
   override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
 }
 trait Print2 extends Print with Operator2 {
   val op: Operator2
-  def resultSchema = Vector()
+  def resultSchema = Schema()
   override def execOp(yld: Record => Unit) {
     val schema = op.resultSchema
     printSchema(schema)
@@ -48,7 +48,7 @@ trait Group extends Operator2 {
   def resultSchema = keys ++ agg
   def execOp(yld: Record => Unit) {
     val hm = new HashMap[Fields,Seq[Int]]
-    op execOp { rec =>
+    op.execOp { rec =>
       val kvs = rec(keys)
       val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
       hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped map (_ + _)
@@ -75,8 +75,9 @@ case class SELECT(fields: Tuple2[String,String]*) {
   def FROM(o: Operator2) = 
     if (fields.isEmpty) o
     else {
-      val (xs, ys) = fields.toVector.unzip
-      new Project2{val si=xs;val so=ys;val op=o}}
+      val (xs, ys) = fields.unzip
+      new Project2{val si=Schema(xs:_*);val so=Schema(ys:_*);val op=o}
+    }
 }
 implicit def scan(file: String)   =  SCAN(file,',')
 def SCAN(file: String, c: Char)   =  new Scan2{val name=file; val delim=c}

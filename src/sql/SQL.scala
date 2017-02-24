@@ -72,12 +72,13 @@ trait Value extends Ref {
   def show = s"Value($v)"
   def eval(rec: Record) = v.toString 
 }
+
 case class SELECT(fields: Tuple2[String,String]*) {
   def FROM(o: Operator) = 
     if (fields.isEmpty) o
     else {
-      val (xs, ys) = fields.toVector.unzip
-      new Project{val si=xs;val so=ys;val op=o}
+      val (xs, ys) = fields.unzip
+      new Project{val si=Schema(xs:_*);val so=Schema(ys:_*);val op=o}
     }
 }
 implicit def file2scan(file: String)      =  new Scan   {val name=file}
@@ -89,11 +90,8 @@ implicit def sym2pair(sym: Symbol)        =  (sym.name, sym.name)
 
 val q1  =  SELECT ('room, 'title) FROM ("talks.csv" WHERE 'time === "09:00 AM")
 val q2  =  (SELECT ('time, 'room, 'title AS 'title1) FROM "talks.csv") JOIN 
-          (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
+           (SELECT ('time, 'room, 'title AS 'title2) FROM "talks.csv")
 val q3  =  SELECT () FROM (q2 WHERE 'title1 <> 'title2)
 
-List(q1,q2,q3).foreach { q => 
-  println(q.show)
-  println(q.exec)
-}
+List(q1,q2,q3).foreach(_.exec)
 }
