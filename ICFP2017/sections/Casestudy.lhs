@@ -81,7 +81,7 @@ still not supported.} Therefore, with only modest effort, we refactored
 their implementation using the approach presented in this pearl. The
 resulting implementation is modular without increasing the source lines of code.
 \bruno{need to be careful about performance claims. What exactly
-is meant here}. \weixin{cite LINQ?} Moreover, it is common to embed SQL
+is meant here} Moreover, it is common to embed SQL
 into a general purpose language, for instance Circumflex
 ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in
 Scala. Thus, instead of providing an external DSL, we provide an embedded SQL EDSL.
@@ -97,9 +97,7 @@ To illustrate, let us rewrite the queries shown above using our SQL EDSL:
 >               `title1 <> `title2
 
 Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
-A difference between queries written in our EDSL and those in an external DSL is the |select| clause.
-In our EDSL, a query is terminated rather than starts with a |SELECT|.
-A query without a |SELECT| clause, e.g. |q0|, denotes that everything is selected (|select *|).
+In fact, the syntax of our EDSL is more closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we can build a complex query from parts or reuse common
@@ -236,7 +234,7 @@ implicit def Value(x: Int)            =  new Value  {val v=x}
 \end{spec}
 
 To obtain infix notations, smart constructors for combinators (e.g. |JOIN|) are defined as member methods.
-Smart constructors for |Field| and |Value| are defined as |implicit| methods for automatic liftings.
+Smart constructors for |Field| and |Value| are defined as |implicit methods| for automatic liftings.
 To distinguish fields from string literals, symbols (starting with a \textquotesingle) are used.
 Consequently, |`time| and |"09:00"| in the condition |`time === "09:00"| would be lifted as |Field| and |Value| respectively.
 
@@ -330,7 +328,7 @@ The new trait |Operator2| extends |Operator| with a new interpretation |resultSc
 All operators implement |Operator2| by inheriting their previous version and complementing |resultSchema|.
 Besides, two new traits, |Group| and |HashJoin|, are defined.
 |Group| is a new relational algebra for supporting |group by ... sum ^^ ...| clause in SQL.
-It groups records and sums up according to the specified fields from the composed operator,
+It partitions records and sums up specified fields from the composed operator,
 |HashJoin| is a replacement of |Join|, which overrides |execOp| with a more efficient implementation based on caching.
 The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
