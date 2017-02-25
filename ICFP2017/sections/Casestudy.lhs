@@ -19,6 +19,11 @@
 %format ^ = " "
 %format ^^ = "\;"
 %format of="of"
+%format == = "\mathrel{=}="
+%format += = "\mathrel{+}="
+%format != = "\mathrel{!}="
+%format ` = "\textquotesingle"
+%format MultiCore = "Multi\text{-}Core"
 
 \section{An Embedded DSL for SQL Queries}
 To further illustrate the applicability of shallow OO embeddings,
@@ -31,7 +36,7 @@ Consider a data file |talks.csv| that contains a list of talks,
 where each item  records the identity, time, title and room of a talk:
 
 \begin{spec}
-1,09:00 AM,Erlang 101 - Actor and MultiCore-Programming,New York Central
+1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
 ...
 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
@@ -87,8 +92,6 @@ ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in
 Scala. Thus, instead of providing an external DSL, we provide an embedded SQL EDSL.
 To illustrate, let us rewrite the queries shown above using our SQL EDSL:
 
-\weixin{should have some space before \textquotesingle}
-%format ` = "\textquotesingle"
 
 > val q0     =  FROM ("talks.csv")
 > val q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
@@ -115,7 +118,7 @@ A SQL query can be represented using relational algebra:
 \begin{spec}
 trait Operator {
   def execOp(yld: Record => Unit)
-  def exec = new Print{val op=Operator.this} execOp { _ => }
+  def exec = new Print{val op=Operator.this}.execOp { _ => }
 }
 trait Scan extends Operator {
   val name: String
@@ -156,14 +159,13 @@ Two extra utility operators are defined for dealing with inputs and outputs.
 
 A \emph{context-sensitive interpretation} |execOp| is implemented
 throughout the hierarchy.  It executes a SQL query by taking a
-callback |yld| and accumulating what each operator does to records in
+callback |yld| and accumulating what each operator does to a record in
 |yld|. The implementation of |execOp| for each operator is
 straightforward, reflecting their respective meanings. Another
-interpretation |exec| defined inside |Operator| is the interface to execute a query.
-It first wraps an operator as a |Print| for displaying the result of execution,
+interpretation |exec| defined inside |Operator| is the user interface to execute a query.
+It first wraps an operator into a |Print| for displaying the result of execution,
 and then calls |execOp| with a callback that does nothing as the initial value.
 
-\weixin{TODO: override |==|, |+=| and |!=| in lhs2tex}
 Some auxiliary definitions that are used in defining the |Operator| hierarchy are given below:
 \begin{spec}
 trait Predicate {
@@ -201,7 +203,7 @@ case class Record(fields: Fields, schema: Schema) {
 |Ref| refers to the fields or literals used in a query.
 
 \subsection{Syntax}
-It would be cumbersome to directly write such a relational algebra operator to query the data file. That is why we need SQL as a surface language for queries.
+It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 To simulate the syntax of SQL queries in our shallow EDSL implementation, we define
  some smart constructors:
@@ -210,11 +212,11 @@ To simulate the syntax of SQL queries in our shallow EDSL implementation, we def
 trait Operator {
   ...
 
-  def WHERE(p: Predicate)   =  new Filter  {  val pred=p; val op=Operator.this}
-  def JOIN(that: Operator)  =  new Join    {  val op1=Operator.this; val op2=that}
-  def SELECT(fields: Field*) = {
-    val (in,out) = fields.unzip(f => (f.name,f.alias))
-    new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
+  def WHERE(p: Predicate)     =  new Filter  {  val pred=p; val op=Operator.this}
+  def JOIN(that: Operator)    =  new Join    {  val op1=Operator.this; val op2=that}
+  def SELECT(fields: Field*)  = {
+    val (names,aliases) = fields.unzip(f => (f.name,f.alias))
+    new Project{val s_i=Schema(names: _*);val s_o=Schema(aliases: _*);val op=Operator.this}
   }
 }
 trait Ref {
@@ -238,8 +240,8 @@ Smart constructors for |Field| and |Value| are defined as |implicit methods| for
 To distinguish fields from string literals, symbols (starting with a \textquotesingle) are used.
 Consequently, |`time| and |"09:00"| in the condition |`time === "09:00"| would be lifted as |Field| and |Value| respectively.
 
-Now, we are able to write SQL queries (e.g. |q1|) in a way close to the original syntax.
-Beneath the surface syntax, a relational algebra operator is actually constructed.
+Now, we are able to write SQL queries  in a way close to the original syntax.
+Beneath the surface syntax, a relational algebra operator is constructed indeed.
 For example, we will get the following operator representation for |q2|:
 
 > Filter(  Ne(Field("title1"),Field("title2")),
@@ -250,7 +252,7 @@ To actually run a query, we call the |exec| method.
 For example, the execution result of |q2| is:
 
 < scala > q2.exec
-< New York Central,Erlang 101 - Actor and Multi-Core Programming
+< New York Central,Erlang 101 - Actor and MultiCore Programming
 < Illinois Central,Program Synthesis Using miniKanren
 < ...
 
@@ -303,7 +305,8 @@ trait Group extends Operator2 {
       val kvs = rec(keys)
       val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
       hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped map (_ + _)}
-    hm foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }}
+    hm foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }
+  }
 }
 trait HashJoin extends Join with Operator2 {
   val op1, op2: Operator2
@@ -316,7 +319,8 @@ trait HashJoin extends Join with Operator2 {
       buf += rec1 }
     op2.execOp { rec2 =>
       hm.get(rec2(keys)).foreach { _.foreach { rec1 =>
-        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
+        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
+  }
 }
 \end{spec}
 \bruno{I don't feel very confident that invalid Scala code (i.e. code that does not type-check).

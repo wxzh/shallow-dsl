@@ -19,9 +19,9 @@ via traits. % None of Scala's advanced type system features is used.
 %format @ = "\bullet"
 %format x1
 %format x2
-%format xn = "\Varid{x}_{n}"
+%format x_n
 \dsl~\citep{hinze2004algebra} is a DSL for describing parallel prefix circuits.
-Given a associative binary operator |@|, the prefix sum of a non-empty sequence |x1,x2,...,xn| is |x1,x1@x2,...,x1@x2@ ... @xn|. Such computation can be performed in parallel for a parallel prefix circuit.
+Given a associative binary operator |@|, the prefix sum of a non-empty sequence |x1,x2,...,x_n| is |x1,x1@x2,...,x1@x2@ ... @x_n|. Such computation can be performed in parallel for a parallel prefix circuit.
 Parallel prefix circuits have many applications, including binary addition and sorting algorithms.
 
 The grammar of \dsl is given below:

@@ -5,7 +5,7 @@ import Utils._
 object SQL extends App {
 trait Operator { 
   def execOp(yld: Record => Unit) 
-  def exec = new Print{val op=Operator.this} execOp { _ => }
+  def exec = new Print{val op=Operator.this}.execOp { _ => }
   def WHERE(p: Predicate) = new Filter{val pred=p; val op=Operator.this}
   def JOIN(that: Operator) = new Join{val op1=Operator.this; val op2=that}
   def SELECT(fields: Field*) = {
@@ -84,11 +84,11 @@ implicit def Value(x: String)         =  new Value  {val v=x}
 implicit def Value(x: Int)            =  new Value  {val v=x}
 
 
-val talks  =  FROM ("talks.csv")
-val q1     =  talks WHERE 'time === "09:00 AM" SELECT ('room, 'title)
-val q2     =  talks SELECT ('time, 'room, 'title AS 'title1) JOIN 
-              (talks SELECT ('time, 'room, 'title AS 'title2)) WHERE 
-              'title1 <> 'title2
+val q0  =  FROM ("talks.csv")
+val q1  =  q0 WHERE 'time === "09:00 AM" SELECT ('room, 'title)
+val q2  =  q0 SELECT ('time, 'room, 'title AS 'title1) JOIN 
+           (q0 SELECT ('time, 'room, 'title AS 'title2)) WHERE 
+           'title1 <> 'title2
 
 List(q1,q2).foreach{ q =>
   println(q.show)
