@@ -91,7 +91,7 @@ Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
 Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
-Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are reused here.
+Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \emph{modularly reused} here.
 
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -157,7 +157,7 @@ Note that |width| and |wellSized| are defined separately.
 Essentially, it is sufficient to define |wellSized| while
 knowing only the signature of |width| in |Circuit|. 
 In the definition of |Above3|, for example, it is possible 
-to, not only call |wellSized|, but also |width|. 
+not only to call |wellSized|, but also |width|. 
 
 \subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
 Interpretations may rely on some contexts.
@@ -170,9 +170,9 @@ For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 
 The combinator |stretch| and |beside| will change the layout of a circuit.
 For example, if two circuits are put side by side, all the indices of the right circuit will be increased by the width of the left circuit.
-Hence the interpretation, let us call it |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
-An intuitive implementation of |tlayout| would perform these changes immediately to the affected circuit.
-Rather, a more efficient implementation would accumulate these changes and apply them all at once.
+Hence the interpretation, called |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
+An intuitive implementation of |tlayout| performs these changes immediately to the affected circuit.
+A more efficient implementation accumulates these changes and apply them all at once.
 An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensive.
 
 \paragraph{Context-Sensitive Interpretations in Haskell}
@@ -257,7 +257,8 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
   case (_,Nil)        =>  xs
   case (x::xs,y::ys)  =>  f(x,y) :: lzw (xs,ys) (f)
 }
-\end{spec}
+\end{spec}\bruno{Instead of using 4 lines, can't you just define tlayout for Strech4 in 1 line? Why do you need 
+to create the intermediate value vs?}
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
@@ -268,12 +269,6 @@ Still, we are able to refer to these parameters via underscores (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
 Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
-
-\bruno{I think some more explanation is needed here, specially on Scala 
-code that may be unfamiliar. For example explain |tlayout| in |Fan4|. 
-Do not use mix-fix syntax in |Above4| and other places: it only serves the purpose of 
-confusing readers or requiring extra explanation. you do need to explain compose. 
-Explain what "_" means in Scala.}
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 
@@ -318,7 +313,7 @@ trait RStretch extends Stretch4 {
 }
 \end{spec}
 
-\bruno{mixfix being used again}
+\bruno{Same comment as before: why 4 lines instead of just 1?}
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
@@ -326,8 +321,10 @@ Inheritance and overriding enable partial reuse of an existing language construc
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
-\weixin{Discuss multiple trait inheritance?}
+\weixin{Discuss multiple trait inheritance?}\bruno{No. In the conclusion we can mention that more modularity 
+is possible. Also I removed the folds section}
 
+\begin{comment}
 \begin{spec}
 trait Circuit5 extends Circuit2 with Circuit3 with Circuit4
 trait Identity5 extends Identity2 with Identity3 with Identity4 with Circuit5
@@ -345,6 +342,7 @@ trait Stretch5 extends Stretch2 with Stretch3 with Stretch4 with Circuit5 {
 
 \subsection{Parameterized Interpretations}
 \weixin{Discuss folds}
+\end{comment}
 
 \begin{comment}
 \subsection{Implicitly Parameterized Interpretations}
@@ -368,10 +366,10 @@ type is needed, an object with more field/methods can be used instead.
 Gibbons and Wu claim that in shallow embeddings new language
 constructs are easy to add, but new interpretations are hard.
 It is possible to define multiple interpretations via tuples,
-"but this
+"\emph{but this
 is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
-language support"~\citep{gibbons2014folding}.
+language support}"~\citep{gibbons2014folding}.
 In other words, Haskell's approach based on tuples is essentially non-modular.
 However, as our OOP approach shows, in OOP both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,

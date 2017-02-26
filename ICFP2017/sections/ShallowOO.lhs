@@ -180,7 +180,7 @@ def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
 def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c=x}
 \end{spec}
 
-\noindent Now we are able to construct circuit shown in Fig.~\ref{fig:circuit} in Scala:
+\noindent Now we are able to construct the circuit shown in Fig.~\ref{fig:circuit} in Scala:
 
 \begin{spec}
 val c  = above(  beside(fan(2),fan(2)),
@@ -200,5 +200,5 @@ to trait declarations and smart constructors.  It would be nice if
 Scala directly supported constructors for traits, but unfortunatelly
 this is not supported. Nevertheless the code is still quite compact
 and elegant, and the Scala implementation has advantages in terms of
-modularity, as we shall see in later sections.
+modularity, as we shall see next.
 
