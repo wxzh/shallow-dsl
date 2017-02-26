@@ -2,16 +2,10 @@ package sql
 
 import Utils._
 
-object SQL extends App {
+trait Semantics {
 trait Operator { 
   def execOp(yld: Record => Unit) 
   def exec = new Print{val op=Operator.this}.execOp { _ => }
-  def WHERE(p: Predicate) = new Filter{val pred=p; val op=Operator.this}
-  def JOIN(that: Operator) = new Join{val op1=Operator.this; val op2=that}
-  def SELECT(fields: Field*) = {
-    val (in,out) = fields.unzip(f => (f.name,f.alias))
-    new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
-  }
   def show: String
 }
 trait Scan extends Operator {
@@ -62,13 +56,9 @@ trait Ne extends Predicate {
 trait Ref { 
   def eval(r: Record): String 
   def show: String
-  def ===(that: Ref)  =  new Eq  {  val ref1=Ref.this; val ref2=that}
-  def <>(that: Ref)   =  new Ne  {  val ref1=Ref.this; val ref2=that}
 }
 trait Field extends Ref {
   val name: String
-  var alias: String
-  def AS(sym: Symbol) = { alias = sym.name; this }
   def show = s"Field(${name})"
   def eval(rec: Record) = rec(name) 
 }
@@ -77,21 +67,48 @@ trait Value extends Ref {
   def show = s"Value($v)"
   def eval(rec: Record) = v.toString 
 }
-
-def FROM(file: String) = new Scan   {val name=file}
-implicit def Field(sym: Symbol)       =  new Field  {val name=sym.name; var alias=name}
-implicit def Value(x: String)         =  new Value  {val v=x}
-implicit def Value(x: Int)            =  new Value  {val v=x}
-
-
-val q0  =  FROM ("talks.csv")
-val q1  =  q0 WHERE 'time === "09:00 AM" SELECT ('room, 'title)
-val q2  =  q0 SELECT ('time, 'room, 'title AS 'title1) JOIN 
-           (q0 SELECT ('time, 'room, 'title AS 'title2)) WHERE 
-           'title1 <> 'title2
-
-List(q1,q2).foreach{ q =>
-  println(q.show)
-  q.exec
 }
+
+object SQL extends Semantics with App {
+  trait Operator extends super.Operator {
+    def WHERE(p: Predicate) = new Filter{val pred=p; val op=Operator.this}
+    def JOIN(that: Operator) = new Join{val op1=Operator.this; val op2=that}
+    def SELECT(fields: Field*) = {
+      val (in,out) = fields.unzip(f => (f.name,f.alias))
+      new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
+    }
+  }
+  trait Scan extends super.Scan with Operator
+  trait Print extends super.Print with Operator
+  trait Project extends super.Project with Operator
+  trait Join extends super.Join with Operator
+  trait Filter extends super.Filter with Operator
+  
+  
+  trait Ref extends super.Ref {
+    def ===(that: Ref)  =  new Eq  {  val ref1=Ref.this; val ref2=that}
+    def <>(that: Ref)   =  new Ne  {  val ref1=Ref.this; val ref2=that}
+  }
+  trait Field extends super.Field with Ref {
+    var alias: String
+    def AS(sym: Symbol) = { alias = sym.name; this }
+  }
+  trait Value extends super.Value with Ref
+
+  def FROM(file: String)                =  new Scan   {val name=file}
+  implicit def Field(sym: Symbol)       =  new Field  {val name=sym.name; var alias=name}
+  implicit def Value(x: String)         =  new Value  {val v=x}
+  implicit def Value(x: Int)            =  new Value  {val v=x}
+
+
+  val q0  =  FROM ("talks.csv")
+  val q1  =  q0 WHERE 'time === "09:00 AM" SELECT ('room, 'title)
+  val q2  =  q0 SELECT ('time, 'room, 'title AS 'title1) JOIN 
+             (q0 SELECT ('time, 'room, 'title AS 'title2)) WHERE 
+             'title1 <> 'title2
+
+  List(q1,q2).foreach{ q =>
+    println(q.show)
+    q.exec
+  }
 }
