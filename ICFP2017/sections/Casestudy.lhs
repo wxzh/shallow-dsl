@@ -39,8 +39,9 @@ where each item  records the identity, time, title and room of a talk:
 1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
 2,09:00 AM,Program Synthesis Using miniKarnren,Illinois Central
 ...
-16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
 \end{spec}
+
+%% 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
 
 %format select = "\mathbf{select}"
 %format as = "\mathbf{as}"
@@ -50,12 +51,11 @@ where each item  records the identity, time, title and room of a talk:
 %format by = "\mathbf{by}"
 %format sum = "\mathbf{sum}"
 
-Here are some SQL queries on this file.
-A simplest query to list all the items in |talks.csv| is:
+\noindent Using SQL queries can be performed on this file.
+A simple query to list all the items in |talks.csv| is:
 
 > select * from talks.csv
-
-Another query to find all talks at 9am with their room and title selected is:
+\noindent A query to find all talks at 9am with their room and title selected is:
 
 > select room, title from talks.csv where time='09:00 AM'
 
@@ -78,20 +78,17 @@ But problems arise when the implementation evolves with new language constructs.
 All existing interpretations have to be modified for dealing with these new constructs,
 suffering from the Expression Problem.
 
-Fortunately, it is possible to rewrite \citet{rompf15}
-implementation as a shallow EDSL, because the original implementation
-contains no transformations/optimizations on ASTs.\bruno{earlier in
-the paper (prob intro) we need to mention that transformations are
-still not supported.} Therefore, with only modest effort, we refactored
-their implementation using the approach presented in this pearl. The
-resulting implementation is modular without increasing the source lines of code.
-\bruno{need to be careful about performance claims. What exactly
-is meant here} Moreover, it is common to embed SQL
-into a general purpose language, for instance Circumflex
-ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in
-Scala. Thus, instead of providing an external DSL, we provide an embedded SQL EDSL.
-To illustrate, let us rewrite the queries shown above using our SQL EDSL:
-
+Fortunately, it is possible to rewrite \citet{rompf15} implementation
+as a shallow EDSL, because the original implementation contains no
+transformations/optimizations on ASTs, which would be another
+motivation to use a deep embedding. Therefore, with only modest
+effort, we refactored their implementation using the approach
+presented in this pearl. The resulting implementation is modular
+without increasing the source lines of code.  Moreover, it is common
+to embed SQL into a general purpose language, for instance Circumflex
+ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does
+this in Scala. Thus, instead of providing an external DSL, we provide
+an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
 
 > val q0     =  FROM ("talks.csv")
 > val q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
@@ -100,7 +97,7 @@ To illustrate, let us rewrite the queries shown above using our SQL EDSL:
 >               `title1 <> `title2
 
 Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
-In fact, the syntax of our EDSL is more closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than beginning clause of a query.
+In fact, the syntax of our EDSL is closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we can build a complex query from parts or reuse common
@@ -114,6 +111,10 @@ from this interpreter.
 
 \subsection{A Relational Algebra Interpreter}
 A SQL query can be represented using relational algebra:
+\bruno{too much code here: pick Operator and 2 more traits and put ... for the rest. 
+Explain in text that implement traits for various operators for relational algebra.
+Mention at the start of this section that full code is available online.
+}
 
 \begin{spec}
 trait Operator {
@@ -148,14 +149,13 @@ trait Join extends Operator {
 }
 \end{spec}
 
-The |Operator| hierarchy defines the supported relational algebra operators.
+\noindent The |Operator| hierarchy defines the supported relational algebra operators.
 Concretely, |Project| rearranges the fields of a record;
 |Filter| keeps a record that meets a certain predicate;
 |Join| matches a record against to another, and combines the two records if their common fields share the same values.
 Two extra utility operators are defined for dealing with inputs and outputs.
 |Scan| processes a csv file and produces a record per line, and
 |Print| prints out the fields of a record.
-\bruno{scan is not a relational algebra operator!};
 
 A \emph{context-sensitive interpretation} |execOp| is implemented
 throughout the hierarchy.  It executes a SQL query by taking a
@@ -166,6 +166,8 @@ interpretation |exec| defined inside |Operator| is the user interface to execute
 It first wraps an operator into a |Print| for displaying the result of execution,
 and then calls |execOp| with a callback that does nothing as the initial value.
 
+\bruno{Don't show the auxiliary definitions (unless there's a strong reason to); 
+again this can be mentioned in text.}
 Some auxiliary definitions that are used in defining the |Operator| hierarchy are given below:
 \begin{spec}
 trait Predicate {
