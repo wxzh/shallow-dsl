@@ -56,11 +56,14 @@ advantages for the implementation of shallow embeddings.
 An often stated limitation of shallow EDSLs is that they only support
 a \emph{single} interpretation. This is frequently a motivation to switch to
 a deep embedding instead, since deep embeddings allow for multiple
-interpretations. We show that OOP abstractions, including
+interpretations. However deep embeddings also come at a cost: adding 
+language extensions becomes problematic.
+We show that OOP abstractions, including
 \emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, 
 add expressive power to procedural abstraction, and 
 enable multiple-interpretations
-to co-exist in shallow embeddings. The key idea is to employ a
+to co-exist in shallow embeddings. Furthermore adding language extensions 
+is still simple. The key idea is to employ a
 recently proposed design pattern~\citep{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\citep{expPb} in
 OOP languages. Thus using just standard OOP mechanisms enables
@@ -72,7 +75,7 @@ where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
-Scala version has clear advantages over the Haskell version.
+Scala version has clear advantages over the Haskell version. 
 
 To further illustrate the applicability of our OO approach, we conduct
 a case study on refactoring an existing DSL implementation to make it
@@ -89,7 +92,7 @@ can be used directly (as an EDSL) in Scala.
 Finally we remark that the OOP style used by us is essentially 
 \emph{functional}. Although OOP is often associated with stateful 
 (imperative) objects, it is possible to have functional objects 
-that have no mutable state. Indeed \citet{cook09abstraction} calls 
+that have no mutable state. Indeed Cook calls 
 such style \emph{pure OOP}, and argues that it captures the essence of OOP.
 Although such pure OOP definition may be controversial for OOP programmers, 
 it fits very well with functional programming. This pearl shows that 
