@@ -60,7 +60,7 @@ the bottom sub-circuit is a 2-|fan| between two 1-|identity|.
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
-a shallowly embedded implementation (in Haskell) should conform to the following
+a shallowly embedded implementation (in Haskell) conforms to the following
 types:
 
 \begin{code}
@@ -72,8 +72,8 @@ above         ::  Circuit -> Circuit -> Circuit
 stretch       ::  [Int] -> Circuit -> Circuit
 \end{code}
 
-\noindent The type |Circuit|, representing the semantic domain, is to be filled in with a concrete type according to the semantics.
-Suppose that the semantics of \dsl is to calculate the width of a
+\noindent The type |Circuit|, representing the semantic domain, is to be filled with a concrete type according to the semantics.
+Suppose that the semantics of \dsl calculates the width of a
 circuit. The definitions are:
 
 > type Circuit   =  Int
@@ -85,22 +85,20 @@ circuit. The definitions are:
 
 \noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
-> c  =  ( fan 2 `beside` fan 2) `above`
->       stretch [2,2] (fan 2) `above`
->       (identity 1 `beside` fan 2 `beside` identity 1)
+> c  =  ( fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (identity 1 `beside` fan 2 `beside` identity 1)
 
-Note that, for this simple interpretation, the Haskell domain is simply |Int|.
+For this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit:
 
 < Prelude > c
 < 4
 
-Note that the |Int| domain for |width| is a degenerate case of procedural abstraction, where |Int| can be viewed
+Note that the |Int| domain for |width| is a degenerate case of procedural abstraction: |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| is more
 appropriate to deal correctly with potential control-flow
-language constructs. We will see an interpretation of a more complex domain in Section~\ref{sec:ctxsensitive}.
+language constructs. An interpretation of a more complex domain is shown in Section~\ref{sec:ctxsensitive}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}
@@ -171,8 +169,6 @@ This implementation is essentially how we would model \dsl with an OO language i
 organize classes). A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
-Therefore, shallow embeddings and straightforward OO programming are closely
-related.
 
 To use this Scala implementation in a manner similar to the Haskell implementation, we define some smart constructors:
 
@@ -197,10 +193,12 @@ val c  = above(  beside(fan(2),fan(2)),
 < scala > c.width
 < 4
 
-The syntax of the Scala code is not as compact as the Haskell version.
-There is some extra verbosity due to trait declarations and smart
-constructors.  It would be nice if Scala directly supported
-constructors for traits, but unfortunatelly this is not supported.
-Nevertheless the code is still quite compact and elegant, and the
-Scala implementation has advantages in terms of modularity, as we
-shall see in later sections.
+As this example illustrates shallow embeddings and straightforward OO
+programming are closely related. The syntax of the Scala code is not
+as compact as the Haskell version. There is some extra verbosity due
+to trait declarations and smart constructors.  It would be nice if
+Scala directly supported constructors for traits, but unfortunatelly
+this is not supported. Nevertheless the code is still quite compact
+and elegant, and the Scala implementation has advantages in terms of
+modularity, as we shall see in later sections.
+
