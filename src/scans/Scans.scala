@@ -1,6 +1,6 @@
 package scans
 
-object Scans extends App {
+object Scans {
 trait Circuit1 {
   def width: Int
 }
