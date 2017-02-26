@@ -7,7 +7,7 @@ trait SemanticsExt extends Semantics {
 // interpretation extension 
 trait Operator extends super.Operator {
   def resultSchema: Schema
-  override def exec = new Print{val op=Operator.this} execOp { _ => }
+  override def exec = new Print{val op=Operator.this}.execOp { _ => }
 }
 trait Scan extends super.Scan with super.Operator {
   val delim: Char 

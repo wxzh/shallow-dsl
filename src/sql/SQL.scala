@@ -34,7 +34,7 @@ trait Join extends Operator {
   val op1, op2: Operator
   def execOp(yld: Record => Unit) = op1.execOp { rec1 => 
     op2.execOp { rec2 => 
-      val keys = rec1.schema intersect rec2.schema
+      val keys = rec1.schema.intersect(rec2.schema)
       if (rec1(keys) == rec2(keys))
         yld(Record(rec1.fields++rec2.fields, rec1.schema++rec2.schema)) }}
   def show = s"Join(${op1.show},${op2.show})"

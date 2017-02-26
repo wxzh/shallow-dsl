@@ -268,7 +268,7 @@ First, in |Fan4|, a |for comprehension| is used for producing a list of connecti
 Second, for simplicity, annonymous functions are created without specifying their parameters.
 Still, we are able to refer to these parameters via placeholders (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
-Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
+Third, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
 Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
 
 \subsection{Modular Language Constructs}\label{sec:construct}

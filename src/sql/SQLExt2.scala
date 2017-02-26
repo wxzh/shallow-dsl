@@ -1,7 +1,6 @@
 package sql
 
 import Utils._
-import scala.collection.mutable.{HashMap,ArrayBuffer}
 
 trait SyntaxExt extends Syntax {
   type O <: Operator
