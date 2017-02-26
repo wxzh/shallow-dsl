@@ -282,7 +282,7 @@ trait SemanticsExt extends Semantics {
     def resultSchema: Schema
   }
   trait Scan extends super.Scan with Operator {
-    val delim: Char {- // field extension -}
+    val delim: Char ^^ {- // field extension -}
     def resultSchema = Schema()
     override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
   }
