@@ -208,7 +208,9 @@ case class Record(fields: Fields, schema: Schema) {
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 To simulate the syntax of SQL queries in our shallow EDSL implementation, we define
- some smart constructors:
+ some smart constructors:\bruno{Here you should say remark that the syntax is implemented using mostly well-established Scala techniques;
+describe them briefly in text. Remark that the syntax techniques are beyound the scope of this pearl, but the interested reader 
+can view them in our online implementation. Don't show the code for syntax}
 
 \begin{spec}
 trait Operator {
@@ -242,6 +244,7 @@ We use Scala's |implicit methods| for automic lifting on the fields and literals
 To distinguish fields from string literals, symbols (starting with a single quote) are used.
 Consequently, |`time| and |"09:00 AM"| would be lifted as |Field| and |Value| respectively.
 
+\bruno{The following is good and you can keep it!}
 Now, we are able to write SQL queries in a way close to the original syntax.
 Beneath the surface syntax, a relational algebra operator is constructed indeed.
 For example, we will get the following operator representation for |q2|:
@@ -272,6 +275,8 @@ Therefore, two dimensions of extensibility are required.
 However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly:
+\bruno{Again, here you should pick Operator2 and one or two more of the traits that illustrate 
+interesting code. The rest should be ...}
 
 \begin{spec}
 // interpretation extension
@@ -348,6 +353,7 @@ The pattern has to be changed even if an interpretation does not use these exten
 The implementation presented so far only supports a subset of SQL queries.
 There is still plenty of room for extensions.
 Not only operators, new predicates such as logical expressions can be modularly added in a similar way.
+
 
 \paragraph{Syntax}
 To support the syntax for the extended version of the relational operator interpreter, a new set of smart constructors need to be defined.
