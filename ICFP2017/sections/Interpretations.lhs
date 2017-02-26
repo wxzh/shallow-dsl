@@ -194,7 +194,7 @@ identity4 n    =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
 beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
-stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (vs!!)))
+stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (vs !!)))
   where vs = scanl1 (+) ns
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
@@ -259,16 +259,17 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
 }
 \end{spec}\bruno{Instead of using 4 lines, can't you just define tlayout for Strech4 in 1 line? Why do you need 
 to create the intermediate value vs?}
+\weixin{Reasons: 1) be consistent with the original implementation in Haskell 2) the prefix sum (|vs|) is a heavy computation and should be calculated only once. }
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
 There are some minor syntax differences that need explainations.
 First, in |Fan4|, a |for comprehension| is used for producing a list of connections.
 Second, for simplicity, annonymous functions are created without specifying their parameters.
-Still, we are able to refer to these parameters via underscores (|_|).
+Still, we are able to refer to these parameters via placeholders (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a different composition order as opposed to $\circ$ in Haskell.
-Fourth, |lzw| is implemented as a curried function, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
+Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 

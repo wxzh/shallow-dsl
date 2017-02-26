@@ -55,7 +55,7 @@ The second goal of this pearl is to argue that OOP languages have
 advantages for the implementation of shallow embeddings.
 An often stated limitation of shallow EDSLs is that they only support
 a \emph{single} interpretation. This is frequently a motivation to switch to
-a deep embedding instead, since they allow for multiple
+deep embeddings instead, since they allow for multiple
 interpretations. However deep embeddings also come at a cost: adding 
 language extensions becomes problematic.
 We show that OOP abstractions, including

@@ -193,7 +193,7 @@ val c  = above(  beside(fan(2),fan(2)),
 < scala > c.width
 < 4
 
-As this example illustrates shallow embeddings and straightforward OO
+As this example illustrates, shallow embeddings and straightforward OO
 programming are closely related. The syntax of the Scala code is not
 as compact as the Haskell version. There is some extra verbosity due
 to trait declarations and smart constructors.  It would be nice if
@@ -201,4 +201,3 @@ Scala directly supported constructors for traits, but unfortunatelly
 this is not supported. Nevertheless the code is still quite compact
 and elegant, and the Scala implementation has advantages in terms of
 modularity, as we shall see next.
-

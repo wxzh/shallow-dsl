@@ -19,9 +19,8 @@
 %format ^ = " "
 %format ^^ = "\;"
 %format of="of"
-%format == = "\mathrel{=}="
 %format += = "\mathrel{+}="
-%format != = "\mathrel{!}="
+%format != = "\neq"
 %format ` = "\textquotesingle"
 %format MultiCore = "Multi\text{-}Core"
 
@@ -55,7 +54,8 @@ where each item  records the identity, time, title and room of a talk:
 A simple query to list all the items in |talks.csv| is:
 
 > select * from talks.csv
-\noindent A query to find all talks at 9am with their room and title selected is:
+
+\noindent Another query to find all talks at 9am with their room and title selected is:
 
 > select room, title from talks.csv where time='09:00 AM'
 
@@ -66,7 +66,7 @@ Yet another relatively complex query to find all unique talks happening at the s
 > join    (    select time, room, title as title2 from talks.csv)
 > where   title1  <> title2
 
-\citet{rompf15} present a SQL to C compiler in Scala.
+\indent \citet{rompf15} present a SQL to C compiler in Scala.
 Their implementation first parses a SQL query into a relational algebra AST,
 and then executes the query based on that AST.
 Using the LMS framework~\citep{rompf2012lightweight},
@@ -97,12 +97,12 @@ an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
 >               `title1 <> `title2
 
 Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
-In fact, the syntax of our EDSL is closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than beginning clause of a query.
+In fact, the syntax of our EDSL is more closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than the beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we can build a complex query from parts or reuse common
-queries (e.g. |q2|), to improve the readability and modularity of the embedded
-programs.
+queries to improve the readability and modularity of the embedded
+programs, as illustrated by |q2|.
 
 The following subsections focus on rewriting the core of the original
 implementation - the interpreter for relational algebra operations.
@@ -151,10 +151,10 @@ trait Join extends Operator {
 
 \noindent The |Operator| hierarchy defines the supported relational algebra operators.
 Concretely, |Project| rearranges the fields of a record;
-|Filter| keeps a record that meets a certain predicate;
+|Filter| keeps a record only when it meets a certain predicate;
 |Join| matches a record against to another, and combines the two records if their common fields share the same values.
 Two extra utility operators are defined for dealing with inputs and outputs.
-|Scan| processes a csv file and produces a record per line, and
+|Scan| processes a csv file and produces a record per line.
 |Print| prints out the fields of a record.
 
 A \emph{context-sensitive interpretation} |execOp| is implemented
@@ -237,12 +237,12 @@ implicit def Value(x: String)         =  new Value  {val v=x}
 implicit def Value(x: Int)            =  new Value  {val v=x}
 \end{spec}
 
-To obtain infix notations, smart constructors for combinators (e.g. |JOIN|) are defined as member methods.
-Smart constructors for |Field| and |Value| are defined as |implicit methods| for automatic liftings.
-To distinguish fields from string literals, symbols (starting with a \textquotesingle) are used.
-Consequently, |`time| and |"09:00"| in the condition |`time === "09:00"| would be lifted as |Field| and |Value| respectively.
+\noindent Smart constructors for combinators (e.g. |JOIN|) are defined as member methodsto obtain infix notations.
+We use Scala's |implicit methods| for automic lifting on the fields and literals expressed in a SQL query.
+To distinguish fields from string literals, symbols (starting with a single quote) are used.
+Consequently, |`time| and |"09:00 AM"| would be lifted as |Field| and |Value| respectively.
 
-Now, we are able to write SQL queries  in a way close to the original syntax.
+Now, we are able to write SQL queries in a way close to the original syntax.
 Beneath the surface syntax, a relational algebra operator is constructed indeed.
 For example, we will get the following operator representation for |q2|:
 
@@ -364,8 +364,8 @@ trait Operator2 extends Operator {
 \end{spec}
 \bruno{you mean for the syntax right? You can be more specific.}
 
-Covariant type refinements can be performed on return types but not argument types.
-As a result, |WHERE| is overridable but |JOIN| is not.
+Covariant type refinements can be performed on return types but not on argument types.
+Therefore, |WHERE| is overridable and |JOIN| is not.
 This is a limitation of the approach we adopted~\citep{eptrivially16}.
 A workaround here is to overload another |JOIN| method.
 But this will pollute the object interface |Operator2| and has a risk that a wrong version of |JOIN| is invoked.
