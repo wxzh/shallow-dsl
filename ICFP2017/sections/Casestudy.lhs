@@ -103,7 +103,7 @@ an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
 >               `title1 <> `title2
 
 Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
-In fact, the syntax of our EDSL is closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is the terminating rather than the beginning clause of a query.
+In fact, the syntax of our EDSL is closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is a terminating rather than a beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we can build a complex query from parts or reuse common
@@ -154,7 +154,7 @@ trait Join extends Operator {
   def execOp(yld: Record => Unit) =
     op1.execOp { rec1 =>
       op2.execOp { rec2 =>
-        val keys = rec1.schema intersect rec2.schema
+        val keys = rec1.schema.intersect(rec2.schema)
         if (rec1(keys) == rec2(keys))
         yld(Record(rec1.fields++rec2.fields,
           rec1.schema++rec2.schema)) }}
@@ -198,7 +198,7 @@ type Schema  =  Vector[String]
 type Field   =  Vector[String]
 case class Record(fields: Fields, schema: Schema) {
   def apply(name: String) = fields(schema.indexOf(name))
-  def apply(names: Schema) = names map (apply _)
+  def apply(names: Schema) = names.map(apply(_))
 }
 def processCSV(file: String)(yld: Record => Unit) = ...
 def printFields(fields: Fields) = ...
@@ -252,8 +252,8 @@ describe them briefly in text. Remark that the syntax techniques are beyound the
 can view them in our online implementation. Don't show the code for syntax}
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
-Beneath the surface syntax, a relational algebra operator is constructed indeed.
-For example, we will get the following operator representation for |q2|:
+Beneath the surface syntax, a relational algebra operator object is constructed indeed.
+For example, we will get the following operator object for |q2|:
 
 > Filter(  Ne(Field("title1"),Field("title2")),
 >          Join(  Project(Vector("time","room","title1"),Vector("time","room","title"),Scan("talks.csv")),
@@ -266,14 +266,12 @@ For example, the execution result of |q2| is:
 < New York Central,Erlang 101 - Actor and MultiCore Programming
 < ...
 
-\noindent The first item from |talks.csv| is selected with its room and title displayed while the last item is excluded.
+\noindent where the first item from |talks.csv| is selected with its room and title displayed while the last item is excluded.
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
-To achieve better performance, Rompf and Amin extend the SQL processor.
-A new operator for aggregations and a efficient implementation of joins are introduced.
-The new join algorithm additionally requires an interpretation on the relational algebra operators for collecting an auxiliary data structure.
-Therefore, two dimensions of extensibility are required.
+Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness, performance and flexibility.
+The extensions include a new operator |Group| for aggregations, a efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
 
 However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
@@ -286,11 +284,13 @@ trait SemanticsExt extends Semantics {
     def resultSchema: Schema
   }
   trait Scan extends super.Scan with Operator {
-    val delim: Char ^^ {- // field extension -}
+    val delim: Char ^^ {- // field extensions -}
     def resultSchema = Schema()
     override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
   }
   ...
+  {- // operator extension -}
+  trait Group extends Operator {...}
   trait Join extends super.Join with Operator {
     val op1, op2: Operator ^^ {- // type refinement -}
     def resultSchema = op1.resultSchema ++ op2.resultSchema
@@ -305,14 +305,11 @@ trait SemanticsExt extends Semantics {
           yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
     }
   }
-  {- // operator extension -}
-  trait Group extends Operator {...}
 }
 \end{spec}
 \noindent The interface |Operator| is extended with a new interpretation |resultSchema| for collecting a schema.
 All operators implement the extended interface by inheriting their previous version and complementing |resultSchema|.
-To implement the new algorithm based on caching, |Join| overrides |execOp|,
-where the new interpretation |resultSchema| is called.
+|Join| overrides |execOp| to replace naive nested loop with an efficient hash map based algorithm, where the new interpretation |resultSchema| is called for .
 The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
 Besides, a new operator |Group| is defined for supporting |group by| clause in SQL.

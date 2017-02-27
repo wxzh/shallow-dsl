@@ -11,8 +11,9 @@ trait Operator extends super.Operator {
 }
 trait Scan extends super.Scan with super.Operator {
   val delim: Char 
-  def resultSchema = Schema()
-  override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
+  val schema: Option[Schema]
+  def resultSchema = schema.getOrElse(Schema())
+  override def execOp(yld: Record => Unit) = processDSV(name,schema,delim)(yld)
 }
 trait Print extends super.Print with Operator {
   val op: Operator
@@ -96,8 +97,11 @@ object SQLExt extends SemanticsExt with App {
   }
   trait Value extends super.Value with Ref
 
-  def FROM(file: String): Operator      =  FROM(file,',')
-  def FROM(file: String, c: Char)       =  new Scan  {val name=file; val delim=c}
+  def FROM(file: String): Operator                   =  Scan(file,None,',')
+  def FROM(file: String, s: Schema, c: Char)         =  Scan(file,Some(s),c)
+  def FROM(file: String, c: Char)                    =  Scan(file,None,c)
+  def Scan(file: String, s: Option[Schema], c: Char) = new Scan  {val name=file; val schema=s; val delim=c}
+
   implicit def Field(sym: Symbol)       =  new Field {val name=sym.name; var alias=name}
   implicit def Value(x: String)         =  new Value {val v=x}
   implicit def Value(x: Int)            =  new Value {val v=x}

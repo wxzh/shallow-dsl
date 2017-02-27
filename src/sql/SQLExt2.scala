@@ -4,6 +4,9 @@ import Utils._
 
 trait SyntaxExt extends Syntax {
   type O <: Operator
+
+  def FROM(file: String, c: Char)                 = Scan(file,None,c)
+  def FROM(file: String, schema: Schema, c: Char) = Scan(file,Some(schema),c)
   trait Operator extends super.Operator { self: O =>
     def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
       case class SumClause(o: O, xs: Field*) {
@@ -12,6 +15,8 @@ trait SyntaxExt extends Syntax {
       }
     }
   }
+  def Scan(file: String) = Scan(file,None,',')
+  def Scan(file: String, schema: Option[Schema], delim: Char): O
   def Group(x: Schema, y: Schema, o: O): O
 }
 
@@ -31,8 +36,8 @@ object SQLExt2 extends SyntaxExt with SemanticsExt with App {
   type O = Operator
   type P = Predicate
   type R = Ref
-  def FROM(file: String)                  = FROM(file,',')
-  def FROM(file: String, c: Char)         = new Scan    {val name=file; val delim=c}
+
+  def Scan(f: String, s: Option[Schema], c: Char) = new Scan {val name=f; val schema=s; val delim=c}
   def Print(o: O)                         = new Print   {val op=o}
   def Project(x: Schema, y: Schema, o: O) = new Project {val si=x; val so=y; val op=o}
   def Join(o1: O, o2: O)                  = new Join    {val op1=o1; val op2=o2}

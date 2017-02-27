@@ -7,6 +7,8 @@ trait Syntax {
   type R <: Ref
   type P
 
+  // syntax
+  def FROM(file: String) = Scan(file)
   trait Operator { self: O =>
     def WHERE(p: P): O = Filter(p,this)
     def JOIN(that: O): O = Join(this,that)
@@ -24,7 +26,9 @@ trait Syntax {
     var alias: String
     def AS(sym: Symbol) = { alias = sym.name; this }
   }
-  def FROM(file: String): O
+
+  // real constructors
+  def Scan(file: String): O
   def Print(op: O): O
   def Project(out: Schema, in: Schema, o: O): O
   def Join(o1: O, o2: O): O
@@ -50,7 +54,7 @@ object SQL2 extends Syntax with Semantics with App {
   type P = Predicate
   type R = Ref
 
-  def FROM(file: String)                  = new Scan   {val name=file}
+  def Scan(file: String)                  = new Scan   {val name=file}
   def Print(o: O)                         = new Print  {val op=o}
   def Project(x: Schema, y: Schema, o: O) = new Project{val si=x; val so=y; val op=o}
   def Join(o1: O, o2: O)                  = new Join   {val op1=o1; val op2=o2}

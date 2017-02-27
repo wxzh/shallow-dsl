@@ -26,22 +26,22 @@ class Scanner(filename: String) {
   def close = br.close
 }
 
-def processDSV(file: String, c: Char)(yld: Record => Unit) {
+def processDSV(file: String, extSchema: Option[Schema], c: Char)(yld: Record => Unit) {
   val in = new Scanner(file)
-  val schema = in.next('\n').split(c).toVector
-  while (in.hasNext) {
-    val fields = schema.map(n=> in.next(if(n==schema.last)'\n' else c))
-    yld(Record(fields, schema))
-  }
+  val schema = extSchema.getOrElse(Schema(in.next('\n').split(c): _*))
+  val nextRecord = Record(schema.map(n=> in.next(if(n==schema.last)'\n' else c)), schema)
+  if (extSchema.isEmpty) nextRecord // ignore
+  while (in.hasNext) yld(nextRecord)
+  in.close
 }
-def processCSV(file: String) = processDSV(file, ',')_
+def processCSV(file: String) = processDSV(file, None, ',')_
 
 def printFields(fields: Fields) = 
   printf(fields.map{_ => "%s"}.mkString("", ",", "\n"), fields: _*)
 def printSchema(schema: Schema) = println(schema.mkString(","))
 def Schema(schema: String*): Schema = schema.toVector
 case class Record(fields: Fields, schema: Schema) {
-  def apply(key: String): String = fields(schema indexOf key)
-  def apply(keys: Schema): Fields = keys map (apply _)
+  def apply(key: String): String = fields(schema.indexOf(key))
+  def apply(keys: Schema): Fields = keys.map(apply(_))
 }
 }
