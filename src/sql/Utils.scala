@@ -26,22 +26,36 @@ class Scanner(filename: String) {
   def close = br.close
 }
 
-def processDSV(file: String, extSchema: Option[Schema], c: Char)(yld: Record => Unit) {
-  val in = new Scanner(file)
-  val schema = extSchema.getOrElse(Schema(in.next('\n').split(c): _*))
-  val nextRecord = Record(schema.map(n=> in.next(if(n==schema.last)'\n' else c)), schema)
-  if (extSchema.isEmpty) nextRecord // ignore
-  while (in.hasNext) yld(nextRecord)
-  in.close
+
+def processDSV(filename: String, schema: Schema, delim: Char, extSchema: Boolean)(yld: Record => Unit): Unit = {
+    val s = new Scanner(filename)
+    val last = schema.last
+    def nextRecord = Record(schema.map{x => s.next(if (x==last) '\n' else delim)}, schema)
+    if (!extSchema) {
+      // the right thing would be to dynamically re-check the schema,
+      // but it clutters the generated code
+      // schema.foreach(f => if (s.next != f) println("ERROR: schema mismatch"))
+       nextRecord // ignore csv header
+    }
+    while (s.hasNext) yld(nextRecord)
+    s.close
 }
-def processCSV(file: String) = processDSV(file, None, ',')_
+
+def processCSV(file: String) = processDSV(file, loadSchema(file,','), ',', false)_
+
+def loadSchema(filename: String, delim: Char): Schema = {
+  val s = new Scanner(filename)
+  val schema = Schema(s.next('\n').split(delim): _*)
+  s.close
+  schema
+}
 
 def printFields(fields: Fields) = 
   printf(fields.map{_ => "%s"}.mkString("", ",", "\n"), fields: _*)
 def printSchema(schema: Schema) = println(schema.mkString(","))
 def Schema(schema: String*): Schema = schema.toVector
 case class Record(fields: Fields, schema: Schema) {
-  def apply(key: String): String = fields(schema.indexOf(key))
-  def apply(keys: Schema): Fields = keys.map(apply(_))
+  def apply(key: String): String = fields(schema indexOf key)
+  def apply(keys: Schema): Fields = keys map (apply _)
 }
 }

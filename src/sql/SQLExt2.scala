@@ -5,8 +5,9 @@ import Utils._
 trait SyntaxExt extends Syntax {
   type O <: Operator
 
-  def FROM(file: String, c: Char)                 = Scan(file,None,c)
-  def FROM(file: String, schema: Schema, c: Char) = Scan(file,Some(schema),c)
+  def FROM(file: String, c: Char)                  = Scan(file,None,c)
+  def FROM(file: String, c: Char, fields: Symbol*) = Scan(file,Some(Schema(fields.map(_.name):_*)),c)
+
   trait Operator extends super.Operator { self: O =>
     def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
       case class SumClause(o: O, xs: Field*) {
@@ -49,14 +50,13 @@ object SQLExt2 extends SyntaxExt with SemanticsExt with App {
   implicit def Value(x: String)           = new Value   {val v=x}
   implicit def Value(x: Int)              = new Value   {val v=x}
 
-
   val join = FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title1) JOIN (FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title2))
   val q3 = join WHERE 'title1 <> 'title2
-  val q4 = FROM ("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung"
-  val q5 = FROM ("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount)
+  val t1gram = FROM ("t1gram.tsv", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount)
+  val q4 = t1gram WHERE 'Phrase==="Auswanderung"
+  val q5 = t1gram GROUP_BY ('Phrase) SUM ('MatchCount)
   val q6 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice)
   val q7 = FROM ("orders.csv") GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)
   val q8 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)
-
   List(join,q3,q4,q5,q6,q7,q8).foreach(_.exec)
 }

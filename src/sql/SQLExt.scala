@@ -12,8 +12,8 @@ trait Operator extends super.Operator {
 trait Scan extends super.Scan with super.Operator {
   val delim: Char 
   val schema: Option[Schema]
-  def resultSchema = schema.getOrElse(Schema())
-  override def execOp(yld: Record => Unit) = processDSV(name,schema,delim)(yld)
+  def resultSchema = schema.getOrElse(loadSchema(name,delim))
+  override def execOp(yld: Record => Unit) = processDSV(name,resultSchema,delim,schema.isDefined)(yld)
 }
 trait Print extends super.Print with Operator {
   val op: Operator
@@ -88,8 +88,8 @@ object SQLExt extends SemanticsExt with App {
 
 
   trait Ref extends super.Ref {
-    def ===(that: Ref)  =  new Eq  {  val ref1=Ref.this; val ref2=that}
-    def <>(that: Ref)   =  new Ne  {  val ref1=Ref.this; val ref2=that}
+    def ===(that: Ref) =  new Eq {val ref1=Ref.this; val ref2=that}
+    def <>(that: Ref)  =  new Ne {val ref1=Ref.this; val ref2=that}
   }
   trait Field extends super.Field with Ref {
     var alias: String
@@ -97,10 +97,10 @@ object SQLExt extends SemanticsExt with App {
   }
   trait Value extends super.Value with Ref
 
-  def FROM(file: String): Operator                   =  Scan(file,None,',')
-  def FROM(file: String, s: Schema, c: Char)         =  Scan(file,Some(s),c)
+  def FROM(file: String): Operator                   =  FROM(file,',')
   def FROM(file: String, c: Char)                    =  Scan(file,None,c)
-  def Scan(file: String, s: Option[Schema], c: Char) = new Scan  {val name=file; val schema=s; val delim=c}
+  def FROM(file: String, c: Char, fields: Symbol*)    = Scan(file,Some(Schema(fields.map(_.name):_*)),c)
+  def Scan(file: String, s: Option[Schema], c: Char) =  new Scan {val name=file; val schema=s; val delim=c}
 
   implicit def Field(sym: Symbol)       =  new Field {val name=sym.name; var alias=name}
   implicit def Value(x: String)         =  new Value {val v=x}
@@ -108,8 +108,9 @@ object SQLExt extends SemanticsExt with App {
 
   val join = FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title1) JOIN (FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title2))
   val q3 = join WHERE 'title1 <> 'title2
-  val q4 = FROM ("t1gram.tsv", '\t') WHERE 'Phrase==="Auswanderung"
-  val q5 = FROM ("t1gram.tsv", '\t') GROUP_BY ('Phrase) SUM ('MatchCount)
+  val t1gram = FROM ("t1gram.tsv", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount)
+  val q4 = t1gram WHERE 'Phrase==="Auswanderung"
+  val q5 = t1gram GROUP_BY ('Phrase) SUM ('MatchCount)
   val q6 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice)
   val q7 = FROM ("orders.csv") GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)
   val q8 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)

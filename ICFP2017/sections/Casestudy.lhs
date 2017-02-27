@@ -41,6 +41,7 @@ Consider a data file |talks.csv| that contains a list of talks,
 where each item  records the identity, time, title and room of a talk:
 
 \begin{spec}
+tid,time,title,room
 1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
 ...
 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
@@ -116,135 +117,73 @@ Similar rewritings are also applicable to staged versions derived
 from this interpreter.
 
 \subsection{A Relational Algebra Interpreter}
-\begin{figure}
-\begin{tabular}{ll}
-\begin{minipage}{.5\textwidth}
-\begin{spec}
-trait Semantics {
-{- // relational algebra operators -}
-trait Operator {
-  def execOp(yld: Record => Unit)
-  def exec: Unit =
-    new Print{val op=Operator.this}.execOp { _ => }
-}
-trait Scan extends Operator {
-  val name: String
-  def execOp(yld: Record => Unit) =
-    processCSV(name)(yld)
-}
-trait Print extends Operator {
-  val op: Operator
-  def execOp(yld: Record => Unit) =
-    op.execOp { rec => printFields(rec.fields) }
-}
-trait Project extends Operator {
-  val s_o, s_i: Schema
-  val op: Operator
-  def execOp(yld: Record => Unit) =
-    op.execOp {rec => yld(Record(rec(s_i), s_o))}
-}
-trait Filter extends Operator {
-  val pred: Predicate
-  val op: Operator
-  def execOp(yld: Record => Unit) =
-    op.execOp {rec => if (pred.eval(rec)) yld(rec)}
-}
-trait Join extends Operator {
-  val op1, op2: Operator
-  def execOp(yld: Record => Unit) =
-    op1.execOp { rec1 =>
-      op2.execOp { rec2 =>
-        val keys = rec1.schema.intersect(rec2.schema)
-        if (rec1(keys) == rec2(keys))
-        yld(Record(rec1.fields++rec2.fields,
-          rec1.schema++rec2.schema)) }}
-}
-\end{spec}
-\end{minipage}
-&
-\begin{minipage}{.5\textwidth}
-\begin{spec}
-{- // continue here \ldots -}
-{- // filter predicates -}
-trait Predicate {
-  def eval(rec: Record): Boolean
-}
-trait Eq extends Predicate {
-  val ref1, ref2: Ref
-  def eval(rec: Record) =
-    ref1.eval(rec) == ref2.eval(rec)
-}
-trait Ne extends Predicate {
-  val ref1, ref2: Ref
-  def eval(rec: Record) =
-    ref1.eval(rec) != ref2.eval(rec)
-}
+A SQL query can be represented using a relational algebra operator:
 
-{- // literals -}
-trait Ref {
-  def eval(rec: Record): String
-}
-trait Field extends Ref {
-  val name: String
-  def eval(rec: Record) = rec(name)
-}
-trait Value extends Ref {
-  val v: Any
-  def eval(rec: Record) = v.toString
-}
+> trait Operator {
+>   def execOp(yld: Record => Unit)
+>   def exec: Unit = new Print{val op=Operator.this}.execOp { _ => }
+> }
 
-{- // auxiliary definitions -}
-type Schema  =  Vector[String]
-type Field   =  Vector[String]
-case class Record(fields: Fields, schema: Schema) {
-  def apply(name: String) = fields(schema.indexOf(name))
-  def apply(names: Schema) = names.map(apply(_))
-}
-def processCSV(file: String)(yld: Record => Unit) = ...
-def printFields(fields: Fields) = ...
-}
-\end{spec}
-\end{minipage}
-\\
-\end{tabular}
-\caption{A relational algebra interpreter.}
-\label{interp}
-\end{figure}
+A \emph{context-sensitive interpretation} |execOp| should be implemented in a concrete operator.
+It executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
+|yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
+Concrete operators implement |Operator| with a definition of |execOp|:
+
+> trait Join extends Operator {
+>   val op1, op2: Operator
+>   def execOp(yld: Record => Unit) =
+>     op1.execOp { rec1 =>
+>       op2.execOp { rec2 =>
+>         val keys = rec1.schema.intersect(rec2.schema)
+>         if (rec1(keys) == rec2(keys))
+>           yld(Record(rec1.fields++rec2.fields,rec1.schema++rec2.schema)) }}
+> }
+> trait Filter extends Operator {
+>   val pred: Predicate
+>   val op: Operator
+>   def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
+> }
+
+|Join| matches a record against to another, and combines the two records if their common fields share the same values.
+|Filter| keeps a record only when it meets a certain predicate.
+\begin{comment}
+Its field |Predicate| is defined as a separate hierarchy:
+
+> trait Predicate {
+>   def eval(rec: Record): Boolean
+> }
+
+where an interpretation |eval| is defined for evaluating a predicate into a boolean value.
+|Eq|, for example, is a concrete predicate for testing equality between fields and literals in a query.
+\end{comment}
+There is also a |Project| operator defined, which rearranges the fields of a record.
+
+Besides these relational algebra operators, we define two utility operators for dealing with inputs and outputs.
+And |Scan| processes a csv file and produces a record per line:
+
+> trait Scan extends Operator {
+>   val file: String
+>   def execOp(yld: Record => Unit) = processCSV(file)(yld)
+> }
+
+|Print| prints out the fields of a record and is used in the definition of |exec| for
+displaying the execution result at last.
 \bruno{too much code here: pick Operator and 2 more traits and put ... for the rest.
 Explain in text that implement traits for various operators for relational algebra.
 Mention at the start of this section that full code is available online.
 }
 
-Fig.~\ref{interp} shows the refactored relational algebra interpreter.
-The |Operator| hierarchy defines the supported relational algebra operators.
-Concretely, |Project| rearranges the fields of a record;
-|Filter| keeps a record only when it meets a certain predicate;
-|Join| matches a record against to another, and combines the two records if their common fields share the same values.
-Two extra utility operators are defined for dealing with inputs and outputs:
-|Scan| processes a csv file and produces a record per line;
-|Print| prints out the fields of a record.
-
-A \emph{context-sensitive interpretation} |execOp| is implemented
-throughout the hierarchy.  It executes a SQL query by taking a
-callback |yld| and accumulating what each operator does to a record in
-|yld|. The implementation of |execOp| for each operator is
-straightforward, reflecting their respective meanings. Another
-interpretation |exec| defined inside |Operator| is the user interface to execute a query.
-It first wraps an operator into a |Print| for displaying the result of execution,
-and then calls |execOp| with a callback that does nothing as the initial value.
-
-Two auxilary hierarchies are needed: |Predicate| captures the predicate used in a |Filter| operator; |Ref| refers to literals used in predicates.
-An interpretation |eval| is defined in these two hierarchies.
-
-
-\bruno{Don't show the auxiliary definitions (unless there's a strong reason to); 
+\bruno{Don't show the auxiliary definitions (unless there's a strong reason to);
 again this can be mentioned in text.}
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
-We employ well-established Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
+We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
+Specifically, we use "Pimp my Library" approach~\cite{} in implementing smart constructors for lifting primitives, such as field names and literals.
+And we adopt fluent API style~\cite{} in designing the syntax of combinators e.g. |Filter| and |Project|.
+Fluent API style allows us to call ``|q0.WHERE(...).SELECT(...)|'' and Scala's infix notation further allows use to write it as ``|q0 WHERE ... SELECT ...|''.
 Details of the syntax implementation is beyond the scope of this pearl.
 The interested reader can view them in our online implementation.
 \bruno{Here you should say remark that the syntax is implemented using mostly well-established Scala techniques;
@@ -253,86 +192,102 @@ can view them in our online implementation. Don't show the code for syntax}
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
 Beneath the surface syntax, a relational algebra operator object is constructed indeed.
-For example, we will get the following operator object for |q2|:
+For example, we will get the following operator structure for |q2|:
 
-> Filter(  Ne(Field("title1"),Field("title2")),
->          Join(  Project(Vector("time","room","title1"),Vector("time","room","title"),Scan("talks.csv")),
->                 Project(Vector("time","room","title2"),Vector("time","room","title"), Scan("talks.csv"))))
+> Project(Schema("room", "title"),Filter(Eq(Field("time"),Value("09:00 AM")),Scan("talks.csv")))
 
 To actually run a query, we call the |exec| method.
-For example, the execution result of |q2| is:
+For example, the execution result of |q1| is:
 
-< scala > q2.exec
+< scala > q1.exec
 < New York Central,Erlang 101 - Actor and MultiCore Programming
 < ...
 
-\noindent where the first item from |talks.csv| is selected with its room and title displayed while the last item is excluded.
+\noindent where with its room and title of the first item from |talks.csv| is printed.
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
 Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness, performance and flexibility.
-The extensions include a new operator |Group| for aggregations, a efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
-
+% The extensions include a new operator |Group| for aggregations, a efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
 However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
-In contrast, our implementation allows extensions to be introduced modularly:
+In contrast, our implementation allows extensions to be introduced modularly.
+
+The implementation presented so far can only process data files of format csv (comma-separated values).
+The first extension is to let it support dsv (delimter-separated values) files with
+ with an optional header schema describing the names of fields.
+
+We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
 \begin{spec}
-trait SemanticsExt extends Semantics {
-  {- // interpretation extension -}
-  trait Operator extends super.Operator {
-    override def exec = new Print{val op=Operator.this}.execOp { _ => }
-    def resultSchema: Schema
-  }
-  trait Scan extends super.Scan with Operator {
-    val delim: Char ^^ {- // field extensions -}
-    def resultSchema = Schema()
-    override def execOp(yld: Record => Unit) = processDSV(name,delim)(yld)
-  }
-  ...
-  {- // operator extension -}
-  trait Group extends Operator {...}
-  trait Join extends super.Join with Operator {
-    val op1, op2: Operator ^^ {- // type refinement -}
-    def resultSchema = op1.resultSchema ++ op2.resultSchema
-    override def execOp(yld: Record => Unit) {
-      val keys = op1.resultSchema.intersect(op2.resultSchema)
-      val hm = new HashMap[Fields,ArrayBuffer[Record]]
-      op1.execOp { rec1 =>
-        val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
-        buf += rec1 }
-      op2.execOp { rec2 =>
-        hm.get(rec2(keys)).foreach { _.foreach { rec1 =>
-          yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
-    }
+trait Operator2 extends Operator {
+  override def exec = new Print2{val op=Operator2.this}.execOp { _ => }
+  def resultSchema: Schema
+}
+\end{spec}
+Concrete operators, including |Print|, need to implement this new interface through complementing |Operator2|.
+Hence, |exec| is overridden as there is a new version of |Print|.
+
+Then, we can extend |Scan| with the ability to deal with new form of files:
+\begin{spec}
+trait Scan2 extends Scan with Operator {
+  val delim: Char
+  val schema: Option[Schema]
+  def resultSchema = schema.getOrElse(loadSchema(file,delim))
+  override def execOp(yld: Record => Unit) = processDSV(file,resultSchema,delim,schema.isDefined)(yld)
+}
+\end{spec}
+|Scan| has two extra fields, |delim| and |schema|, storing the delimeter and the optional header schema.
+These fields are used in implementing |resultSchema| and overriding |execOp|.
+Here, yet another advantage of our approach -|field extensions| - has been illustrated.
+The extended fields would not affect existing interpretations that do not use these extended fields.
+This would not be possible in an approach using algebraic datatypes and pattern matching.
+All interpretations have to be modified anyway, as the pattern has been changed.
+
+The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
+Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
+
+
+The second extension is to boost the performance of |Join| by replacing naive loops with an efficient implementation based on hash maps.
+Similar to |Scan|, this is done through overriding |execOp|.
+
+The third extension is to have a new operator |Group| for partitioning records and suming up the specified fields from the composed operator.
+|Group| simulates |group by ... sum ...| clauses in SQL.
+This can be simply done through defining a new trait that implements |Operator2|.
+
+\begin{comment}
+\begin{spec}
+trait Join extends super.Join with Operator {
+  val op1, op2: Operator ^^ {- // type refinement -}
+  def resultSchema = op1.resultSchema ++ op2.resultSchema
+  override def execOp(yld: Record => Unit) {
+    val keys = op1.resultSchema.intersect(op2.resultSchema)
+    val hm = new HashMap[Fields,ArrayBuffer[Record]]
+    op1.execOp { rec1 =>
+      val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
+      buf += rec1 }
+    op2.execOp { rec2 =>
+      hm.get(rec2(keys)).foreach { _.foreach { rec1 =>
+        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
   }
 }
 \end{spec}
-\noindent The interface |Operator| is extended with a new interpretation |resultSchema| for collecting a schema.
-All operators implement the extended interface by inheriting their previous version and complementing |resultSchema|.
-|Join| overrides |execOp| to replace naive nested loop with an efficient hash map based algorithm, where the new interpretation |resultSchema| is called for .
-The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
-Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
-Besides, a new operator |Group| is defined for supporting |group by| clause in SQL.
-Note that |execOp| needs to be overridden, as a new version of |Print| is implemented.
+\end{comment}
 
-\bruno{Again, here you should pick Operator2 and one or two more of the traits that illustrate 
+\bruno{Again, here you should pick Operator2 and one or two more of the traits that illustrate
 interesting code. The rest should be ...}
 \bruno{I don't feel very confident that invalid Scala code (i.e. code that does not type-check).
 The code presented in the paper needs to be carefully checked; possibly pasting it back into Eclipse and
 checking that that compiles.}
 \weixin{All code has been checked}
 
-The extension illustrates yet another strength of our approach - \emph{field extensions}.
-To support processing data from a more general format of files (delmiter-separated values), |Scan| is extended with a new field |delim|.
-The extended field would not affect existing interpretations that are not concerned with it.
-This would not be possible in an approach using algebraic datatypes and pattern matching.
-The pattern has to be changed even if an interpretation does not use these extended fields.
 
-To run SQL queries on top of this extended version of relational algebra interpreter,
-we need to define the syntax again.
-Similar to |execOp|, some old syntax implementations can not be reused because they refer to outdated names for creating objects.
-This may cause some code duplication in the extended syntax.
-This problem can be partly solved by using some advanced type system features from Scala~\citep{zenger05independentlyextensible}.
+Of course, to run SQL queries on top of this extended version of relational algebra interpreter,
+we implement the syntax.
+Similar to |exec|, some old syntax implementations refer to outdated names for creating objects and hence need to be defined again.
+However, not like |exec|, the syntax part often contain extra code that does more than just object creations.
+The current approach does not allow us to reuse this part of code.
+This causes some code duplication.
+This problem can be solved by using some advanced type system features from Scala~\citep{zenger05independentlyextensible}.
 The resulting syntax is modular and is decoupled from the semantics, which can also be found online.
 \bruno{you mean for the syntax right? You can be more specific.}
 

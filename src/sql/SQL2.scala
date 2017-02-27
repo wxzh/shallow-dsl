@@ -70,5 +70,9 @@ object SQL2 extends Syntax with Semantics with App {
   val q2  =  q0 SELECT ('time, 'room, 'title AS 'title1) JOIN 
              (q0 SELECT ('time, 'room, 'title AS 'title2)) WHERE 
              'title1 <> 'title2
-  List(q1,q2).foreach(_.exec)
+
+  List(q1,q2).foreach{ q =>
+    println(q.show)
+    q.exec
+  }
 }
