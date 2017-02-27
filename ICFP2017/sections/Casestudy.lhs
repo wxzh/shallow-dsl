@@ -181,9 +181,12 @@ again this can be mentioned in text.}
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use "Pimp my Library" approach~\cite{} in implementing smart constructors for lifting primitives, such as field names and literals.
-And we adopt fluent API style~\cite{} in designing the syntax of combinators e.g. |Filter| and |Project|.
-Fluent API style allows us to call ``|q0.WHERE(...).SELECT(...)|'' and Scala's infix notation further allows use to write it as ``|q0 WHERE ... SELECT ...|''.
+Specifically, we use "Pimp my Library" approach~\cite{} in implementing smart constructors for primitives to automically lifting field names and literals.
+For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{}.
+Fluent API style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
+Scala's infix notation makes it a step closer to the orginal syntax it as
+``|q0 WHERE ... SELECT ...|''.
+Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} and jOOQ~\cite{} also adopt similar techniques in designing their syntax.
 Details of the syntax implementation is beyond the scope of this pearl.
 The interested reader can view them in our online implementation.
 \bruno{Here you should say remark that the syntax is implemented using mostly well-established Scala techniques;
@@ -215,7 +218,7 @@ In contrast, our implementation allows extensions to be introduced modularly.
 
 The implementation presented so far can only process data files of format csv (comma-separated values).
 The first extension is to let it support dsv (delimter-separated values) files with
- with an optional header schema describing the names of fields.
+ an optional header schema that describes the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
 \begin{spec}
@@ -281,10 +284,9 @@ checking that that compiles.}
 \weixin{All code has been checked}
 
 
-Of course, to run SQL queries on top of this extended version of relational algebra interpreter,
-we implement the syntax.
-Similar to |exec|, some old syntax implementations refer to outdated names for creating objects and hence need to be defined again.
-However, not like |exec|, the syntax part often contain extra code that does more than just object creations.
+Of course, to run SQL queries on top of this extended version of relational algebra interpreter, we need to implement the syntax again.
+Similar to |exec|, some old syntax implementations refer to outdated names for creating objects and hence need to be redefined.
+However, not like |exec|, some part of syntax code may do more than just object creations.
 The current approach does not allow us to reuse this part of code.
 This causes some code duplication.
 This problem can be solved by using some advanced type system features from Scala~\citep{zenger05independentlyextensible}.
