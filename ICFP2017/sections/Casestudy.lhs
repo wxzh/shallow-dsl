@@ -33,7 +33,6 @@ to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 The full implementation can be found online at:
 \url{https://github.com/wxzh/shallow-dsl/tree/master/src/sql}\footnote{{\bf Note to reviewers:}
 Following this link will reveal the identity of the paper authors.}
-\bruno{Add url here.}
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
@@ -41,10 +40,10 @@ Consider a data file |talks.csv| that contains a list of talks,
 where each item  records the identity, time, title and room of a talk:
 
 \begin{spec}
-tid,time,title,room
-1,09:00 AM,Erlang 101 - Actor and MultiCore Programming,New York Central
+tid,  time,      title,                                         room
+1,    09:00 AM,  Erlang 101 - Actor and MultiCore Programming,  New York Central
 ...
-16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
+16,   03:00 PM,  Welcome to the wonderful world of Sound!,      Grand Ballroom E
 \end{spec}
 
 %% 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
@@ -103,7 +102,7 @@ an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
 >               (q0 SELECT (`time, `room, `title AS ^^ `title2))  WHERE
 >               `title1 <> `title2
 
-Thanks to the good support for EDSL in Scala, we can precisely model the syntax of SQL.
+Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
 In fact, the syntax of our EDSL is closer to the syntax of LINQ~\citep{meijer2006linq}, where |select| is a terminating rather than a beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
@@ -111,24 +110,25 @@ declarations, we can build a complex query from parts or reuse common
 queries to improve the readability and modularity of the embedded
 programs, as illustrated by |q2|.
 
-The following subsections focus on rewriting the core of the original
+The following subsections give an overview of rewriting the core of the original
 implementation - the interpreter for relational algebra operations.
 Similar rewritings are also applicable to staged versions derived
 from this interpreter.
 
 \subsection{A Relational Algebra Interpreter}
-A SQL query can be represented using a relational algebra operator:
+A SQL query can be represented using a relational algebra operator.
+The basic interface of operators is modelled in Scala as the |trait|:
 
 > trait Operator {
 >   def execOp(yld: Record => Unit)
 >   def exec: Unit = new Print{val op=Operator.this}.execOp { _ => }
 > }
 
-A \emph{context-sensitive interpretation} |execOp| should be implemented in a concrete operator.
-It executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
+A \emph{context-sensitive interpretation} |execOp| should be implemented in concrete operators.
+The method |execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
 |yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
-Concrete operators implement |Operator| with a definition of |execOp|:
+Concrete operators implement |Operator| and implement |execOp|:
 
 > trait Join extends Operator {
 >   val op1, op2: Operator
@@ -158,24 +158,15 @@ where an interpretation |eval| is defined for evaluating a predicate into a bool
 |Eq|, for example, is a concrete predicate for testing equality between fields and literals in a query.
 \end{comment}
 There is also a |Project| operator defined, which rearranges the fields of a record.
-
-Besides these relational algebra operators, we define two utility operators for dealing with inputs and outputs.
-And |Scan| processes a csv file and produces a record per line:
+Besides these relational algebra operators, we define two utility operators, |Print| and |Scan|,
+for dealing with inputs and outputs. |Print| prints out the fields of a record and is used in the definition of |exec| for
+displaying the execution result at last. |Scan| processes a csv file and produces a record per line.
+The implementation of |Scan| is:
 
 > trait Scan extends Operator {
 >   val file: String
 >   def execOp(yld: Record => Unit) = processCSV(file)(yld)
 > }
-
-|Print| prints out the fields of a record and is used in the definition of |exec| for
-displaying the execution result at last.
-\bruno{too much code here: pick Operator and 2 more traits and put ... for the rest.
-Explain in text that implement traits for various operators for relational algebra.
-Mention at the start of this section that full code is available online.
-}
-
-\bruno{Don't show the auxiliary definitions (unless there's a strong reason to);
-again this can be mentioned in text.}
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
@@ -186,12 +177,12 @@ And we adopt fluent API style~\cite{} in designing the syntax of combinators e.g
 Fluent API style allows us to call ``|q0.WHERE(...).SELECT(...)|'' and Scala's infix notation further allows use to write it as ``|q0 WHERE ... SELECT ...|''.
 Details of the syntax implementation is beyond the scope of this pearl.
 The interested reader can view them in our online implementation.
-\bruno{Here you should say remark that the syntax is implemented using mostly well-established Scala techniques;
-describe them briefly in text. Remark that the syntax techniques are beyound the scope of this pearl, but the interested reader 
-can view them in our online implementation. Don't show the code for syntax}
+\bruno{Good! But don't forget the references! One thing to point out (which I assume is true)
+is that the syntax is modular: we do not need to modify the operators and other aspects of the
+semantics to get the syntax.}
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
-Beneath the surface syntax, a relational algebra operator object is constructed indeed.
+Beneath the surface syntax, a relational algebra operator object is constructed.
 For example, we will get the following operator structure for |q2|:
 
 > Project(Schema("room", "title"),Filter(Eq(Field("time"),Value("09:00 AM")),Scan("talks.csv")))
@@ -214,7 +205,7 @@ extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
 
 The implementation presented so far can only process data files of format csv (comma-separated values).
-The first extension is to let it support dsv (delimter-separated values) files with
+The first extension is to let it support dsv (delimiter-separated values) files with
  with an optional header schema describing the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
@@ -246,13 +237,16 @@ All interpretations have to be modified anyway, as the pattern has been changed.
 The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
 
+Other similar extensions are also possible. For example to boost the
+performance of |Join| by replacing naive loops with an efficient
+implementation based on hash maps.  Similar to |Scan|, this is done
+through overriding |execOp|.
 
-The second extension is to boost the performance of |Join| by replacing naive loops with an efficient implementation based on hash maps.
-Similar to |Scan|, this is done through overriding |execOp|.
-
-The third extension is to have a new operator |Group| for partitioning records and suming up the specified fields from the composed operator.
+\paragraph{New Language Constructs}
+A second extension is to have a new operator |Group| for partitioning records and suming up the specified fields from the composed operator.
 |Group| simulates |group by ... sum ...| clauses in SQL.
 This can be simply done through defining a new trait that implements |Operator2|.
+\bruno{Ok! here I do think showing group is useful.}
 
 \begin{comment}
 \begin{spec}
@@ -272,14 +266,6 @@ trait Join extends super.Join with Operator {
 }
 \end{spec}
 \end{comment}
-
-\bruno{Again, here you should pick Operator2 and one or two more of the traits that illustrate
-interesting code. The rest should be ...}
-\bruno{I don't feel very confident that invalid Scala code (i.e. code that does not type-check).
-The code presented in the paper needs to be carefully checked; possibly pasting it back into Eclipse and
-checking that that compiles.}
-\weixin{All code has been checked}
-
 
 Of course, to run SQL queries on top of this extended version of relational algebra interpreter,
 we implement the syntax.
