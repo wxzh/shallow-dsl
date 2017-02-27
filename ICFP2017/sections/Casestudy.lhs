@@ -31,7 +31,7 @@ To further illustrate the applicability of shallow OO embeddings,
 we refactored an existing \emph{deep external} DSL implementation for SQL queries
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 The full implementation can be found online at:
-\url{http://fill.me}\footnote{{\bf Note to reviewers:}
+\url{https://github.com/wxzh/shallow-dsl/tree/master/src/sql}\footnote{{\bf Note to reviewers:}
 Following this link will reveal the identity of the paper authors.}
 \bruno{Add url here.}
 
