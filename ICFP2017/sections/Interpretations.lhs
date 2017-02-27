@@ -254,9 +254,7 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
   case (_,Nil)        =>  xs
   case (x::xs,y::ys)  =>  f(x,y) :: lzw (xs,ys) (f)
 }
-\end{spec}\bruno{Instead of using 4 lines, can't you just define tlayout for Strech4 in 1 line? Why do you need 
-to create the intermediate value vs?}
-\weixin{Reasons: 1) be consistent with the original implementation in Haskell 2) the prefix sum (|vs|) is a heavy computation and should be calculated only once. }
+\end{spec}
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
@@ -298,7 +296,6 @@ In our OOP approach, a syntatic sugar is defined as a smart constructor upon oth
 
 > def rstretch(ns: List[Int], c: Circuit4) = stretch (1 :: ns.init, beside(c, identity(ns.last - 1)))
 
-% All that is needed is
 On the other hand, adding an ordinary construct is done through defining a new trait that implements |Circuit4|.
 If we treated |rstretch| as an ordinary construct, its definition would be:
 
@@ -309,7 +306,6 @@ trait RStretch extends Stretch4 {
 }
 \end{spec}
 
-\bruno{Same comment as before: why 4 lines instead of just 1?}
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.

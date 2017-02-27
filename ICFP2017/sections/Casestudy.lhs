@@ -171,13 +171,14 @@ The implementation of |Scan| is:
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to automically lifting field names and literals.
+Specifically, we use \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to lift field names and literals implicitly.
 For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{fowler2005fluent}.
-Fluent API style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
-Scala's infix notation further allows us to write it as
+Fluent interface style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
+Scala's infix notation further allows us to write this query as
 ``|q0 WHERE ... SELECT ...|''.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
-Combining with some advanced type system features from Scala~\citep{zenger05independentlyextensible}, we are able to provide syntax as a modular component.
+We implement the syntax in a pluggable way, in the sense that the semantics is decoupled from the syntax (the |Operator| hierarchy).
+Combining with some advanced type system features from Scala~\citep{zenger05independentlyextensible}, we are able to make the syntax modular as well.
 Details of the syntax implementation is beyond the scope of this pearl.
 The interested reader can view them in our online implementation.
 \bruno{Good! But don't forget the references! One thing to point out (which I assume is true)
@@ -199,7 +200,7 @@ For example, the execution result of |q1| is:
 < New York Central,Erlang 101 - Actor and MultiCore Programming
 < ...
 
-\noindent where with its room and title of the first item from |talks.csv| is printed.
+\noindent where the room and title of the first item from |talks.csv| is printed.
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
@@ -234,7 +235,7 @@ trait Scan2 extends Scan with Operator {
 \end{spec}
 |Scan| has two extra fields, |delim| and |schema|, storing the delimeter and the optional header schema.
 These fields are used in implementing |resultSchema| and overriding |execOp|.
-Here, yet another advantage of our approach -|field extensions| - has been illustrated.
+Here, yet another advantage of our approach - \emph{field extensions} - has been illustrated.
 The extended fields would not affect existing interpretations that do not use these extended fields.
 This would not be possible in an approach using algebraic datatypes and pattern matching.
 All interpretations have to be modified anyway, as the pattern has been changed.
@@ -248,9 +249,10 @@ implementation based on hash maps.  Similar to |Scan|, this is done
 through overriding |execOp|.
 
 \paragraph{New Language Constructs}
-A second extension is to have a new operator |Group| for partitioning records and suming up the specified fields from the composed operator.
-|Group| simulates |group by ... sum ...| clauses in SQL.
-This can be simply done through defining a new trait that implements |Operator2|:
+A second extension is to support more SQL clauses in the implementation.
+A new operator |Group| is defined for partitioning records and summing up specified fields from the composed operator.
+It simulates |group by ... sum ...| clauses in SQL.
+Adding |Group| can be simply done through defining a new trait that implements |Operator2|:
 
 \begin{spec}
 trait Group extends Operator {
@@ -261,6 +263,9 @@ trait Group extends Operator {
 }
 \end{spec}
 \bruno{Ok! here I do think showing group is useful.}
+
+\indent The implementation still has plenty room for extensions - only a subset of SQL is supported currently.
+With our shallow OO embedding, both new relational algebra operators and new interpretations can be modularly added.
 
 
 \begin{comment}
@@ -280,7 +285,6 @@ trait Join extends super.Join with Operator {
   }
 }
 \end{spec}
-\end{comment}
 
 Of course, to run SQL queries on top of this extended version of relational algebra interpreter, we need to implement the syntax again.
 Similar to |exec|, some old syntax implementations refer to outdated names for creating objects and hence need to be redefined.
@@ -291,7 +295,6 @@ This problem can be solved
 The resulting syntax is modular and is decoupled from the semantics, which can also be found online.
 \bruno{you mean for the syntax right? You can be more specific.}
 
-\begin{comment}
 \paragraph{Syntax}
 To support the syntax for the extended version of the relational operator interpreter, a new set of smart constructors need to be defined.
 We not only need to define a new smart construtor for |Group| but also redefine
