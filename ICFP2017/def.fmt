@@ -24,6 +24,7 @@
 %format op2
 %format r1
 %format r2
+%format ^^ = "\;"
 
 %format Op2
 %format Operator2

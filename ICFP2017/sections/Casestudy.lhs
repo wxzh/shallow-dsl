@@ -171,8 +171,8 @@ The implementation of |Scan| is:
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use "Pimp my Library" approach~\cite{} in implementing smart constructors for primitives to automically lifting field names and literals.
-For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{}.
+Specifically, we use \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to automically lifting field names and literals.
+For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{fowler2005fluent}.
 Fluent API style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
 Scala's infix notation further allows us to write it as
 ``|q0 WHERE ... SELECT ...|''.
