@@ -29,7 +29,11 @@
 \section{An Embedded DSL for SQL Queries}
 To further illustrate the applicability of shallow OO embeddings,
 we refactored an existing \emph{deep external} DSL implementation for SQL queries
-to make it more \emph{modular}, \emph{shallow} and \emph{embedded}. Full implementation can be found online.
+to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
+The full implementation can be found online at:
+\url{http://fill.me}\footnote{{\bf Note to reviewers:}
+Following this link will reveal the identity of the paper authors.}
+\bruno{Add url here.}
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
