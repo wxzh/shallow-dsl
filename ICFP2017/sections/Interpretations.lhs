@@ -246,10 +246,7 @@ trait Beside4 extends Beside1 with Circuit4 {
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
   val c: Circuit4
-  def tlayout(f: Int => Int) = {
-    val vs = ns.scanLeft(0)(_ + _).tail
-    c.tlayout(f.compose(vs(_) - 1))
-  }
+  def tlayout(f: Int => Int) = {val vs = ns.scanLeft(0)(_ + _).tail; ^^ c.tlayout(f.compose(vs(_) - 1))}
 }
 
 def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
@@ -307,10 +304,8 @@ If we treated |rstretch| as an ordinary construct, its definition would be:
 
 \begin{spec}
 trait RStretch extends Stretch4 {
-  override def tlayout(f: Int => Int) = {
-    val vs = ns.scanLeft(ns.last - 1)(_ + _).init
-    c.tlayout(f.compose(vs(_)))
-  }
+  override def tlayout(f: Int => Int) =
+    {val vs = ns.scanLeft(ns.last - 1)(_ + _).init; ^^ c.tlayout(f.compose(vs(_)))}
 }
 \end{spec}
 

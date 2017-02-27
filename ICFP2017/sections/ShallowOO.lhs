@@ -85,7 +85,9 @@ circuit. The definitions are:
 
 \noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
-> c  =  ( fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (identity 1 `beside` fan 2 `beside` identity 1)
+> c  =  ( fan 2 `beside` fan 2) `above`
+>       stretch [2,2] (fan 2) `above`
+>       (identity 1 `beside` fan 2 `beside` identity 1)
 
 For this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit:
