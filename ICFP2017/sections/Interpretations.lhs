@@ -86,7 +86,7 @@ trait Stretch2 extends Stretch1 with Circuit2 {
 }
 \end{spec}
 The encoding relies on three OOP abstraction mechanisms:
-\emph{inheritance}, \emph{subtyping} and \emph{type-refinement}.
+\emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
@@ -172,8 +172,8 @@ The combinator |stretch| and |beside| will change the layout of a circuit.
 For example, if two circuits are put side by side, all the indices of the right circuit will be increased by the width of the left circuit.
 Hence the interpretation, called |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
 An intuitive implementation of |tlayout| performs these changes immediately to the affected circuit.
-A more efficient implementation accumulates these changes and apply them all at once.
-An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensive.
+A more efficient implementation accumulates these changes and applies them all at once.
+An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensitive.
 
 \paragraph{Context-Sensitive Interpretations in Haskell}
 The following Haskell code implements (non-modular) |tlayout|:
@@ -258,13 +258,13 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
 The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
-There are some minor syntax differences that need explainations.
+There are some minor syntax differences that need explanations.
 First, in |Fan4|, a |for comprehension| is used for producing a list of connections.
-Second, for simplicity, annonymous functions are created without specifying their parameters.
+Second, for simplicity, anonymous functions are created without specifying their parameters.
 Still, we are able to refer to these parameters via placeholders (|_|).
 For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
-Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separater parameter list for facilitating type inference on |f|.
+Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference on |f|.
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 
@@ -284,13 +284,13 @@ Shallow embeddings make the addition of |rstretch| easy by defining a new functi
 
 %}
 
-\noindent |rstretch| happens to be a syntatic sugar that can be defined in terms of existing constructs.
+\noindent |rstretch| happens to be a syntactic sugar that can be defined in terms of existing constructs.
 For non-sugar constructs, we need to define a new function that implements all supported interpretations.
 
 \paragraph{New Constructs in Scala}
 Such simplicity of adding new constructs is retained in our OOP approach.
 Differently from the Haskell approach, there is a clear distinction between 
-syntatic sugar and ordinary constructs in the OOP approach.
+syntactic sugar and ordinary constructs in the OOP approach.
 
 In our OOP approach, a syntatic sugar is defined as a smart constructor upon other smart constructors:
 
@@ -306,9 +306,9 @@ trait RStretch extends Stretch4 {
 }
 \end{spec}
 
-Such an implementation of |RStretch| illustrates another strength of our OO approach regarding to modularity.
+Such an implementation of |RStretch| illustrates another strength of our OO approach regarding modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
-Instead, it inherites |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
+Instead, it inherits |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
 Inheritance and overriding enable partial reuse of an existing language construct implementation,
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
@@ -367,7 +367,7 @@ However, as our OOP approach shows, in OOP both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,
 the circuit DSL presented so far does not suffer from the Expression
 Problem. The key point is that procedural abstraction combined with
-OOP features (subtyping, inheritance and type-refinement) adds
+OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction. 
 %%Instead 
 %%of tuples, we can use objects. 
@@ -383,10 +383,10 @@ techniques~\cite{carette2009finally,swierstra2008data} that can solve
 some of the modularity problems. For example, using type classes,
 \emph{tagless-final} approach~\cite{carette2009finally} can deal with
 multiple interpretations in Section~\ref{subsec:multiple}. However,
-these techniques complicates the encoding of the EDSL
+these techniques complicate the encoding of the EDSL
 significantly. Moreover, 
 dependent interpretations (see Section~\ref{sec:dependent}) are still non-modular 
-because an encoding via tuples is still needed. In contrast
+because an encoding via tuples is still needed. In contrast,
 the approach proposed here is just straightforward OOP, and dependent
 interpretations are not a problem.
 
@@ -397,6 +397,6 @@ Finally tagless approach uses a type class to abstract over all interpretations
 of the language. Concrete interpretations are given through creating a data type and
 making it an instance of that type. However, it forces dependent interpretations to be defined along with what they depend on.
 DTC represents language constructs separately and composes them together using
-extensible sums. However, not like OO languages which come with subtyping, one
+xtensible sums. However, not like OO languages which come with subtyping, one
 has to manually implement the subtyping machinery for variants.
 \end{comment}

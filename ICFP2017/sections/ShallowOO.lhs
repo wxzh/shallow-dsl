@@ -47,7 +47,7 @@ For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all t
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
 the top sub-circuit is a two 2-|fan| put side by side;
-the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left hand side of its first and second wire;
+the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
 the bottom sub-circuit is a 2-|fan| between two 1-|identity|.
 
 \begin{figure}
@@ -126,7 +126,7 @@ stretch1 ns c      =  Circuit1 {width1  =   sum ns}
 \end{code}
 
 The implementation is still shallow because |newtype| does not add any operational
-behaviour to the program, and hence the two programs are effectively the
+behavior to the program, and hence the two programs are effectively the
 same.  However, having fields makes the program look more like an
 OO program.
 
@@ -199,7 +199,7 @@ As this example illustrates, shallow embeddings and straightforward OO
 programming are closely related. The syntax of the Scala code is not
 as compact as the Haskell version. There is some extra verbosity due
 to trait declarations and smart constructors.  It would be nice if
-Scala directly supported constructors for traits, but unfortunatelly
-this is not supported. Nevertheless the code is still quite compact
+Scala directly supported constructors for traits, but unfortunately
+this is not supported. Nevertheless, the code is still quite compact
 and elegant, and the Scala implementation has advantages in terms of
 modularity, as we shall see next.

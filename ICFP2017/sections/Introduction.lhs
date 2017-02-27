@@ -59,7 +59,7 @@ deep embeddings instead, since they allow for multiple
 interpretations. However deep embeddings also come at a cost: adding 
 language extensions becomes problematic.
 We show that OOP abstractions, including
-\emph{inheritance}, \emph{subtyping} and \emph{type-refinement}, 
+\emph{inheritance}, \emph{subtyping}, and \emph{type-refinement},
 add expressive power to procedural abstraction, and 
 enable multiple-interpretations
 to co-exist in shallow embeddings. Furthermore adding language extensions 

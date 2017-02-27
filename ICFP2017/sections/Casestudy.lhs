@@ -60,7 +60,7 @@ A simple query to list all the items in |talks.csv| is:
 
 > select * from talks.csv
 
-\noindent Another query to find all talks at 9am with their room and title selected is:
+\noindent Another query to find all talks at 9 am with their room and title selected is:
 
 > select room, title from talks.csv where time='09:00 AM'
 
@@ -88,8 +88,7 @@ as a shallow EDSL, because the original implementation contains no
 transformations/optimizations on ASTs, which would be another
 motivation to use a deep embedding. Therefore, with only modest
 effort, we refactored their implementation using the approach
-presented in this pearl. The resulting implementation is modular
-without increasing the source lines of code.  Moreover, it is common
+presented in this pearl. Using almost the same source lines of code, the implementation is made modular.  Moreover, it is common
 to embed SQL into a general purpose language, for instance Circumflex
 ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does
 this in Scala. Thus, instead of providing an external DSL, we provide
@@ -144,7 +143,7 @@ Concrete operators implement |Operator| and implement |execOp|:
 >   def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
 > }
 
-|Join| matches a record against to another, and combines the two records if their common fields share the same values.
+|Join| matches a record against to another and combines the two records if their common fields share the same values.
 |Filter| keeps a record only when it meets a certain predicate.
 \begin{comment}
 Its field |Predicate| is defined as a separate hierarchy:
@@ -179,7 +178,7 @@ Scala's infix notation further allows us to write this query as
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 We implement the syntax in a pluggable way, in the sense that the semantics is decoupled from the syntax (the |Operator| hierarchy).
 Combining with some advanced type system features from Scala~\citep{zenger05independentlyextensible}, we are able to make the syntax modular as well.
-Details of the syntax implementation is beyond the scope of this pearl.
+Details of the syntax implementation are beyond the scope of this pearl.
 The interested reader can view them in our online implementation.
 \bruno{Good! But don't forget the references! One thing to point out (which I assume is true)
 is that the syntax is modular: we do not need to modify the operators and other aspects of the
@@ -204,8 +203,8 @@ For example, the execution result of |q1| is:
 
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
-Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness, performance and flexibility.
-% The extensions include a new operator |Group| for aggregations, a efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
+Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness, performance, and flexibility.
+% The extensions include a new operator |Group| for aggregations, an efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
 However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
@@ -224,7 +223,7 @@ trait Operator2 extends Operator {
 Concrete operators, including |Print|, need to implement this new interface through complementing |Operator2|.
 Hence, |exec| is overridden as there is a new version of |Print|.
 
-Then, we can extend |Scan| with the ability to deal with new form of files:
+Then, we can extend |Scan| with the ability to deal with a new form of files:
 \begin{spec}
 trait Scan2 extends Scan with Operator {
   val delim: Char
