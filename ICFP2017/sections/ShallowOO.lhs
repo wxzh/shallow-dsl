@@ -6,13 +6,13 @@
 This section shows that an OOP approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
 DSL presented by ~\citet{gibbons2014folding} as
-the running example.  We first give the original shallow embedded
+the running example.  We first give the original shallowly embedded
 implementation in Haskell, and rewrite it towards an ``OOP style''.
-Then translating the program into an OO language becomes straightforward.
+Then translating the program into an OOP language becomes straightforward.
 We choose Scala to illustrate the code throughout this pearl 
 because of its relatively elegant syntax and its support for multiple-inheritance
 via traits. % None of Scala's advanced type system features is used.
-%However the code can be adapted to any OO language that supports subtyping, 
+%However the code can be adapted to any OOP language that supports subtyping,
 %mulinheritance and type-refinements.
 
 \subsection{\dsl: A DSL for Parallel Prefix Circuits}
@@ -39,7 +39,7 @@ The grammar of \dsl is given below:
 \noindent \dsl has five constructs: two primitives
 (|identity| and |fan|) and three combinators (|beside|, |above| and |stretch|).
 Their meanings are: |identity n| contains |n| parallel wires;
-|fan n| has |n| vertical wires with its first wire connected to
+|fan n| has |n| parallel wires with its first wire connected to
 all the remaining wires from top to bottom; |beside c1 c2| joins two circuits
 |c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
 |stretch ns c| inserts more wires into the circuit |c| by summing up |ns|.
@@ -72,7 +72,8 @@ above         ::  Circuit -> Circuit -> Circuit
 stretch       ::  [Int] -> Circuit -> Circuit
 \end{code}
 
-\noindent The type |Circuit|, representing the semantic domain, is to be filled with a concrete type according to the semantics.
+\noindent The type |Circuit|, representing the semantic domain, is to be filled with a concrete type according to the semantics. Each construct is declared as a function that produces a |Circuit|.
+
 Suppose that the semantics of \dsl calculates the width of a
 circuit. The definitions are:
 
@@ -89,7 +90,7 @@ circuit. The definitions are:
 >       stretch [2,2] (fan 2) `above`
 >       (identity 1 `beside` fan 2 `beside` identity 1)
 
-For this simple interpretation, the Haskell domain is simply |Int|.
+\indent For this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit:
 
 < Prelude > c
@@ -162,7 +163,7 @@ trait Stretch1 extends Circuit1 {
   def width = ns.sum
 }
 \end{spec}
-Haskell's record type maps to an object interface (modelled as a |trait| in Scala) |Circuit1|, and Haskell's field
+Haskell's record type maps to an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
