@@ -6,7 +6,7 @@
 This section shows that an OOP approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
 DSL presented by ~\citet{gibbons2014folding} as
-the running example.  We first give the original shallowly embedded
+the running example.  We first give the original shallow embedded
 implementation in Haskell, and rewrite it towards an ``OOP style''.
 Then translating the program into an OOP language becomes straightforward.
 We choose Scala to illustrate the code throughout this pearl 
@@ -60,7 +60,7 @@ the bottom sub-circuit is a 2-|fan| between two 1-|identity|.
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly through encoding its semantics
 using procedural abstraction. In the case of \dsl,
-a shallowly embedded implementation (in Haskell) conforms to the following
+a shallow embedded implementation (in Haskell) conforms to the following
 types:
 
 \begin{code}
