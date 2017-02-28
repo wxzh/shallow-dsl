@@ -66,11 +66,12 @@ trait SemanticsExt extends Semantics {
 trait SyntaxExt extends Syntax {
   type O <: Operator
 
+  implicit def syms2string(s: Symbol) = s.name
   trait Operator extends super.Operator { self: O =>
-    def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
-      case class SumClause(o: O, xs: Field*) {
+    def GROUP_BY(keys: String*) = SumClause(this,Schema(keys:_*))
+      case class SumClause(o: O, keys: Schema) {
         object SUM {
-          def apply(ys: Field*) = Group(Schema(xs.map(_.name):_*),Schema(ys.map(_.name):_*),o)
+          def apply(agg: String*) = Group(keys,Schema(agg: _*),o)
       }
     }
   }
