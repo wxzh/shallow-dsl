@@ -15,10 +15,11 @@ add new language constructs for some extra power. This extra power
 enables multiple interpretations, as well as complex transformations
 over the AST. The distinction between the two styles is not as clear
 in OOP languages as in functional languages. A shallow EDSL turns out to
-be deep once classes are used as types~\cite{cook09abstraction}, violating
+be deep once classes are used as types for accessing fields~\cite{cook09abstraction}, violating
 what Cook calls pure OOP, but allowing transformations to be defined.
 As this pearl shows, in OO languages, multiple interpretations are
 still easy to do with shallow embeddings. Therefore the motivation to employ
 deep embeddings becomes weaker. Nevertheless, the need for
 transformations over the AST is still a valid reason to switch to deep
 embeddings.
+
