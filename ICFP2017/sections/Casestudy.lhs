@@ -126,7 +126,7 @@ A \emph{context-sensitive interpretation} |execOp| should be implemented in conc
 The method |execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
 |yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
-Concrete operators implement |Operator| and |execOp|:
+Concrete operators implement |Operator| through defining |execOp|:
 
 > trait Join extends Operator {
 >   val op1, op2: Operator

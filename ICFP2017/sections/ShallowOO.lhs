@@ -168,7 +168,7 @@ declarations become method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OO language in the first place. A minor difference is the use of
+This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of
 traits, instead of classes. Using traits instead of
 classes enables some additional modularity via multiple (trait-)inheritance.
 
