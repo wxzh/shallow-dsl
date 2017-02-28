@@ -186,7 +186,7 @@ semantics to get the syntax.}
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
 Beneath the surface syntax, a relational algebra operator object is constructed.
-For example, we will get the following operator structure for |q2|:
+For example, we will get the following operator structure for |q1|:
 
 > Project(  Schema("room", "title"),
 >           Filter(  Eq(Field("time"),Value("09:00 AM")),
@@ -210,8 +210,8 @@ extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
 
 The implementation presented so far can only process data files of format csv (comma-separated values).
-The first extension is to let it support dsv (delimiter-separated values) files with
- with an optional header schema describing the names of fields.
+The first extension is to let it support dsv (delimiter-separated values) files
+with an optional header schema describing the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
 \begin{spec}
@@ -220,10 +220,10 @@ trait Operator2 extends Operator {
   def resultSchema: Schema
 }
 \end{spec}
-Concrete operators, including |Print|, need to implement this new interface through complementing |Operator2|.
+Concrete operators, including |Print|, need to implement this new interface through complementing |resultSchema|.
 Hence, |exec| is overridden as there is a new version of |Print|.
 
-Then, we can extend |Scan| with the ability to deal with a new form of files:
+Then, we can extend |Scan| with the ability to deal with dsv files:
 \begin{spec}
 trait Scan2 extends Scan with Operator {
   val delim: Char
@@ -250,11 +250,11 @@ through overriding |execOp|.
 \paragraph{New Language Constructs}
 A second extension is to support more SQL clauses in the implementation.
 A new operator |Group| is defined for partitioning records and summing up specified fields from the composed operator.
-It simulates |group by ... sum ...| clauses in SQL.
-Adding |Group| can be simply done through defining a new trait that implements |Operator2|:
+It simulates |group by ... sum ^^ ...| clauses in SQL.
+We add |Group| through defining a new trait that implements |Operator2|:
 
 \begin{spec}
-trait Group extends Operator {
+trait Group extends Operator2 {
   val keys, agg: Schema
   val op: Operator2
   def resultSchema = keys ++ agg
@@ -264,7 +264,7 @@ trait Group extends Operator {
 \bruno{Ok! here I do think showing group is useful.}
 
 \indent The implementation still has plenty room for extensions - only a subset of SQL is supported currently.
-With our shallow OO embedding, both new relational algebra operators and new interpretations can be modularly added.
+As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.
 
 
 \begin{comment}
