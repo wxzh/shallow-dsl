@@ -13,7 +13,7 @@ embeddings trade some simplicity and the ability to add new language
 constructs for some extra power. This extra power enables multiple
 interpretations, as well as complex transformations over the AST.
 The distinction between the two styles is not as clear in OOP languages as in functional languages.
-A shallow EDSL turns to be deep once classes are used as types~\cite{cook09abstraction}.
+A shallow EDSL in OOP turns to be deep once classes are used as types for accessing fields~\cite{cook09abstraction}.
 As this pearl shows that in OO languages, multiple interpretations are still easy
 to do with shallow embeddings, the motivation to
 employ deep embeddings becomes weaker.
