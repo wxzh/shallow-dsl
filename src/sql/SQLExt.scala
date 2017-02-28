@@ -84,13 +84,13 @@ trait SyntaxExt extends Syntax {
 }
 
 object SQLExt extends SyntaxExt with SemanticsExt with App {
-  trait Operator extends super[SyntaxExt].Operator with super[SemanticsExt].Operator { self: O => }
-  trait Print extends super.Print with Operator { self: O => }
-  trait Scan extends super.Scan with Operator { self: O => }
-  trait Project extends super.Project with Operator { self: O => }
-  trait Join extends super.Join with Operator { self: O => }
-  trait Filter extends super.Filter with Operator { self: O => }
-  trait Group extends super.Group with Operator { self: O => }
+  trait Operator extends super[SyntaxExt].Operator with super[SemanticsExt].Operator
+  trait Print extends super.Print with Operator
+  trait Scan extends super.Scan with Operator
+  trait Project extends super.Project with Operator
+  trait Join extends super.Join with Operator
+  trait Filter extends super.Filter with Operator
+  trait Group extends super.Group with Operator
 
   trait Ref extends super[SyntaxExt].Ref with super[SemanticsExt].Ref
   trait Field extends super[SyntaxExt].Field with super[SemanticsExt].Field with Ref

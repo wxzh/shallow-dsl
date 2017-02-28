@@ -108,12 +108,12 @@ trait Syntax {
 }
 
 object SQL extends Syntax with Semantics with App {
-  trait Operator extends super[Syntax].Operator with super[Semantics].Operator { self: O => }
-  trait Print extends super.Print with Operator { self: O => }
-  trait Scan extends super.Scan with Operator { self: O => }
-  trait Project extends super.Project with Operator { self: O => }
-  trait Join extends super.Join with Operator { self: O => }
-  trait Filter extends super.Filter with Operator { self: O => }
+  trait Operator extends super[Syntax].Operator with super[Semantics].Operator 
+  trait Print extends super.Print with Operator
+  trait Scan extends super.Scan with Operator
+  trait Project extends super.Project with Operator
+  trait Join extends super.Join with Operator
+  trait Filter extends super.Filter with Operator
 
   trait Ref extends super[Syntax].Ref with super[Semantics].Ref
   trait Field extends super[Syntax].Field with super[Semantics].Field with Ref
