@@ -61,7 +61,7 @@ language extensions becomes problematic.
 We show that OOP abstractions, including
 \emph{inheritance}, \emph{subtyping}, and \emph{type-refinement},
 add expressive power to procedural abstraction, and 
-enable multiple-interpretations
+enable multiple interpretations
 to co-exist in shallow embeddings. Furthermore adding language extensions 
 is still simple. The key idea is to employ a
 recently proposed design pattern~\citep{eptrivially16}, which provides
@@ -77,7 +77,7 @@ EDSL. We recode that EDSL in Scala.
 From the \emph{modularity} point of view the
 Scala version has clear advantages over the Haskell version. 
 
-To further illustrate the applicability of our OO approach, we conduct
+To further illustrate the applicability of our OOP approach, we conduct
 a case study on refactoring an existing DSL implementation to make it
 modular. \citet{rompf15} present a SQL to C compiler in Scala, which
 is an external DSL but uses deep embedding techniques such as
