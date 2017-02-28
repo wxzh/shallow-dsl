@@ -126,7 +126,7 @@ A \emph{context-sensitive interpretation} |execOp| should be implemented in conc
 The method |execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
 |yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
-Concrete operators implement |Operator| and implement |execOp|:
+Concrete operators implement |Operator| and |execOp|:
 
 > trait Join extends Operator {
 >   val op1, op2: Operator
@@ -143,7 +143,7 @@ Concrete operators implement |Operator| and implement |execOp|:
 >   def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
 > }
 
-|Join| matches a record against to another and combines the two records if their common fields share the same values.
+|Join| matches a record against another and combines the two records if their common fields share the same values.
 |Filter| keeps a record only when it meets a certain predicate.
 \begin{comment}
 Its field |Predicate| is defined as a separate hierarchy:
@@ -155,11 +155,11 @@ Its field |Predicate| is defined as a separate hierarchy:
 where an interpretation |eval| is defined for evaluating a predicate into a boolean value.
 |Eq|, for example, is a concrete predicate for testing equality between fields and literals in a query.
 \end{comment}
-There is also a |Project| operator defined, which rearranges the fields of a record.
+There are also other operators, such as |Project|, which rearranges the fields of a record.
 Besides these relational algebra operators, we define two utility operators, |Print| and |Scan|,
 for dealing with inputs and outputs. |Print| prints out the fields of a record and is used in the definition of |exec| for
 displaying the execution result at last. |Scan| processes a csv file and produces a record per line.
-The implementation of |Scan| is:
+The implementation of |Scan| is shown next:
 
 > trait Scan extends Operator {
 >   val file: String
@@ -177,12 +177,8 @@ Scala's infix notation further allows us to write this query as
 ``|q0 WHERE ... SELECT ...|''.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 We implement the syntax in a pluggable way, in the sense that the semantics is decoupled from the syntax (the |Operator| hierarchy).
-Combining with some advanced type system features from Scala~\citep{zenger05independentlyextensible}, we are able to make the syntax modular as well.
 Details of the syntax implementation are beyond the scope of this pearl.
-The interested reader can view them in our online implementation.
-\bruno{Good! But don't forget the references! One thing to point out (which I assume is true)
-is that the syntax is modular: we do not need to modify the operators and other aspects of the
-semantics to get the syntax.}
+The interested reader can view the code in our online implementation.
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
 Beneath the surface syntax, a relational algebra operator object is constructed.
@@ -261,7 +257,6 @@ trait Group extends Operator2 {
   def execOp(yld: Record => Unit) { ... }
 }
 \end{spec}
-\bruno{Ok! here I do think showing group is useful.}
 
 \indent The implementation still has plenty room for extensions - only a subset of SQL is supported currently.
 As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.

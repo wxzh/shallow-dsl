@@ -122,7 +122,7 @@ wellSized  =  snd
 \noindent where |width| is called in the definition of |wellSized| for |above3| and |stretch3|.
 
 \paragraph{Dependent Interpretations in Scala}\label{sec:dependent}
-Fortunately, an OO approach does not have such restriction:
+Once again, it is easy to model dependent interpretation with a simple OO approach:
 
 %format Identity3
 %format Fan3
@@ -313,9 +313,6 @@ Inheritance and overriding enable partial reuse of an existing language construc
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
-\weixin{Discuss multiple trait inheritance?}\bruno{No. In the conclusion we can mention that more modularity 
-is possible. Also I removed the folds section}
-
 \begin{comment}
 \begin{spec}
 trait Circuit5 extends Circuit2 with Circuit3 with Circuit4
@@ -380,14 +377,14 @@ expressiveness over traditional procedural abstraction.
 Gibbons and Wu
 do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
-some of the modularity problems. For example, using type classes,
+\emph{some} of the modularity problems. For example, using type classes, the
 \emph{tagless-final} approach~\cite{carette2009finally} can deal with
 multiple interpretations in Section~\ref{subsec:multiple}. However,
 these techniques complicate the encoding of the EDSL
 significantly. Moreover, 
 dependent interpretations (see Section~\ref{sec:dependent}) are still non-modular 
 because an encoding via tuples is still needed. In contrast,
-the approach proposed here is just straightforward OOP, and dependent
+the approach proposed here is just straightforward OOP, uses only simple types, and dependent
 interpretations are not a problem.
 
 \begin{comment}
