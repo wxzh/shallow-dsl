@@ -1,110 +1,115 @@
 package sql
 
-import scala.collection.mutable.{HashMap,ArrayBuffer}
 import Utils._
+import scala.collection.mutable.{HashMap, ArrayBuffer}
 
 trait SemanticsExt extends Semantics {
-// interpretation extension 
-trait Operator extends super.Operator {
-  def resultSchema: Schema
-  override def exec = new Print{val op=Operator.this}.execOp { _ => }
-}
-trait Scan extends super.Scan with super.Operator {
-  val delim: Char 
-  val schema: Option[Schema]
-  def resultSchema = schema.getOrElse(loadSchema(name,delim))
-  override def execOp(yld: Record => Unit) = processDSV(name,resultSchema,delim,schema.isDefined)(yld)
-}
-trait Print extends super.Print with Operator {
-  val op: Operator
-  def resultSchema = Schema()
-  override def execOp(yld: Record => Unit) {
-    val schema = op.resultSchema
-    printSchema(schema)
-    op.execOp{rec => printFields(rec.fields)}
-  }
-}
-trait Project extends super.Project with Operator {
-  val op: Operator
-  def resultSchema = so
-}
-trait Filter extends super.Filter with Operator {
-  val op: Operator
-  def resultSchema = op.resultSchema
-}
-// operator extension
-trait Group extends Operator {
-  val keys, agg: Schema
-  val op: Operator
-  def resultSchema = keys ++ agg
-  def execOp(yld: Record => Unit) {
-    val hm = new HashMap[Fields,Seq[Int]]
-    op.execOp { rec =>
-      val kvs = rec(keys)
-      val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
-      hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped.map(_ + _)
-    }
-    hm.foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }
-  }
-  def show = "Group(" + keys + "," + agg + op.show + ")"
-}
-trait Join extends super.Join with Operator {
-  val op1, op2: Operator
-  def resultSchema = op1.resultSchema ++ op2.resultSchema 
-  override def execOp(yld: Record => Unit) {
-    val keys = op1.resultSchema intersect op2.resultSchema
-    val hm = new HashMap[Fields,ArrayBuffer[Record]]
-    op1.execOp { rec1 =>
-      val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
-      buf += rec1 }
-    op2.execOp { rec2 =>
-      hm.get(rec2(keys)) foreach { _.foreach { rec1 =>
-        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
-}
-}
-
-object SQLExt extends SemanticsExt with App {
+  // interpretation extension 
   trait Operator extends super.Operator {
-    def WHERE(p: Predicate) = new Filter {val pred=p; val op=Operator.this}
-    def JOIN(that: Operator) = new Join{val op1=Operator.this; val op2=that}
-    def SELECT(fields: Field*) = {
-      val (in,out) = fields.unzip(f => (f.name,f.alias))
-      new Project{val si=Schema(in:_*);val so=Schema(out:_*);val op=Operator.this}
+    def resultSchema: Schema
+    override def exec = new Print{val op=Operator.this}.execOp { _ => }
+  }
+  trait Scan extends super.Scan with super.Operator {
+    val delim: Char 
+    val schema: Option[Schema]
+    def resultSchema = schema.getOrElse(loadSchema(name,delim))
+    override def execOp(yld: Record => Unit) = processDSV(name,resultSchema,delim,schema.isDefined)(yld)
+  }
+  trait Print extends super.Print with Operator {
+    val op: Operator
+    def resultSchema = Schema()
+    override def execOp(yld: Record => Unit) {
+      val schema = op.resultSchema
+      printSchema(schema)
+      op.execOp{rec => printFields(rec.fields)}
     }
-    def GROUP_BY(xs: Field*) = SumClause(this,Schema(xs.map(_.name):_*))
+  }
+  trait Project extends super.Project with Operator {
+    val op: Operator
+    def resultSchema = so
+  }
+  trait Join extends super.Join with Operator {
+    val op1, op2: Operator
+    def resultSchema = op1.resultSchema ++ op2.resultSchema 
+    override def execOp(yld: Record => Unit) {
+      val keys = op1.resultSchema intersect op2.resultSchema
+      val hm = new HashMap[Fields,ArrayBuffer[Record]]
+      op1.execOp { rec1 =>
+        val buf = hm.getOrElseUpdate(rec1(keys), new ArrayBuffer[Record])
+        buf += rec1 }
+      op2.execOp { rec2 =>
+        hm.get(rec2(keys)) foreach { _.foreach { rec1 =>
+          yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}}
+  }
+  trait Filter extends super.Filter with Operator {
+    val op: Operator
+    def resultSchema = op.resultSchema
+  }
+  // operator extension
+  trait Group extends Operator {
+    val keys, agg: Schema
+    val op: Operator
+    def resultSchema = keys ++ agg
+    def execOp(yld: Record => Unit) {
+      val hm = new HashMap[Fields,Seq[Int]]
+      op.execOp { rec =>
+        val kvs = rec(keys)
+        val sums = hm.getOrElseUpdate(kvs,agg.map(_ => 0))
+        hm(kvs) = (sums,rec(agg).map(_.toInt)).zipped.map(_ + _)
+      }
+      hm.foreach { case (k,a) => yld(Record(k ++ a.map(_.toString), keys ++ agg)) }
+    }
+    def show = "Group(" + keys + "," + agg + op.show + ")"
+  }
+}
 
-    case class SumClause(o: Operator, xs: Schema) {
-      object SUM { 
-        def apply(ys: Field*) = new Group{val keys=xs; val agg=Schema(ys.map(_.name):_*); val op=o}
+trait SyntaxExt extends Syntax {
+  type O <: Operator
+
+  trait Operator extends super.Operator { self: O =>
+    def GROUP_BY(xs: Field*) = SumClause(this,xs:_*)
+      case class SumClause(o: O, xs: Field*) {
+        object SUM {
+          def apply(ys: Field*) = Group(Schema(xs.map(_.name):_*),Schema(ys.map(_.name):_*),o)
       }
     }
   }
-  trait Scan extends super.Scan with Operator
-  trait Print extends super.Print with Operator
-  trait Project extends super.Project with Operator
-  trait Join extends super.Join with Operator
-  trait Filter extends super.Filter with Operator
-  trait Group extends super.Group with Operator
 
+  def FROM(file: String, c: Char)                  = Scan(file,None,c)
+  def FROM(file: String, c: Char, fields: Symbol*) = Scan(file,Some(Schema(fields.map(_.name):_*)),c)
 
-  trait Ref extends super.Ref {
-    def ===(that: Ref) =  new Eq {val ref1=Ref.this; val ref2=that}
-    def <>(that: Ref)  =  new Ne {val ref1=Ref.this; val ref2=that}
-  }
-  trait Field extends super.Field with Ref {
-    var alias: String
-    def AS(sym: Symbol) = { alias = sym.name; this }
-  }
+  def Scan(file: String) = Scan(file,None,',')
+  def Scan(file: String, schema: Option[Schema], delim: Char): O
+  def Group(x: Schema, y: Schema, o: O): O
+}
+
+object SQLExt extends SyntaxExt with SemanticsExt with App {
+  trait Operator extends super[SyntaxExt].Operator with super[SemanticsExt].Operator { self: O => }
+  trait Print extends super.Print with Operator { self: O => }
+  trait Scan extends super.Scan with Operator { self: O => }
+  trait Project extends super.Project with Operator { self: O => }
+  trait Join extends super.Join with Operator { self: O => }
+  trait Filter extends super.Filter with Operator { self: O => }
+  trait Group extends super.Group with Operator { self: O => }
+
+  trait Ref extends super[SyntaxExt].Ref with super[SemanticsExt].Ref
+  trait Field extends super[SyntaxExt].Field with super[SemanticsExt].Field with Ref
   trait Value extends super.Value with Ref
 
-  def FROM(file: String): Operator                   =  FROM(file,',')
-  def FROM(file: String, c: Char)                    =  Scan(file,None,c)
-  def FROM(file: String, c: Char, fields: Symbol*)    = Scan(file,Some(Schema(fields.map(_.name):_*)),c)
-  def Scan(file: String, s: Option[Schema], c: Char) =  new Scan {val name=file; val schema=s; val delim=c}
+  type O = Operator
+  type P = Predicate
+  type R = Ref
 
-  implicit def Field(sym: Symbol)       =  new Field {val name=sym.name; var alias=name}
-  implicit def Value(x: String)         =  new Value {val v=x}
-  implicit def Value(x: Int)            =  new Value {val v=x}
+  def Scan(f: String, s: Option[Schema], c: Char) = new Scan    {val name=f; val schema=s; val delim=c}
+  def Print(o: O)                                 = new Print   {val op=o}
+  def Project(x: Schema, y: Schema, o: O)         = new Project {val si=x; val so=y; val op=o}
+  def Join(o1: O, o2: O)                          = new Join    {val op1=o1; val op2=o2}
+  def Filter(p: P, o: O)                          = new Filter  {val pred=p; val op=o}
+  def Group(x: Schema, y: Schema, o: O)           = new Group   {val keys=x; val agg=y; val op=o}
+  def Eq(r1: R, r2: R)                            = new Eq      {val ref1=r1; val ref2=r2}
+  def Ne(r1: R, r2: R)                            = new Ne      {val ref1=r1; val ref2=r2}
+  implicit def Field(sym: Symbol)                 = new Field   {val name=sym.name}
+  def Value(x: Any)                               = new Value   {val v=x}
 
   val join = FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title1) JOIN (FROM ("talks.csv") SELECT ('time, 'room, 'title AS 'title2))
   val q3 = join WHERE 'title1 <> 'title2
@@ -114,11 +119,5 @@ object SQLExt extends SemanticsExt with App {
   val q6 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice)
   val q7 = FROM ("orders.csv") GROUP_BY ('Customer,'OrderDate) SUM ('OrderPrice)
   val q8 = FROM ("orders.csv") GROUP_BY ('Customer) SUM ('OrderPrice, 'OrderAmount)
-
-  List(join,q3,q4,q5,q6,q7,q8).foreach { q => 
-    println(q.show)
-    println(q.resultSchema)
-    q.exec
-  }
+  List(join,q3,q4,q5,q6,q7,q8).foreach(_.exec)
 }
-
