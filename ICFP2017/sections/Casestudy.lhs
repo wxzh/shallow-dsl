@@ -221,18 +221,18 @@ trait Operator2 extends Operator {
 }
 \end{spec}
 Concrete operators, including |Print|, need to implement this new interface through complementing |resultSchema|.
-Hence, |exec| is overridden as there is a new version of |Print|.
+Accordingly, |exec| is overridden as there is a new version of |Print|.
 
 Then, we can extend |Scan| with the ability to deal with dsv files:
 \begin{spec}
-trait Scan2 extends Scan with Operator {
+trait Scan2 extends Scan with Operator2 {
   val delim: Char
   val schema: Option[Schema]
   def resultSchema = schema.getOrElse(loadSchema(file,delim))
   override def execOp(yld: Record => Unit) = processDSV(file,resultSchema,delim,schema.isDefined)(yld)
 }
 \end{spec}
-|Scan| has two extra fields, |delim| and |schema|, storing the delimeter and the optional header schema.
+|Scan| has two extra fields, |delim| and |schema|, for storing the delimeter and the optional header schema.
 These fields are used in implementing |resultSchema| and overriding |execOp|.
 Here, yet another advantage of our approach - \emph{field extensions} - has been illustrated.
 The extended fields would not affect existing interpretations that do not use these extended fields.
