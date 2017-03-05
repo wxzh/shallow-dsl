@@ -355,10 +355,10 @@ type is needed, an object with more field/methods can be used instead.
 Gibbons and Wu claim that in shallow embeddings new language
 constructs are easy to add, but new interpretations are hard.
 It is possible to define multiple interpretations via tuples,
-"\emph{but this
+``\emph{but this
 is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
-language support}"~\citep{gibbons2014folding}.
+language support}''~\citep{gibbons2014folding}.
 In other words, Haskell's approach based on tuples is essentially non-modular.
 However, as our OOP approach shows, in OOP both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,
