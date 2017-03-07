@@ -83,7 +83,7 @@ trait Stretch3 extends Stretch1 with Circuit3 {
   def wellSized = c.wellSized && ns.length==c.width
 }
 
-type Layout = List[List[Tuple2[Int,Int]]]
+type Layout = List[List[(Int,Int)]]
 trait Circuit4 extends Circuit1 {
   def tlayout(f: Int => Int): Layout
 }

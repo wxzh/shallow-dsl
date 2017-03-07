@@ -226,7 +226,7 @@ Context-sensitive interpretations in our OO approach are unproblematic as well:
 %format [="\!["
 
 \begin{spec}
-type Layout = List[List[Tuple2[Int,Int]]]
+type Layout = List[List[(Int,Int)]]
 trait Circuit4 extends Circuit1 {
   def tlayout(f: Int => Int): Layout
 }
