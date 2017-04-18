@@ -164,7 +164,7 @@ Interpretations may rely on some contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
-For instance, circuit shown in Fig.~\ref{fig:circuit} has the following layout:
+For instance, the circuit shown in Fig.~\ref{fig:circuit} has the following layout:
 
 > [[(0,1), (2,3)], [(1,3)], [(1,2)]]
 

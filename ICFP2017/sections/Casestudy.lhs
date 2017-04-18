@@ -158,7 +158,7 @@ where an interpretation |eval| is defined for evaluating a predicate into a bool
 There are also other operators, such as |Project|, which rearranges the fields of a record.
 Besides these relational algebra operators, we define two utility operators, |Print| and |Scan|,
 for dealing with inputs and outputs. |Print| prints out the fields of a record and is used in the definition of |exec| for
-displaying the execution result at last. |Scan| processes a csv file and produces a record per line.
+displaying the execution result at last. |Scan| processes a CSV file and produces a record per line.
 The implementation of |Scan| is shown next:
 
 > trait Scan extends Operator {
@@ -170,7 +170,7 @@ The implementation of |Scan| is shown next:
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
 In \citet{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to lift field names and literals implicitly.
+Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to lift field names and literals implicitly.
 For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{fowler2005fluent}.
 Fluent interface style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
 Scala's infix notation further allows us to write this query as
@@ -206,7 +206,7 @@ extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
 
 The implementation presented so far can only process data files of format csv (comma-separated values).
-The first extension is to let it support dsv (delimiter-separated values) files
+The first extension is to let it support DSV (delimiter-separated values) files
 with an optional header schema describing the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
@@ -219,7 +219,7 @@ trait Operator2 extends Operator {
 Concrete operators, including |Print|, need to implement this new interface through complementing |resultSchema|.
 Accordingly, |exec| is overridden as there is a new version of |Print|.
 
-Then, we can extend |Scan| with the ability to deal with dsv files:
+Then, we can extend |Scan| with the ability to deal with DSV files:
 \begin{spec}
 trait Scan2 extends Scan with Operator2 {
   val delim: Char
@@ -228,7 +228,7 @@ trait Scan2 extends Scan with Operator2 {
   override def execOp(yld: Record => Unit) = processDSV(file,resultSchema,delim,schema.isDefined)(yld)
 }
 \end{spec}
-|Scan| has two extra fields, |delim| and |schema|, for storing the delimeter and the optional header schema.
+|Scan| has two extra fields, |delim| and |schema|, for storing the delimiter and the optional header schema.
 These fields are used in implementing |resultSchema| and overriding |execOp|.
 Here, yet another advantage of our approach - \emph{field extensions} - has been illustrated.
 The extended fields would not affect existing interpretations that do not use these extended fields.
@@ -258,7 +258,7 @@ trait Group extends Operator2 {
 }
 \end{spec}
 
-\indent The implementation still has plenty room for extensions - only a subset of SQL is supported currently.
+\indent The implementation still has plenty of room for extensions - only a subset of SQL is supported currently.
 As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.
 
 

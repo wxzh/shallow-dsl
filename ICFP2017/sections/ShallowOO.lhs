@@ -46,7 +46,7 @@ all the remaining wires from top to bottom; |beside c1 c2| joins two circuits
 For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The construction of the circuit is explained as follows.
 The whole circuit can be divided into three sub-circuits, vertically:
-the top sub-circuit is a two 2-|fan| put side by side;
+the top sub-circuit is a two 2-|fan|s put side by side;
 the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
 the bottom sub-circuit is a 2-|fan| between two 1-|identity|.
 
