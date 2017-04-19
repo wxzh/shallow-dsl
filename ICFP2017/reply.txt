@@ -28,9 +28,9 @@ can deal with dependencies.
 
 On the other hand, as the reviewer mentions, OAs are good for solving
 the problem of how to "define and type terms in the DSL independently
-exploit this to address the limitation that the reviewer points out to
-our approach. By combining our technique with OAs we can address
-the limitation that the reviewer points out to our approach, as shown next.
+of a particular interpretation of the DSL". By combining our technique
+with OAs we can address the limitation that the reviewer points out to
+our approach, as shown next.
 
 
 
