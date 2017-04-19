@@ -13,12 +13,11 @@ A common advice on writing functional pearls is:
 We were following that advice!
 
 However, we are happy to provide such comparison. Essentially our
-technique and Object Algebras (OAs) can complement each other.
-Our technique is good at dealing with
-dependencies, but dependencies create difficulties with OAs.
-A lot of the follow up work on OAs is about novel  (and more
-sophisticated) approaches to deal with dependencies. For example,
-the paper:
+technique and Object Algebras (OAs) can complement each other.  Our
+technique is good at dealing with dependencies, but dependencies
+create difficulties with OAs.  A lot of the follow up work on OAs is
+about novel (and more sophisticated) approaches to deal with
+dependencies. For example, the paper:
 
 Feature-Oriented Programming with Object Algebras
 Bruno C. d. S. Oliveira, Tijs van der Storm, Alex Loh and William R. Cook
@@ -29,9 +28,8 @@ can deal with dependencies.
 
 On the other hand, as the reviewer mentions, OAs are good for solving
 the problem of how to "define and type terms in the DSL independently
-of a particular interpretation of the DSL". As we show next we can
-use such combination to address the limitation that the reviewer
-points out to our approach.
+exploit this to address the limitation that the reviewer points out to
+our approach.
 
 
 
