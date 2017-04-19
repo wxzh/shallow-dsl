@@ -1,0 +1,133 @@
+We thank all the reviewers for their constructive comments.
+
+Review A
+===
+
+- if you support multiple interpretations, then how do I write DSL terms, without committing to a particular interpretation of the DSL?
+
+There are different options to build terms:
+
+1) An easy way that offers some weak form of modularity but not independent from multiple interpretations is to provide smart constructors of same signatures in different versions of DSLs. For example,
+
+```
+object Circuit1 {
+  def fan(x: Int) = new Fan1 {val n=x}
+  def beside(x: Circuit1, y: Circuit1) = new Beside1 {val c1=x; val c2=y}
+  ...
+}
+
+object Circuit2 {
+  def fan(x: Int) = new Fan2 {val n=x}
+  def beside(x: Circuit2, y: Circuit2) = new Beside2 {val c1=x; val c2=y}
+  ...
+}
+```
+By switching import statements from `Circuit1` to `Circuit2`, we can have a circuit that supports different interpretations without touching the construction code
+
+
+2) Object Algebras are complementary to our own techniques.
+By building on the strength of Object Algebras, we can have terms that are independent from interpretations.
+Here is the Object Algebra interface for the circuit DSL:
+
+```
+trait CircuitFactory[C] {
+  def fan(x: Int): C
+  def beside(x: C, y: C): C
+  ...
+}
+```
+
+This interface can be used to construct interpretation-independent terms:
+
+```
+def mkCircuit[C](f: CircuitFactory[C]): C = f.beside(f.fan(2),f.fan(2))
+```
+
+Now, smart constructor definitions are moved to a concrete factory:
+
+```
+object Circuit1Factory extends CircuitFactory[Circuit1] {
+  def fan(x: Int) = new Fan1 {val n=x}
+  def beside(x: Circuit1, y: Circuit1) = new Beside1 {val c1=x; val c2=y}
+  ...
+}
+object Circuit2Factory extends CircuitFactory[Circuit2] {
+  def fan(x: Int) = new Fan2 {val n=x}
+  def beside(x: Circuit1, y: Circuit1) = new Beside2 {val c1=x; val c2=y}
+  ...
+}
+```
+
+Similar concrete factories can be defined for `Circuit2`.
+By supplying different concrete factories to `mkCircuit`, we obtain circuits that support different  interpretations.
+
+Review B
+===
+
+
+Review C
+===
+
+- "the paper doesn't acknowledge enough that the record/variant
+duality"
+
+We think we do ackowledge it, by talking about the Expression Problem
+(which is essentially about such duality!). Perhaps we are taking for
+granted that most readers are familiar with the Expression Problem. We
+are happy to add a few explicit sentences about the duality, along the
+same line of what the reviewer wrote.
+
+- "Scala inheritance is used to save a tiny bit of redefinition"
+
+This is an unfair view of the advantages.
+
+* Firstly because it so happens that the code in the paper (for
+obvious reasons) is minimalistic. More realistically we may have quite
+a bit more code...
+
+* Secondly, and more importantly, this misses the aspect of
+  *modularity*. If we redefine, we do not get modularity, and have to
+  deal with all the problems that copying&pasting code entails.
+
+- "I also feel like the authors are unjustifiably hard on GADTs as a
+  way to deep-embed languages."
+
+We don't see where in the paper we make such strong criticism. Can the
+reviewer be concrete about specific sentences? In all *3 occurrences*
+of "algebraic datatypes" in the paper we just mention the problems of
+extensibility/modularity for datatypes, which the reviewer agrees
+with. We also believe that GADTs are great for *deep embeddings*, so
+we are happy to rephrase any awkward sentences.
+
+- acknowledging program transformation!
+
+The fact that shallow embeddings cannot deal with transformations is
+well-known. We do *not claim* that the OO technique for shallow embeddings 
+can replace deep embeddings. We merely point out that *multiple
+interpretations* are possible with OO techniques, which contradicts
+the commonly acknowledged single interpretation limitation of shallow
+embeddings. That is the main point of the pearl and the take home
+message to DSL designers! 
+
+- "The OOP style demonstrated here forces a linearization of the method
+  signatures"
+
+No. For example, `Circuit2` shown on page 6 can be defined separately:
+
+```
+trait Circuit2 {
+  def depth: Int
+}
+trait Identity2 extends Circuit2 {
+  def depth = 0
+}
+...
+```
+
+We can merge `Circuit1` and `Circuit2` via multiple trait inheritance:
+
+```
+trait Circuit extends Circuit1 with Circuit2
+trait Identity extends Circuit12 with Idenity1 with Identity2
+...
+```
