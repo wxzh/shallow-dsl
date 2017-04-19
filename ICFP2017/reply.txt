@@ -15,7 +15,7 @@ We were following that advice!
 However, we are happy to provide such comparison. Essentially our
 technique and Object Algebras (OAs) can complement each other.  Our
 technique is good at dealing with dependencies, but dependencies
-create difficulties with OAs.  A lot of the follow up work on OAs is
+create difficulties with OAs. A lot of the follow up work on OAs is
 about novel (and more sophisticated) approaches to deal with
 dependencies. For example, the paper:
 
@@ -29,7 +29,8 @@ can deal with dependencies.
 On the other hand, as the reviewer mentions, OAs are good for solving
 the problem of how to "define and type terms in the DSL independently
 exploit this to address the limitation that the reviewer points out to
-our approach.
+our approach. By combining our technique with OAs we can address
+the limitation that the reviewer points out to our approach, as shown next.
 
 
 
@@ -130,7 +131,7 @@ We don't see where in the paper we make such strong criticism. Can the
 reviewer be concrete about specific sentences? In all *3 occurrences*
 of "algebraic datatypes" in the paper we just mention the problems of
 extensibility/modularity for datatypes, which the reviewer agrees
-with. We also believe that GADTs are great for *deep embeddings*, so
+with. We agree that GADTs are great for *deep embeddings*, so
 we are happy to rephrase any awkward sentences.
 
 - acknowledging program transformation!
@@ -141,7 +142,7 @@ can replace deep embeddings. We merely point out that *multiple
 interpretations* are possible with OO techniques, which contradicts
 the commonly acknowledged single interpretation limitation of shallow
 embeddings. That is the main point of the pearl and the take home
-message to DSL designers! 
+message for DSL designers! 
 
 - "The OOP style demonstrated here forces a linearization of the method
   signatures"
@@ -162,6 +163,6 @@ We can merge `Circuit1` and `Circuit2` via multiple trait inheritance:
 
 ```
 trait Circuit extends Circuit1 with Circuit2
-trait Identity extends Circuit12 with Idenity1 with Identity2
+trait Identity extends Circuit12 with Identity1 with Identity2
 ...
 ```
