@@ -33,11 +33,6 @@ with OAs we can address the limitation that the reviewer points out to
 our approach, as shown next.
 
 
-
-Object Algebras:
-
-(Advan
-
 - if you support multiple interpretations, then how do I write DSL terms, without committing to a particular interpretation of the DSL?
 
 There are different options to build terms:
@@ -57,11 +52,10 @@ object Circuit2 {
   ...
 }
 ```
-By switching import statements from `Circuit1` to `Circuit2`, we can have a circuit that supports different interpretations without touching the construction code
+By switching import statements from `Circuit1` to `Circuit2`, we can have a circuit that supports different interpretations without its construction code being touched.
 
 
-2) Object Algebras are complementary to our own techniques.
-By building on the strength of Object Algebras, we can have terms that are independent from interpretations.
+2) By building on the strength of OAs, we can have terms that are independent from interpretations.
 Here is the Object Algebra interface for the circuit DSL:
 
 ```
@@ -86,15 +80,18 @@ object Circuit1Factory extends CircuitFactory[Circuit1] {
   def beside(x: Circuit1, y: Circuit1) = new Beside1 {val c1=x; val c2=y}
   ...
 }
+```
+
+Similar concrete factories can be defined for `Circuit2`.
+```
 object Circuit2Factory extends CircuitFactory[Circuit2] {
   def fan(x: Int) = new Fan2 {val n=x}
-  def beside(x: Circuit1, y: Circuit1) = new Beside2 {val c1=x; val c2=y}
+  def beside(x: Circuit2, y: Circuit2) = new Beside2 {val c1=x; val c2=y}
   ...
 }
 ```
 
-Similar concrete factories can be defined for `Circuit2`.
-By supplying different concrete factories to `mkCircuit`, we obtain circuits that support different  interpretations.
+By supplying different concrete factories to `mkCircuit`, we obtain circuits independent of interpretations.
 
 Review B
 ===
@@ -154,6 +151,7 @@ trait Circuit2 {
   def depth: Int
 }
 trait Identity2 extends Circuit2 {
+  val n
   def depth = 0
 }
 ...
