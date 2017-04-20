@@ -1,5 +1,30 @@
 package scans
 
+/* This file illustrates how to use Object Algebras to model
+   interpretation-independent terms. The file contains the following:
+
+   - The initial parts contain the code in the paper for defining
+   the interpretations for width (page 4) and layout (page 8-10).
+
+   - Then, we present the Object Algebra interface (CircuitFactory[C]) that
+   captures the signatures of the constructors.
+
+   - Then we provide two concrete Object Algebras (Circuit1Factory and Circuit4Factory)
+   that capture the interpretations for width and layout.
+
+   - *How to construct interpretation-independent terms* is illustrated afterwards, by
+   the definitions: c and c2. The definition c2 shows a slighly neater alternative
+   using Scala's ability for local imports.
+
+   Also two examples of how to "instantiate" the terms with a concrete interpretation
+   are given afterwards.
+
+   - The final part of the file shows that extensibility (the ability to add new
+   language constructs) is retained by this approach. To illustrate this, we add
+   "rstrech" and show how to extends the Object Algebras.
+
+*/
+
 object ObjectAlgebras extends App {
   // Code from page 4
   trait Circuit1 {
