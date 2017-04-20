@@ -110,7 +110,7 @@ object Circuit2Factory extends CircuitFactory[Circuit2] {
 ```
 
 By supplying different concrete factories to `mkCircuit`, we obtain
-circuits that model particular interpretations.
+circuits that models particular interpretations.
 
 Review C
 ===
