@@ -14,10 +14,11 @@ We were following that advice!
 
 However, we are happy to provide such comparison. Essentially our
 technique and Object Algebras (OAs) can complement each other.  Our
-technique is good at dealing with dependencies, but dependencies
-create difficulties with OAs. A lot of the follow up work on OAs is
-about novel (and more complex) approaches to deal with
-dependencies. For example, the paper:
+technique is good at dealing with dependent interpretations, but
+dependent interpretations create difficulties with OAs. A lot of the
+follow up work on OAs is about novel (and more complex) approaches to
+deal with dependencies that arize in dependent interpretations. For
+example, the paper:
 
 Feature-Oriented Programming with Object Algebras
 Bruno C. d. S. Oliveira, Tijs van der Storm, Alex Loh and William R. Cook
@@ -29,8 +30,8 @@ can deal with dependencies.
 On the other hand, as the reviewer mentions, OAs are good for solving
 the problem of how to "define and type terms in the DSL independently
 of a particular interpretation of the DSL". By combining our technique
-with OAs we can address the limitation that the reviewer points out to
-our approach, as shown next.
+with OAs we can address the main question of the reviewer, as shown next.
+
 
 - "if you support multiple interpretations, then how do I write DSL
   terms, without committing to a particular interpretation of the
@@ -42,7 +43,7 @@ There are different options to build terms.
 modularity, but it is not strictly speaking fully independent
 from multiple interpretations.
 
-What we can do is, for example create smart contructors such as:
+What we can do is create smart contructors such as:
 
 ```
 object Circuit1 {
@@ -71,7 +72,9 @@ using the part of the Circuit code in the paper, is available at:
 
 https://github.com/wxzh/shallow-dsl/blob/master/src/scans/ObjectAlgebras.scala
 
-In this approach Object Algebra interfaces capture the abstract
+and also at the appendix of the reply.
+
+Essentially with OAs, Object Algebra interfaces capture the abstract
 signatures of the contructors:
 
 ```
@@ -109,7 +112,7 @@ object Circuit2Factory extends CircuitFactory[Circuit2] {
 ```
 
 By supplying different concrete factories to `mkCircuit`, we obtain
-circuits that are fully independent of interpretations.
+circuits that model particular interpretations.
 
 Review B
 ===
