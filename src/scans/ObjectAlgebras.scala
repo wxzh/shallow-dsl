@@ -1,66 +1,7 @@
 package scans
 
 object ObjectAlgebras extends App {
-  // An Object Algebra interface (abstract factory) describing the supported circuit constructors
-  trait CircuitFactory[C] {
-    def identity(x: Int): C
-    def fan(x: Int): C
-    def above(x: C, y: C): C
-    def beside(x: C, y: C): C
-    def stretch(x: C, xs: Int*): C
-  }
-
-  // An Object Algebra (concrete factory) that produces Circuit1 (page 4)
-  class Circuit1Factory extends CircuitFactory[Circuit1] {
-    def identity(x: Int)                  =  new Identity1  {val n=x}
-    def fan(x: Int)                       =  new Fan1       {val n=x}
-    def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
-    def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
-    def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c=x}
-  }
-
-  // Another Object Algebra that produces Circuit4 (page 8)
-  class Circuit4Factory extends CircuitFactory[Circuit4] {
-    def identity(x: Int)                  =  new Identity4  {val n=x}
-    def fan(x: Int)                       =  new Fan4       {val n=x}
-    def above(x: Circuit4, y: Circuit4)   =  new Above4     {val c1=x; val c2=y}
-    def beside(x: Circuit4, y: Circuit4)  =  new Beside4    {val c1=x; val c2=y}
-    def stretch(x: Circuit4, xs: Int*)    =  new Stretch4   {val ns=xs.toList; val c=x}
-  }
-
-  // An interpretation-independent circuit constructed via an abstract factory (page 5)
-  def c[C](f: CircuitFactory[C]) =
-    f.above(f.beside(f.fan(2),f.fan(2)),
-            f.above(f.stretch(f.fan(2),2,2),
-                    f.beside(f.beside(f.identity(1),f.fan(2)),f.identity(1))))
-
-  def c2[C](f: CircuitFactory[C]) = {
-    import f._
-    above(beside(fan(2),fan(2)),
-            above(stretch(fan(2),2,2),
-                    beside(beside(identity(1),fan(2)),identity(1))))
-  }
-
-  // Supplying concrete factories to allow different interpretations
-  c(new Circuit1Factory).width // 4 
-  c(new Circuit4Factory).tlayout { x => x } // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
-
-  // Circuit constructor extension
-  trait ExtCircuitFactory[C] extends CircuitFactory[C] {
-    def rstretch(x: C, xs: Int*): C
-  }
-  class ExtCircuit4Factory extends Circuit4Factory {
-    def rstretch(x: Circuit4, xs: Int*) = new RStretch {val c=x; val ns=xs.toList}
-  }
-  
-  // Client code for extension
-  def c3[C](f: ExtCircuit4Factory) = {
-    import f._
-    rstretch(c2(f),2,2,2,2)
-  }
-  c3(new ExtCircuit4Factory).tlayout { x => x } // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
-
-  // Code from the paper pasted below
+  // Code from page 4
   trait Circuit1 {
     def width: Int
   }
@@ -86,6 +27,7 @@ object ObjectAlgebras extends App {
     def width = ns.sum
   }
 
+  // Code from page 8-10
   type Layout = List[List[(Int,Int)]]
   trait Circuit4 extends Circuit1 {
     def tlayout(f: Int => Int): Layout
@@ -124,4 +66,64 @@ object ObjectAlgebras extends App {
       c.tlayout(f.compose(vs(_)))
     }
   }
+
+  // An Object Algebra interface (abstract factory) describing the supported circuit constructors
+  trait CircuitFactory[C] {
+    def identity(x: Int): C
+    def fan(x: Int): C
+    def above(x: C, y: C): C
+    def beside(x: C, y: C): C
+    def stretch(x: C, xs: Int*): C
+  }
+
+  // Smart constructors defined for Circuit1 (page 5) are moved into an Object Algebra (concrete factory)
+  class Circuit1Factory extends CircuitFactory[Circuit1] {
+    def identity(x: Int)                  =  new Identity1  {val n=x}
+    def fan(x: Int)                       =  new Fan1       {val n=x}
+    def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
+    def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
+    def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c=x}
+  }
+
+  // Another Object Algebra that produces Circuit4
+  class Circuit4Factory extends CircuitFactory[Circuit4] {
+    def identity(x: Int)                  =  new Identity4  {val n=x}
+    def fan(x: Int)                       =  new Fan4       {val n=x}
+    def above(x: Circuit4, y: Circuit4)   =  new Above4     {val c1=x; val c2=y}
+    def beside(x: Circuit4, y: Circuit4)  =  new Beside4    {val c1=x; val c2=y}
+    def stretch(x: Circuit4, xs: Int*)    =  new Stretch4   {val ns=xs.toList; val c=x}
+  }
+
+  // An interpretation-independent circuit constructed via an abstract factory (page 5)
+  def c[C](f: CircuitFactory[C]) =
+    f.above(f.beside(f.fan(2),f.fan(2)),
+            f.above(f.stretch(f.fan(2),2,2),
+                    f.beside(f.beside(f.identity(1),f.fan(2)),f.identity(1))))
+
+  // A neater alternative
+  def c2[C](f: CircuitFactory[C]) = {
+    import f._
+    above(beside(fan(2),fan(2)),
+            above(stretch(fan(2),2,2),
+                    beside(beside(identity(1),fan(2)),identity(1))))
+  }
+
+  // Supplying concrete factories to allow different interpretations
+  println(c(new Circuit1Factory).width) // 4 
+  println(c(new Circuit4Factory).tlayout { x => x }) // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
+
+  // Circuit constructor extension
+  trait ExtCircuitFactory[C] extends CircuitFactory[C] {
+    def rstretch(x: C, xs: Int*): C
+  }
+  class ExtCircuit4Factory extends Circuit4Factory {
+    def rstretch(x: Circuit4, xs: Int*) = new RStretch {val c=x; val ns=xs.toList}
+  }
+  
+  // Client code for extension
+  def c3[C](f: ExtCircuit4Factory) = {
+    import f._
+    rstretch(c2(f),2,2,2,2)
+  }
+  println(c3(new ExtCircuit4Factory).tlayout { x => x }) // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
 }
