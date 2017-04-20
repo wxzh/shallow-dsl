@@ -114,10 +114,6 @@ object Circuit2Factory extends CircuitFactory[Circuit2] {
 By supplying different concrete factories to `mkCircuit`, we obtain
 circuits that model particular interpretations.
 
-Review B
-===
-
-
 Review C
 ===
 
@@ -142,13 +138,12 @@ a bit more code...
   *modularity*. If we redefine, we do not get modularity, and have to
   deal with all the problems that copying&pasting code entails.
 
-- I don't see any partial evaluation, and the implementation of joins is just nested loops, though the authors speculate about adding hash-based joins.
+- I don't see any partial evaluation, and the implementation of joins
+  is just nested loops, though the authors speculate about adding
+  hash-based joins.
 
-HashJoin is actually implemented but not shown in our paper (see https://github.com/wxzh/shallow-dsl/blob/master/src/sql/SQLExt.scala#L31).
-Neither the original paper (https://www.cs.purdue.edu/homes/rompf/papers/rompf-icfp15.pdf) nor the companion code (https://github.com/scala-lms/tutorials/tree/master/src/test/scala/lms/tutorial, all versions prefixed by `query`)
-contains any transformation.
-The performance boost comes from the LMS framework and specialized data structures. Although our approach are still applicable to the staged versions,
-they are out the scope of our paper.
+HashJoin is actually implemented but not shown in our paper (see
+https://github.com/wxzh/shallow-dsl/blob/master/src/sql/SQLExt.scala#L31).
 
 - "I also feel like the authors are unjustifiably hard on GADTs as a
   way to deep-embed languages."
@@ -168,7 +163,19 @@ can replace deep embeddings. We merely point out that *multiple
 interpretations* are possible with OO techniques, which contradicts
 the commonly acknowledged single interpretation limitation of shallow
 embeddings. That is the main point of the pearl and the take home
-message for DSL designers! 
+message for DSL designers!
+
+- transformations in Rompf and Amin's work:
+
+The SQL interpreter in the Rompf and Amin's ICFP 2015 work *does not
+contain any transformations*.  Neither the original paper
+(https://www.cs.purdue.edu/homes/rompf/papers/rompf-icfp15.pdf) nor
+the companion code
+(https://github.com/scala-lms/tutorials/tree/master/src/test/scala/lms/tutorial,
+all versions prefixed by `query`) contains any transformation.  The
+performance boost comes from the LMS framework and specialized data
+structures. Although our approach are still applicable to the staged
+versions, they are out the scope of our paper.
 
 - "The OOP style demonstrated here forces a linearization of the method
   signatures"
