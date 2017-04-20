@@ -141,12 +141,12 @@ object ObjectAlgebras extends App {
   trait ExtCircuitFactory[C] extends CircuitFactory[C] {
     def rstretch(x: C, xs: Int*): C
   }
-  class ExtCircuit4Factory extends Circuit4Factory {
+  class ExtCircuit4Factory extends Circuit4Factory with ExtCircuitFactory[Circuit4] {
     def rstretch(x: Circuit4, xs: Int*) = new RStretch {val c=x; val ns=xs.toList}
   }
   
   // Client code for extension
-  def c3[C](f: ExtCircuit4Factory) = {
+  def c3[C](f: ExtCircuitFactory[C]) = {
     import f._
     rstretch(c2(f),2,2,2,2)
   }
