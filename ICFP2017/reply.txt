@@ -203,7 +203,17 @@ trait Identity extends Circuit12 with Identity1 with Identity2
 Review D
 ======
 
-* Using case classes for extensibility.
+-  "This encoding creates a data type representation for each syntactic form in the DSL, which in my book amounts to a deep embedding ..."
+
+We admit that the encoding using Scala is a little bit fuzzy as we have discussed in the conclusion.
+The problem is that we cannot find a mainstream OOP language that both follows Cook's model and supports subtyping, inheritance and type-refinements.
+Scala supports most of the needed features but like other mainstream OOP languages, you create a type when implementing an interface.
+Indeed, those syntactic forms are only used to create objects rather than as types.
+As we have said in conclusion, "a shallow EDSL turns out to be deep once classes are used as types for accessing fields (Cook 2009), violating what Cook calls pure OOP, but allowing transformations to be defined".
+BTW, that front-end layer may not be needed as trait constructors will be supported in the near future.
+For comparison to related work, see our response to reviewer A.
+
+- Using case classes for extensibility.
 
 We are very familiar with the pattern that the reviewer points to us.
 However, that pattern does not provide the solution that we are
@@ -213,7 +223,7 @@ embedding technique, the pattern does not meet our goals because:
 1) If you use *sealed* classes, as the author seems to suggest
 in the code:
 
-sealed abstract class Operator
+`sealed abstract class Operator`
 
 Then we cannot *modularly* extend operators: i.e. all Operators must
 be defined on the same file, thus *no separate compilation* is
@@ -221,11 +231,11 @@ possible.
 
 2) If we don't use sealed classes. That is, we use instead:
 
-abstract class Operator
+`abstract class Operator`
 
 Then we are effectivelly creating partial functions that may fail at
 run-time with *pattern matching failures*. This is visible in the
-definition of execOp:
+definition of `execOp`:
 
  def execOp(o: Operator)(yld: Record => Rep[Unit]): Rep[Unit] = o match {
        case Scan(filename, schema, fieldDelimiter, externalSchema) =>
@@ -234,18 +244,22 @@ definition of execOp:
          execOp(parent) { rec => if (evalPred(pred)(rec)) yld(rec) }
        case Project(newSchema, parentSchema, parent) =>
          execOp(parent) { rec => yld(Record(rec(parentSchema), newSchema)) }
-       ….
+       ...
    }
 
-When we add a new case class for Join, there's no static type error
-reporting that execOp needs to be extended with a new case for Join!
+When we add a new case class for `Join`, there's no static type error
+reporting that `execOp` needs to be extended with a new case for `Join`!
 If the programmer *does not forget* to add that case, then
-all is good. However if he does forget to add the Join case to execOp
+all is good. However if he does forget to add the `Join` case to `execOp`
 the type system will not help!
 
 In contrast, in our approach, if the programmer forgets to define the
-case for execOp for Join, the program will not type-check.
+case for `execOp` for `Join`, the program will not type-check.
 
 In conclusion: case classes do not solve the Expression Problem,
 whereas the approach we present does.
 
+- The authors need to be (a lot!) more careful with citations and
+attributions.
+
+Thanks for pointing this out. We will do citations more properly.
