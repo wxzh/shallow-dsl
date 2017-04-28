@@ -4,16 +4,16 @@ package scans
    interpretation-independent terms. The file contains the following:
 
    - The initial parts contain the code in the paper for defining
-   the interpretations for width (page 4) and layout (page 8-10).
+   the interpretations for width (page 4) and tlayout (page 8-10).
 
    - Then, we present the Object Algebra interface (CircuitFactory[C]) that
    captures the signatures of the constructors.
 
    - Then we provide two concrete Object Algebras (Circuit1Factory and Circuit4Factory)
-   that capture the interpretations for width and layout.
+   that capture the interpretations for width and tlayout.
 
    - *How to construct interpretation-independent terms* is illustrated afterwards, by
-   the definitions: c and c2. The definition c2 shows a slighly neater alternative
+   the definitions: c and c2. The definition c2 shows a slightly neater alternative
    using Scala's ability for local imports.
 
    Also two examples of how to "instantiate" the terms with a concrete interpretation
@@ -22,6 +22,8 @@ package scans
    - The final part of the file shows that extensibility (the ability to add new
    language constructs) is retained by this approach. To illustrate this, we add
    "rstrech" and show how to extends the Object Algebras.
+   
+   - To run the file in Eclipse, right click the file, select "Run as" and select "Scala Application"
 
 */
 
@@ -137,16 +139,16 @@ object ObjectAlgebras extends App {
   println(c(new Circuit1Factory).width) // 4 
   println(c(new Circuit4Factory).tlayout { x => x }) // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
 
-  // Circuit constructor extension
+  // Circuit constructs extension
   trait ExtCircuitFactory[C] extends CircuitFactory[C] {
     def rstretch(x: C, xs: Int*): C
   }
-  class ExtCircuit4Factory extends Circuit4Factory {
+  class ExtCircuit4Factory extends Circuit4Factory with ExtCircuitFactory[Circuit4] {
     def rstretch(x: Circuit4, xs: Int*) = new RStretch {val c=x; val ns=xs.toList}
   }
   
   // Client code for extension
-  def c3[C](f: ExtCircuit4Factory) = {
+  def c3[C](f: ExtCircuitFactory[C]) = {
     import f._
     rstretch(c2(f),2,2,2,2)
   }

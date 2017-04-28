@@ -1,4 +1,4 @@
-We thank all the reviewers for their constructive comments.
+We thank all reviewers for their constructive comments.
 
 Review A
 ===
@@ -17,7 +17,7 @@ technique and Object Algebras (OAs) can complement each other.  Our
 technique is good at dealing with dependent interpretations, but
 dependent interpretations create difficulties with OAs. A lot of the
 follow up work on OAs is about novel (and more complex) approaches to
-deal with dependencies that arize in dependent interpretations. For
+deal with dependencies that arise in dependent interpretations. For
 example, the paper:
 
 Feature-Oriented Programming with Object Algebras
@@ -43,7 +43,7 @@ There are different options to build terms.
 modularity, but it is not strictly speaking fully independent
 from multiple interpretations.
 
-What we can do is create smart contructors such as:
+What we can do is creating smart constructors such as:
 
 ```
 object Circuit1 {
@@ -61,19 +61,19 @@ object Circuit2 {
 
 By switching import statements from `Circuit1` to `Circuit2`, we can
 have a circuit that supports different interpretations without its
-construction code being touched. However it is fair enough to say that
+construction code being touched. However, it is fair enough to say that
 this is just a limited form of modularity.
 
 2) To enable full modularity and independence from interpretations we
 can employ OAs, which provide the factory methods that allow
 creating terms independently of the interpretations.
 A complete Scala script illustrating this alternative approach, and
-using the part of the Circuit code in the paper, is available at:
+using the part of the Circuit code in the paper is available at:
 
 https://github.com/wxzh/shallow-dsl/blob/master/src/scans/ObjectAlgebras.scala
 
 Essentially with OAs, Object Algebra interfaces capture the abstract
-signatures of the contructors:
+signatures of the constructors:
 
 ```
 trait CircuitFactory[C] {
@@ -110,7 +110,7 @@ object Circuit2Factory extends CircuitFactory[Circuit2] {
 ```
 
 By supplying different concrete factories to `mkCircuit`, we obtain
-circuits that models particular interpretations.
+circuits that model particular interpretations.
 
 Review C
 ===
@@ -118,7 +118,7 @@ Review C
 - "the paper doesn't acknowledge enough that the record/variant
 duality"
 
-We think we do ackowledge it, by talking about the Expression Problem
+We think we do acknowledge it, by talking about the Expression Problem
 (which is essentially about such duality!). Perhaps we are taking for
 granted that most readers are familiar with the Expression Problem. We
 are happy to add a few explicit sentences about the duality, along the
@@ -133,7 +133,7 @@ obvious reasons) is minimalistic. More realistically we may have quite
 a bit more code...
 
 * Secondly, and more importantly, this misses the aspect of
-  *modularity*. If we redefine, we do not get modularity, and have to
+  *modularity*. If we redefine, we do not get modularity and have to
   deal with all the problems that copying&pasting code entails.
 
 - I don't see any partial evaluation, and the implementation of joins
@@ -156,7 +156,7 @@ we are happy to rephrase any awkward sentences.
 - acknowledging program transformation!
 
 The fact that shallow embeddings cannot deal with transformations is
-well-known. We do *not claim* that the OO technique for shallow embeddings 
+well-known. We do *not claim* that the OO technique for shallow embeddings
 can replace deep embeddings. We merely point out that *multiple
 interpretations* are possible with OO techniques, which contradicts
 the commonly acknowledged single interpretation limitation of shallow
@@ -172,13 +172,13 @@ the companion code
 (https://github.com/scala-lms/tutorials/tree/master/src/test/scala/lms/tutorial,
 all versions prefixed by `query`) contains any transformation.  The
 performance boost comes from the LMS framework and specialized data
-structures. Although our approach are still applicable to the staged
+structures. Although our approach is still applicable to the staged
 versions, they are out the scope of our paper.
 
 - "The OOP style demonstrated here forces a linearization of the method
   signatures"
 
-No. For example, `Circuit2` shown in page 6 can be defined separately:
+No. For example, `Circuit2` shown on page 6 can be defined separately:
 
 ```
 trait Circuit2 {
@@ -248,3 +248,4 @@ case for execOp for Join, the program will not type-check.
 
 In conclusion: case classes do not solve the Expression Problem,
 whereas the approach we present does.
+
