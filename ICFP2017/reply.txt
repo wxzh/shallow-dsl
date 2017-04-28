@@ -199,3 +199,52 @@ trait Identity extends Circuit12 with Identity1 with Identity2
 ...
 ```
 
+======
+Review D
+======
+
+* Using case classes for extensibility.
+
+We are very familiar with the pattern that the reviewer points to us.
+However, that pattern does not provide the solution that we are
+looking for. Besides the fact that using case classes is a deep
+embedding technique, the pattern does not meet our goals because:
+
+1) If you use *sealed* classes, as the author seems to suggest
+in the code:
+
+sealed abstract class Operator
+
+Then we cannot *modularly* extend operators: i.e. all Operators must
+be defined on the same file, thus *no separate compilation* is
+possible.
+
+2) If we don't use sealed classes. That is, we use instead:
+
+abstract class Operator
+
+Then we are effectivelly creating partial functions that may fail at
+run-time with *pattern matching failures*. This is visible in the
+definition of execOp:
+
+ def execOp(o: Operator)(yld: Record => Rep[Unit]): Rep[Unit] = o match {
+       case Scan(filename, schema, fieldDelimiter, externalSchema) =>
+         processCSV(filename, schema, fieldDelimiter, externalSchema)(yld)
+       case Filter(pred, parent) =>
+         execOp(parent) { rec => if (evalPred(pred)(rec)) yld(rec) }
+       case Project(newSchema, parentSchema, parent) =>
+         execOp(parent) { rec => yld(Record(rec(parentSchema), newSchema)) }
+       ….
+   }
+
+When we add a new case class for Join, there's no static type error
+reporting that execOp needs to be extended with a new case for Join!
+If the programmer *does not forget* to add that case, then
+all is good. However if he does forget to add the Join case to execOp
+the type system will not help!
+
+In contrast, in our approach, if the programmer forgets to define the
+case for execOp for Join, the program will not type-check.
+
+In conclusion: case classes do not solve the Expression Problem,
+whereas the approach we present does.
