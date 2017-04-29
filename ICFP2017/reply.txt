@@ -203,14 +203,22 @@ trait Identity extends Circuit12 with Identity1 with Identity2
 Review D
 ======
 
--  "This encoding creates a data type representation for each syntactic form in the DSL, which in my book amounts to a deep embedding ..."
+- "This encoding creates a data type representation for each syntactic
+   form in the DSL, which in my book amounts to a deep embedding ..."
 
-We admit that the encoding using Scala is a little bit fuzzy as we have discussed in the conclusion.
-The problem is that we cannot find a mainstream OOP language that both follows Cook's model and supports subtyping, inheritance and type-refinements.
-Scala supports most of the needed features but like other mainstream OOP languages, you create a type when implementing an interface.
-Indeed, those syntactic forms are only used to create objects rather than as types.
-As we have said in conclusion, "a shallow EDSL turns out to be deep once classes are used as types for accessing fields (Cook 2009), violating what Cook calls pure OOP, but allowing transformations to be defined".
-BTW, that front-end layer may not be needed as trait constructors will be supported in the near future.
+Our argument is that what Cook calls pure OOP captures procedural
+abstraction and amounts to a shallow style. As we have said in
+conclusion, "a shallow EDSL turns out to be deep once *classes are used
+as types* for accessing fields (Cook 2009), violating what Cook calls
+pure OOP, but allowing **transformations** to be defined".
+
+We admit that a problem is that no mainstream OOP language enforces 
+pure OOP, so one has to look carefully at a program to see 
+whether the program is using pure OOP or not. 
+
+However the programs in the paper do use pure OOP (we 
+don't use classes as types), and thus they are shallow. 
+
 For comparison to related work, see our response to reviewer A.
 
 - Using case classes for extensibility.
