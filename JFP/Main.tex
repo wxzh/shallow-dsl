@@ -1,0 +1,69 @@
+\documentclass{jfp1}
+
+\usepackage{xspace}
+\usepackage{url}
+\usepackage{syntax}
+\usepackage{textcomp}
+\newcommand{\dsl}{\textsc{Scans}\xspace}
+\newcommand{\interp}{\textsc{Interpreter}\xspace}
+%\newcommand{\an}[3]{{\color{#2} {\sc #1}:#3}}
+\newcommand{\an}[3]{}
+\newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
+\newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
+
+%% for comments
+\input{Preamble}
+
+%% Bibliography style
+\bibliographystyle{jfp}
+
+% Document starts
+\begin{document}
+
+% Title portion
+\title{Shallow EDSLs and Object-Oriented Programming}
+
+\author[W. Zhang and B. Oliveira]
+        {WEIXIN ZHANG and BRUNO C. D. S. OLIVEIRA\\
+         The University of Hong Kong, Hong Kong}
+
+\maketitle[f]
+
+\begin{abstract}
+Shallow Embedded Domain Specific Languages (EDSLs) use
+\emph{procedural abstraction} to directly encode a DSL into an existing host language. Procedural abstraction has
+been argued to be the essence of Object-Oriented Programming (OOP).
+%Given
+%that OO languages have evolved over more than 50 years
+%to improve the use of procedural abstraction, they ought to have some
+%advantages to encode shallow EDSLs.
+This pearl argues that OOP abstractions
+(including \emph{inheritance}, \emph{subtyping}, and
+\emph{type-refinement})
+increase the modularity and reuse of shallow
+EDSLs when compared to classical procedural abstraction. We make this
+argument by taking a recent paper by Gibbons and Wu, where procedural
+abstraction is used in Haskell to model a simple shallow EDSL, and we recode
+that EDSL in Scala. 
+To further illustrate the applicability of our OOP approach, we conduct
+a case study on refactoring a deep external SQL DSL implementation to make it
+more modular, shallow, and embedded.
+\end{abstract}
+
+\input{sections/Introduction}
+
+\input{sections/ShallowOO}
+
+\input{sections/Interpretations}
+
+\input{sections/Casestudy}
+
+\input{sections/Conclusion}
+
+% Bibliography
+\bibliography{Main}
+
+% History dates
+%\received{February 2007}{March 2009}{June 2009}
+
+\end{document}

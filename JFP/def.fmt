@@ -1,0 +1,43 @@
+%format . = "."
+%format // = "/\!/"
+%format trait = "\mathbf{trait}"
+%format package = "\mathbf{package}"
+%format val = "\mathbf{val}"
+%format var = "\mathbf{var}"
+%format new = "\mathbf{new}"
+%format def = "\mathbf{def}"
+%format this = "\mathbf{this}"
+%format with = "\mathbf{with}"
+%format extends = "\mathbf{extends}"
+%format for = "\mathbf{for}"
+%format yield = "\mathbf{yield}"
+%format match = "\mathbf{match}"
+%format sealed = "\mathbf{sealed}"
+%format abstract = "\mathbf{abstract}"
+%format override = "\mathbf{override}"
+%format implicit = "\mathbf{implicit}"
+%format super = "\mathbf{super}"
+%format in = "in"
+%format s1
+%format s2
+%format op1
+%format op2
+%format r1
+%format r2
+%format ^^ = "\;"
+
+%format Op2
+%format Operator2
+%format Scan2
+%format Print2
+%format Project2
+%format Filter2
+%format Join2
+%format Identity1
+%format Fan1
+%format Beside1
+%format Above1
+%format Stretch1
+%format c1
+%format c2
+%format Circuit1
