@@ -5,7 +5,7 @@
 
 This section shows that an OOP approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
-DSL presented by ~\cite{gibbons2014folding} as
+DSL presented by Gibbons and Wu~\shortcite{gibbons2014folding} as
 the running example.  We first give the original shallow embedded
 implementation in Haskell, and rewrite it towards an ``OOP style''.
 Then translating the program into an OOP language becomes straightforward.

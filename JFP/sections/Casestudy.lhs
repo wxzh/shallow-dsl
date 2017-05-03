@@ -71,7 +71,7 @@ Yet another relatively complex query to find all unique talks happening at the s
 > join    (    select time, room, title as title2 from talks.csv)
 > where   title1  <> title2
 
-\indent \cite{rompf15} present a SQL to C compiler in Scala.
+\indent Rompf and Amin~\shortcite{rompf15} present a SQL to C compiler in Scala.
 Their implementation first parses a SQL query into a relational algebra AST,
 and then executes the query based on that AST.
 Using the LMS framework~\cite{rompf2012lightweight},

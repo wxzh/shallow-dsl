@@ -5,7 +5,7 @@ Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\cite{
 languages (e.g. Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
 and \emph{deep} embeddings. The origin of that terminology can be
-attributed to ~\cite{Boulton92dsl}. The difference between these
+attributed to Boulton et al.~\shortcite{Boulton92dsl}. The difference between these
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
@@ -27,10 +27,10 @@ functions.
 
 The first goal of this pearl is to show the close relationship between
 shallow embeddings and OOP.
-As ~\cite{cook09abstraction} argued, procedural abstraction is also
+As Cook~\shortcite{cook09abstraction} argued, procedural abstraction is also
 the essence of OOP. Although OOP is often associated with stateful
 (imperative) objects, it is possible to have functional objects that
-have no mutable state. Indeed \cite{cook09abstraction} calls such
+have no mutable state. Indeed Cook~\shortcite{cook09abstraction} calls such
 style \emph{pure OOP}, and argues that it captures the essence of OOP.
 Although such pure OOP definition may be controversial for OOP
 programmers, it fits very well with functional programming.  Since pure OOP

@@ -4,7 +4,7 @@
 \section{Interpretations in Shallow Embeddings}
 
 An often stated limitation of shallow embeddings is that they allow only a single
-interpretation. ~\cite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
+interpretation. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined using standard OOP techniques.
 
@@ -14,7 +14,7 @@ For example, besides |width|, we may want to have an additional interpretation
 that calculates the depth of a circuit in \dsl.
 
 \paragraph{Multiple Interpretations in Haskell}
-Here is ~\cite{gibbons2014folding}'s solution:
+Here is Gibbons and Wu~\shortcite{gibbons2014folding}'s solution:
 
 %format Circuit2
 %format identity2
