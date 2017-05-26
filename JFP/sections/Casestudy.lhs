@@ -158,7 +158,7 @@ The implementation of |Scan| is shown next:
 
 \subsection{Syntax}
 It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
-In \cite{rompf15} implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
+In Rompf and Amin\shortcite{rompf15}'s implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
 Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to lift field names and literals implicitly.
 For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{fowler2005fluent}.
@@ -195,7 +195,7 @@ However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
 
-The implementation presented so far can only process data files of format csv (comma-separated values).
+The implementation presented so far can only process data files of format CSV (comma-separated values).
 The first extension is to let it support DSV (delimiter-separated values) files
 with an optional header schema describing the names of fields.
 

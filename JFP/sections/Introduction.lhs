@@ -57,7 +57,7 @@ OOP languages. Thus using just standard OOP mechanisms enables
 \emph{multiple modular interpretations} to co-exist and be combined in
 shallow embeddings.
 
-We make our arguments by taking a recent paper by ~\cite{gibbons2014folding},
+We make our arguments by taking a recent paper by Gibbons and Wu~\shortcite{gibbons2014folding},
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
@@ -66,7 +66,7 @@ Scala version has clear advantages over the Haskell version.
 
 To further illustrate the applicability of our OOP approach, we conduct
 a case study on refactoring an existing DSL implementation to make it
-modular. \cite{rompf15} present a SQL to C compiler in Scala, which
+modular. Rompf and Amin~\shortcite{rompf15} present a SQL to C compiler in Scala, which
 is an external DSL but uses deep embedding techniques such as
 algebraic datatypes and pattern matching in the implementation. The use of deep
 embedding techniques facilitates multiple interpretations at the price
