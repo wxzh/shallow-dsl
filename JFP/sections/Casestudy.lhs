@@ -29,9 +29,6 @@
 To further illustrate the applicability of shallow OO embeddings,
 we refactored an existing \emph{deep external} DSL implementation for SQL queries
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
-The full implementation can be found online at:
-\url{https://github.com/wxzh/shallow-dsl/tree/master/src/sql}.\footnote{{\bf Note to reviewers:}
-Following this link will reveal the identity of the paper authors.}
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
@@ -83,7 +80,7 @@ But problems arise when the implementation evolves with new language constructs.
 All existing interpretations have to be modified for dealing with these new constructs,
 suffering from the Expression Problem.
 
-Fortunately, it is possible to rewrite \cite{rompf15} implementation
+Fortunately, it is possible to rewrite Rompf and Amin~\shortcite{rompf15}'s implementation
 as a shallow EDSL, because the original implementation contains no
 transformations/optimizations on ASTs, which would be another
 motivation to use a deep embedding. Therefore, with only modest
@@ -101,12 +98,11 @@ an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
 >               `title1 <> `title2
 
 Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
-In fact, the syntax of our EDSL is closer to the syntax of LINQ~\cite{meijer2006linq}, where |select| is a terminating rather than a beginning clause of a query.
+In fact, the syntax of our EDSL is closer to that of LINQ~\cite{meijer2006linq}, where |select| is a terminating rather than a beginning clause of a query.
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
-declarations, we can build a complex query from parts or reuse common
-queries to improve the readability and modularity of the embedded
-programs, as illustrated by |q2|.
+declarations, we are able to build a complex query from parts or reuse common queries for improving the readability and modularity of the embedded programs.
+|q0| in the example is a common query that is reused in both |q1| and |q2|.
 
 The following subsections give an overview of rewriting the core of the original
 implementation - the interpreter for relational algebra operations.
@@ -215,12 +211,13 @@ trait Scan2 extends Scan with Operator2 {
   val delim: Char
   val schema: Option[Schema]
   def resultSchema = schema.getOrElse(loadSchema(file,delim))
-  override def execOp(yld: Record => Unit) = processDSV(file,resultSchema,delim,schema.isDefined)(yld)
+  override def execOp(yld: Record => Unit) =
+    processDSV(file,resultSchema,delim,schema.isDefined)(yld)
 }
 \end{spec}
 |Scan| has two extra fields, |delim| and |schema|, for storing the delimiter and the optional header schema.
 These fields are used in implementing |resultSchema| and overriding |execOp|.
-Here, yet another advantage of our approach - \emph{field extensions} - has been illustrated.
+Here, yet another advantage of our approach---\emph{field extensions}---has been illustrated.
 The extended fields would not affect existing interpretations that do not use these extended fields.
 This would not be possible in an approach using algebraic datatypes and pattern matching.
 All interpretations have to be modified anyway, as the pattern has been changed.
@@ -235,8 +232,7 @@ through overriding |execOp|.
 
 \paragraph{New Language Constructs}
 A second extension is to support more SQL clauses in the implementation.
-A new operator |Group| is defined for partitioning records and summing up specified fields from the composed operator.
-It simulates |group by ... sum ^^ ...| clauses in SQL.
+To simulate |group by ... sum ^^ ...| clauses in SQL, a new operator |Group| is defined, which partitions records and sums up specified fields from the composed operator.
 We add |Group| through defining a new trait that implements |Operator2|:
 
 \begin{spec}

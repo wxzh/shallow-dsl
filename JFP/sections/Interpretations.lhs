@@ -6,11 +6,11 @@
 An often stated limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined using standard OOP techniques.
+interpretations can be \emph{modularly} defined using standard OOP techniques by comparing to the original implementation by Gibbons and Wu~\shortcite{gibbons2014folding}.
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
-For example, besides |width|, we may want to have an additional interpretation
+For example, besides |width|, we may want to have another interpretation
 that calculates the depth of a circuit in \dsl.
 
 \paragraph{Multiple Interpretations in Haskell}
@@ -67,15 +67,15 @@ trait Fan2 extends Fan1 with Circuit2 {
   def depth = 1
 }
 trait Above2 extends Above1 with Circuit2 {
-  val c1, c2: Circuit2
+  override val c1, c2: Circuit2
   def depth = c1.depth + c2.depth
 }
 trait Beside2 extends Beside1 with Circuit2 {
-  val c1, c2: Circuit2
+  override val c1, c2: Circuit2
   def depth = Math.max(c1.depth, c2.depth)
 }
 trait Stretch2 extends Stretch1 with Circuit2 {
-  val c: Circuit2
+  override val c: Circuit2
   def depth = c.depth
 }
 \end{spec}
@@ -84,7 +84,7 @@ The encoding relies on three OOP abstraction mechanisms:
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with |Circuit2| to allow |depth| invocations.
+Also, fields of type |Circuit1| are refined with type |Circuit2| to allow |depth| invocations.
 Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \emph{modularly reused} here.
 
 \subsection{Dependent Interpretations}
@@ -135,15 +135,15 @@ trait Fan3 extends Fan1 with Circuit3 {
   def wellSized = true
 }
 trait Above3 extends Above1 with Circuit3 {
-  val c1, c2: Circuit3
+  override val c1, c2: Circuit3
   def wellSized = c1.wellSized && c2.wellSized && c1.width==c2.width
 }
 trait Beside3 extends Beside1 with Circuit3 {
-  val c1, c2: Circuit3
+  override val c1, c2: Circuit3
   def wellSized = c1.wellSized && c2.wellSized
 }
 trait Stretch3 extends Stretch1 with Circuit3 {
-  val c: Circuit3
+  override val c: Circuit3
   def wellSized = c.wellSized && ns.length==c.width
 }
 \end{spec}
@@ -200,8 +200,8 @@ tlayout =  snd
 \end{code}
 %}
 
-The domain of |tlayout| is not a direct value that represents the layout (|Layout|) but a function that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
-An anonymous function that takes as an accumulating parameter |f| is constructed for each case.
+The domain of |tlayout| is not a type that represents the layout (|Layout|) but a function type that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
+An anonymous function that takes as an accumulating parameter |f| is created for each case.
 Note that |f| is accumulated in |beside4| and |stretch4| through function composition\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}, propagated in |above4|, and finally applied to wire connections in |fan4|.
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the binary operator
 to elements of the same index, and appending the remaining elements from
@@ -231,15 +231,15 @@ trait Fan4 extends Fan1 with Circuit4 {
   def tlayout(f: Int => Int) = List(for (i <- List.range(1,n)) yield (f(0),f(i)))
 }
 trait Above4 extends Above1 with Circuit4 {
-  val c1, c2: Circuit4
+  override val c1, c2: Circuit4
   def tlayout(f: Int => Int) = c1.tlayout(f) ++ c2.tlayout(f)
 }
 trait Beside4 extends Beside1 with Circuit4 {
-  val c1, c2: Circuit4
+  override val c1, c2: Circuit4
   def tlayout(f: Int => Int) = lzw (c1.tlayout(f), c2.tlayout(f.compose(c1.width + _))) (_ ++ _)
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
-  val c: Circuit4
+  override val c: Circuit4
   def tlayout(f: Int => Int) = {
     val vs = ns.scanLeft(0)(_ + _).tail
     c.tlayout(f.compose(vs(_) - 1))
@@ -297,7 +297,7 @@ On the other hand, adding an ordinary construct is done through defining a new t
 If we treated |rstretch| as an ordinary construct, its definition would be:
 
 \begin{spec}
-trait RStretch extends Stretch4 {
+trait RStretch extends Stretch4 with Circuit4 {
   override def tlayout(f: Int => Int) = {
     val vs = ns.scanLeft(ns.last - 1)(_ + _).init
     c.tlayout(f.compose(vs(_)))
@@ -329,15 +329,11 @@ OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction. 
 
 
-Gibbons and Wu
-do discuss a number of advanced
+Gibbons and Wu do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
-\emph{some} of the modularity problems. For example, using type classes, the
-\emph{tagless-final} approach~\cite{carette2009finally} can deal with
-multiple interpretations in Section~\ref{subsec:multiple}. However,
-these techniques complicate the encoding of the EDSL
+\emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, these techniques complicate the encoding of the EDSL
 significantly. Moreover, 
-dependent interpretations (see Section~\ref{sec:dependent}) are still non-modular 
+dependent interpretations (Section~\ref{sec:dependent}) are still non-modular
 because an encoding via tuples is still needed. In contrast,
 the approach proposed here is just straightforward OOP, uses only simple types, and dependent
 interpretations are not a problem.

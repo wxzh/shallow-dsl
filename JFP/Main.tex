@@ -4,10 +4,11 @@
 \usepackage{url}
 \usepackage{syntax}
 \usepackage{textcomp}
+\usepackage{color}
 \newcommand{\dsl}{\textsc{Scans}\xspace}
 \newcommand{\interp}{\textsc{Interpreter}\xspace}
-%\newcommand{\an}[3]{{\color{#2} {\sc #1}:#3}}
-\newcommand{\an}[3]{}
+\newcommand{\an}[3]{{\color{#2} {\sc #1}:#3}}
+%\newcommand{\an}[3]{}
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
@@ -55,6 +56,8 @@ more modular, shallow, and embedded.
 \input{sections/ShallowOO}
 
 \input{sections/Interpretations}
+
+\input{sections/ObjectAlgebras}
 
 \input{sections/Casestudy}
 

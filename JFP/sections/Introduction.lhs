@@ -1,6 +1,8 @@
 %include lhs2TeX.fmt
 \section{Introduction}
 
+\weixin{TODO: Explain procedural abstraction}
+
 Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\cite{hudak1998modular}, existing
 languages (e.g. Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
@@ -62,7 +64,7 @@ where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
-Scala version has clear advantages over the Haskell version. 
+Scala version has clear advantages over the Haskell version.
 
 To further illustrate the applicability of our OOP approach, we conduct
 a case study on refactoring an existing DSL implementation to make it
@@ -75,6 +77,8 @@ shallow Scala EDSL. The resulting implementation allows both new
 interpretations and new constructs to be introduced modularly, and 
 can be used directly (as an EDSL) in Scala.
 
+Implementations can be found online at:
+\url{https://github.com/wxzh/shallow-dsl/}.
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
 %a \emph{functional} OOP style.}

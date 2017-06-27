@@ -3,6 +3,7 @@
 %include def.fmt
 \section{Shallow Object-Oriented Programming}\label{sec:oo}
 
+\weixin{TODO: Cite circuit figure and SQL examples more properly}
 This section shows that an OOP approach and shallow embeddings using
 procedural abstraction are closely related.  We use the same
 DSL presented by Gibbons and Wu~\shortcite{gibbons2014folding} as
@@ -101,7 +102,7 @@ as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| is more
 appropriate to deal correctly with potential control-flow
-language constructs. An interpretation of a more complex domain is shown in Section~\ref{sec:ctxsensitive}.
+language constructs. An interpretation of a more complex domain will be shown in Section~\ref{sec:ctxsensitive}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}
@@ -158,14 +159,14 @@ trait Above1 extends Circuit1 {
   def width = c1.width
 }
 trait Stretch1 extends Circuit1 {
-  val ns: List[Int]
-  val c: Circuit1
+  val ns: List[Int]; val c: Circuit1
   def width = ns.sum
 }
 \end{spec}
-Haskell's record type maps to an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
+Haskell's record type maps to an object interface (modeled as a trait in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Each case in the semantic function corresponds to a trait, and its parameters are captured by fields of that trait.
+% a class is a procedure that returns a value satisfying an interface
 All these traits are concrete implementations of |Circuit1| with the |width| method defined.
 
 This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of
@@ -198,8 +199,8 @@ val c  = above(  beside(fan(2),fan(2)),
 As this example illustrates, shallow embeddings and straightforward OO
 programming are closely related. The syntax of the Scala code is not
 as compact as the Haskell version. There is some extra verbosity due
-to trait declarations and smart constructors.  It would be nice if
-Scala directly supported constructors for traits, but unfortunately
-this is not supported. Nevertheless, the code is still quite compact
+to trait declarations and smart constructors.
+%It would be nice if Scala directly supported constructors for traits, but unfortunately this is not supported.
+Nevertheless, the code is still quite compact
 and elegant, and the Scala implementation has advantages in terms of
 modularity, as we shall see next.
