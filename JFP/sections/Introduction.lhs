@@ -1,9 +1,7 @@
 %include lhs2TeX.fmt
 \section{Introduction}
 
-\weixin{TODO: Explain procedural abstraction}
-
-Since Hudak's seminal paper on Embedded Domain Specific Languages (EDSLs)~\cite{hudak1998modular}, existing
+Since Hudak's seminal paper~\shortcite{hudak1998modular} on embedded domain-specific languages (EDSLs), existing
 languages (e.g. Haskell) have been used to directly encode
 DSLs. Two common approaches to EDSLs are the so-called \emph{shallow}
 and \emph{deep} embeddings. The origin of that terminology can be
@@ -11,24 +9,31 @@ attributed to Boulton et al.~\shortcite{Boulton92dsl}. The difference between th
 two styles of embeddings is commonly described as follows:
 
 \begin{quote}
-\emph{With a \emph{deep embedding}, terms in the DSL are implemented simply to
+With a \emph{deep embedding}, terms in the DSL are implemented simply to
 construct an abstract syntax tree (AST), which is subsequently
 transformed for optimization and traversed for evaluation. With a
 \emph{shallow embedding}, terms in the DSL are implemented directly by
-their semantics, bypassing the intermediate AST and its traversal.}~\cite{gibbons2014folding}
+their semantics, bypassing the intermediate AST and its traversal.\\~\cite{gibbons2014folding}
 \end{quote}
 
+\weixin{add procedural abstraction definition}
 One way to more precisely understand what ``\emph{terms in the DSL are
 implemented directly by their semantics}'' means in a shallow
 embedding is to say that terms are implemented using \emph{procedural
-abstraction}~\cite{reynolds94proceduralabstraction}. This is the
-definition of a shallow embedding in this paper. Such interpretation
+abstraction} where
+
+\begin{quote}
+The abstract form of data is characterized by the primitive operations which can be peformed upon it, and an item of data is simply a procedure or collection of procedures for performing these operations.~\cite{reynolds75userdefined}
+\end{quote}
+% Essence: an item of procedural data is a kind of record called a closure which contains both an internal representation of the data and a pointer to code for procedures for manipulating this representation. A program with access to a closure record is only permitted to examine or access the internal representation by executing the code indicated by the pointer, so that this code serves to close off or protect the internal representation
+
+\noindent This is the definition of a shallow embedding in this paper. Such interpretation
 arises naturally from the domain of shallow EDSLs being functions, and
 procedural abstraction being a way to encode data abstractions using
 functions.
 
 The first goal of this pearl is to show the close relationship between
-shallow embeddings and OOP.
+shallow embeddings and object-oriented programming (OOP).
 As Cook~\shortcite{cook09abstraction} argued, procedural abstraction is also
 the essence of OOP. Although OOP is often associated with stateful
 (imperative) objects, it is possible to have functional objects that
@@ -74,11 +79,11 @@ algebraic datatypes and pattern matching in the implementation. The use of deep
 embedding techniques facilitates multiple interpretations at the price
 of modular language extensions. We rewrote the implementation as a
 shallow Scala EDSL. The resulting implementation allows both new
-interpretations and new constructs to be introduced modularly, and 
+interpretations and new constructs to be introduced modularly, and
 can be used directly (as an EDSL) in Scala.
 
-Implementations can be found online at:
-\url{https://github.com/wxzh/shallow-dsl/}.
+All the code and case study shown in the paper can be found online at:
+\begin{center}\url{https://github.com/wxzh/shallow-dsl}\end{center}
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
 %a \emph{functional} OOP style.}

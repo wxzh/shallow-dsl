@@ -32,8 +32,8 @@ to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
-Consider a data file |talks.csv| that contains a list of talks,
-where each item  records the identity, time, title and room of a talk:
+Consider a data file |talks.csv| that contains a list of talks, each of which
+has an identity, time, a title and a room:
 
 \begin{spec}
 tid,  time,      title,                                         room
@@ -53,7 +53,7 @@ tid,  time,      title,                                         room
 %format sum = "\mathbf{sum}"
 
 \noindent We can write some SQL queries on this file.
-A simple query to list all the items in |talks.csv| is:
+A simple query to list all items in |talks.csv| is:
 
 > select * from talks.csv
 
@@ -71,7 +71,7 @@ Yet another relatively complex query to find all unique talks happening at the s
 \indent Rompf and Amin~\shortcite{rompf15} present a SQL to C compiler in Scala.
 Their implementation first parses a SQL query into a relational algebra AST,
 and then executes the query based on that AST.
-Using the LMS framework~\cite{rompf2012lightweight},
+Based on the LMS framework~\cite{rompf2012lightweight},
 the SQL compiler is nearly as simple as an intuitive interpreter while having the performance comparable to hand-written C code.
 
 However, the implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching, for encoding and interpreting ASTs.
@@ -83,13 +83,13 @@ suffering from the Expression Problem.
 Fortunately, it is possible to rewrite Rompf and Amin~\shortcite{rompf15}'s implementation
 as a shallow EDSL, because the original implementation contains no
 transformations/optimizations on ASTs, which would be another
-motivation to use a deep embedding. Therefore, with only modest
+motivation to use a deep embedding. Therefore, with modest
 effort, we refactored their implementation using the approach
-presented in this pearl. Using almost the same source lines of code, the implementation is made modular.  Moreover, it is common
+presented in this pearl. The implementation is made modular with almost the same source lines of code.  Moreover, it is common
 to embed SQL into a general purpose language, for instance Circumflex
 ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does
 this in Scala. Thus, instead of providing an external DSL, we provide
-an embedded SQL EDSL. The queries shown above can be written in our SQL EDSL:
+a SQL EDSL. The queries shown above can be written in our SQL EDSL:
 
 > val q0     =  FROM ("talks.csv")
 > val q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
@@ -102,54 +102,56 @@ In fact, the syntax of our EDSL is closer to that of LINQ~\cite{meijer2006linq},
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we are able to build a complex query from parts or reuse common queries for improving the readability and modularity of the embedded programs.
-|q0| in the example is a common query that is reused in both |q1| and |q2|.
+This is illustrated by |q0|, which is an extracted |from| clause reused by |q1| and |q2|.
 
-The following subsections give an overview of rewriting the core of the original
-implementation - the interpreter for relational algebra operations.
-Similar rewritings are also applicable to staged versions derived
-from this interpreter.
+%The following subsections give an overview of rewriting the core of the original
+%implementation - the interpreter for relational algebra operations.
+%Similar rewritings are also applicable to staged versions derived
+%from this interpreter.
+
+% string embedded: the syntax of string encoded DSL programs is not statically checked but parsed at runtime; hence, syntactic errors are not detected during compilation and can occur after deploying the software.
+% static safety
 
 \subsection{A Relational Algebra Interpreter}
 A SQL query can be represented using a relational algebra operator.
 The basic interface of operators is modeled in Scala as a |trait|:
 
 > trait Operator {
->   def execOp(yld: Record => Unit)
->   def exec: Unit = new Print{val op=Operator.this}.execOp { _ => }
+>   def execOp(yld: Record => Rep[Unit])
+>   def exec: Rep[Unit] = execOp { _ => }
 > }
 
-A \emph{context-sensitive interpretation} |execOp| should be implemented in concrete operators.
-The method |execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
+A \emph{context-sensitive} interpretation |execOp| should be implemented in concrete operators.
+|execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
 |yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
 Concrete operators implement |Operator| through defining |execOp|:
 
 > trait Join extends Operator {
 >   val op1, op2: Operator
->   def execOp(yld: Record => Unit) =
+>   def execOp(yld: Record => Rep[Unit]) =
 >     op1.execOp { rec1 =>
 >       op2.execOp { rec2 =>
->         val keys = rec1.schema.intersect(rec2.schema)
+>         val keys = rec1.schema intersect rec2.schema
 >         if (rec1(keys) == rec2(keys))
 >           yld(Record(rec1.fields++rec2.fields,rec1.schema++rec2.schema)) }}
 > }
 > trait Filter extends Operator {
->   val pred: Predicate
->   val op: Operator
->   def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
+>   val pred: Predicate; val op: Operator
+>   def execOp(yld: Record => Rep[Unit]) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
 > }
 
 |Join| matches a record against another and combines the two records if their common fields share the same values.
 |Filter| keeps a record only when it meets a certain predicate.
 There are also other operators, such as |Project|, which rearranges the fields of a record.
-Besides these relational algebra operators, we define two utility operators, |Print| and |Scan|,
+Besides these relational algebra operators, there are two utility operators, |Print| and |Scan|,
 for dealing with inputs and outputs. |Print| prints out the fields of a record and is used in the definition of |exec| for
-displaying the execution result at last. |Scan| processes a CSV file and produces a record per line.
+displaying the execution result at last. |Scan| processes a CSV (comma-separated values) file and produces a record per line.
 The implementation of |Scan| is shown next:
 
 > trait Scan extends Operator {
 >   val file: String
->   def execOp(yld: Record => Unit) = processCSV(file)(yld)
+>   def execOp(yld: Record => Rep[Unit]) = processCSV(file)(yld)
 > }
 
 \subsection{Syntax}
@@ -191,27 +193,25 @@ However, due to the limited extensibility in their implementation,
 extensions are actually done through modifying existing code.
 In contrast, our implementation allows extensions to be introduced modularly.
 
-The implementation presented so far can only process data files of format CSV (comma-separated values).
+The implementation presented so far can only process CSV files.
 The first extension is to let it support DSV (delimiter-separated values) files
 with an optional header schema describing the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
 \begin{spec}
 trait Operator2 extends Operator {
-  override def exec = new Print2{val op=Operator2.this}.execOp { _ => }
   def resultSchema: Schema
 }
 \end{spec}
-Concrete operators, including |Print|, need to implement this new interface through complementing |resultSchema|.
-Accordingly, |exec| is overridden as there is a new version of |Print|.
+Concrete operators need to implement this new interface through complementing |resultSchema|.
+%Accordingly, |exec| is overridden as there is a new version of |Print|.
 
 Then, we can extend |Scan| with the ability to deal with DSV files:
 \begin{spec}
 trait Scan2 extends Scan with Operator2 {
-  val delim: Char
-  val schema: Option[Schema]
+  val delim: Char; val schema: Option[Schema]
   def resultSchema = schema.getOrElse(loadSchema(file,delim))
-  override def execOp(yld: Record => Unit) =
+  override def execOp(yld: Record => Rep[Unit]) =
     processDSV(file,resultSchema,delim,schema.isDefined)(yld)
 }
 \end{spec}
@@ -237,12 +237,17 @@ We add |Group| through defining a new trait that implements |Operator2|:
 
 \begin{spec}
 trait Group extends Operator2 {
-  val keys, agg: Schema
-  val op: Operator2
+  val keys, agg: Schema; val op: Operator2
   def resultSchema = keys ++ agg
-  def execOp(yld: Record => Unit) { ... }
+  def execOp(yld: Record => Rep[Unit]) { ... }
 }
 \end{spec}
 
 \indent The implementation still has plenty of room for extensions - only a subset of SQL is supported currently.
 As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.
+
+% note:
+% ~test-only: for automatical recompilation
+% test:run unstaged "sql"
+
+% TODO: check whether the generated c code is the same

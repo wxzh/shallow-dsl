@@ -1,12 +1,12 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
-\section{Interpretations in Shallow Embeddings}
+\section{Interpretations in Shallow Embeddings}\label{sec:interp}
 
 An often stated limitation of shallow embeddings is that they allow only a single
 interpretation. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined using standard OOP techniques by comparing to the original implementation by Gibbons and Wu~\shortcite{gibbons2014folding}.
+interpretations can be \emph{modularly} defined using standard OOP techniques by comparing to Gibbons and Wu's implementation.
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
@@ -200,7 +200,7 @@ tlayout =  snd
 \end{code}
 %}
 
-The domain of |tlayout| is not a type that represents the layout (|Layout|) but a function type that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
+\noindent The domain of |tlayout| is not |Layout| but a function type that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
 An anonymous function that takes as an accumulating parameter |f| is created for each case.
 Note that |f| is accumulated in |beside4| and |stretch4| through function composition\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}, propagated in |above4|, and finally applied to wire connections in |fan4|.
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the binary operator
@@ -293,11 +293,11 @@ In our OOP approach, a syntatic sugar is defined as a smart constructor upon oth
 
 > def rstretch(ns: List[Int], c: Circuit4) = stretch (1 :: ns.init, beside(c, identity(ns.last - 1)))
 
-On the other hand, adding an ordinary construct is done through defining a new trait that implements |Circuit4|.
+On the other hand, adding an ordinary construct is through defining a new trait that implements |Circuit4|.
 If we treated |rstretch| as an ordinary construct, its definition would be:
 
 \begin{spec}
-trait RStretch extends Stretch4 with Circuit4 {
+trait RStretch extends Stretch4 {
   override def tlayout(f: Int => Int) = {
     val vs = ns.scanLeft(ns.last - 1)(_ + _).init
     c.tlayout(f.compose(vs(_)))
@@ -331,9 +331,8 @@ expressiveness over traditional procedural abstraction.
 
 Gibbons and Wu do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
-\emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, these techniques complicate the encoding of the EDSL
-significantly. Moreover, 
-dependent interpretations (Section~\ref{sec:dependent}) are still non-modular
+\emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, these techniques complicate the encoding of the EDSL.
+Moreover, dependent interpretations (Section~\ref{sec:dependent}) are still non-modular
 because an encoding via tuples is still needed. In contrast,
 the approach proposed here is just straightforward OOP, uses only simple types, and dependent
 interpretations are not a problem.
