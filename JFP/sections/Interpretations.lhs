@@ -56,6 +56,7 @@ In contrast, an OO language like Scala allows new interpretations to be introduc
 %format Above2
 %format Stretch2
 
+\begin{minipage}{.5\textwidth}
 \begin{spec}
 trait Circuit2 extends Circuit1 {
   def depth: Int
@@ -66,6 +67,11 @@ trait Identity2 extends Identity1 with Circuit2 {
 trait Fan2 extends Fan1 with Circuit2 {
   def depth = 1
 }
+\end{spec}
+\end{minipage}
+%
+\begin{minipage}{.5\textwidth}
+\begin{spec}
 trait Above2 extends Above1 with Circuit2 {
   override val c1, c2: Circuit2
   def depth = c1.depth + c2.depth
@@ -79,6 +85,9 @@ trait Stretch2 extends Stretch1 with Circuit2 {
   def depth = c.depth
 }
 \end{spec}
+\end{minipage}
+%\end{figure}
+
 The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
 Specifically, |Circuit2| is a subtype of
@@ -90,8 +99,8 @@ Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \em
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
 interpretations. A dependent interpretation does not only depend on itself but also on other interpretations.
-An instance of such interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
-|wellSized| is dependent because combinators such as |above| have width constraints on its circuit components.
+An instance of dependent interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
+|wellSized| is dependent because combinators like |above| have |width| constraints on its circuit components.
 
 \paragraph{Dependent Interpretations in Haskell}
 In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
@@ -257,9 +266,8 @@ contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
 There are some minor syntax differences that need explanations.
 First, in |Fan4|, a |for comprehension| is used for producing a list of connections.
-Second, for simplicity, anonymous functions are created without specifying their parameters.
-Still, we are able to refer to these parameters via placeholders (|_|).
-For example, inside |Beside4|, |c1.width + _| is used as a shorthand for |(i: Int) => c1.width + i|.
+Second, for simplicity, anonymous functions are created without a parameter list.
+For example, inside |Beside4|, |c1.width + _| is a shorthand for |i => c1.width + i|, where the placeholder |_| plays the role of the named parameter |i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
 Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference on |f|.
 

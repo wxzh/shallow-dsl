@@ -27,22 +27,22 @@
 
 \section{An Embedded DSL for SQL Queries}
 To further illustrate the applicability of shallow OO embeddings,
-we refactored an existing \emph{deep external} DSL implementation for SQL queries
+we refactored an existing \emph{deep external} DSL implementation %for SQL queries
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
-Consider a data file |talks.csv| that contains a list of talks, each of which
-has an identity, time, a title and a room:
+Imagine there is a data file |talks.csv| that contains a list of talks, each of which
+has time, a title and a room. We can write some SQL queries on this file.
+A simple query to list all items in |talks.csv| is:
 
-\begin{spec}
-tid,  time,      title,                                         room
-1,    09:00 AM,  Erlang 101 - Actor and MultiCore Programming,  New York Central
-...
-16,   03:00 PM,  Welcome to the wonderful world of Sound!,      Grand Ballroom E
-\end{spec}
+%\begin{spec}
+%tid,  time,      title,                                         room
+%1,    09:00 AM,  Erlang 101 - Actor and MultiCore Programming,  New York Central
+%...
+%16,   03:00 PM,  Welcome to the wonderful world of Sound!,      Grand Ballroom E
+%\end{spec}
 
-%% 16,03:00 PM,Welcome to the wonderful world of Sound!,Grand Ballroom E
 
 %format select = "\mathbf{select}"
 %format as = "\mathbf{as}"
@@ -52,8 +52,6 @@ tid,  time,      title,                                         room
 %format by = "\mathbf{by}"
 %format sum = "\mathbf{sum}"
 
-\noindent We can write some SQL queries on this file.
-A simple query to list all items in |talks.csv| is:
 
 > select * from talks.csv
 
@@ -73,6 +71,7 @@ Their implementation first parses a SQL query into a relational algebra AST,
 and then executes the query based on that AST.
 Based on the LMS framework~\cite{rompf2012lightweight},
 the SQL compiler is nearly as simple as an intuitive interpreter while having the performance comparable to hand-written C code.
+% Their implementation includes a SQL interpreter, a SQL to Scala compiler and a SQL to C compiler.
 
 However, the implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching, for encoding and interpreting ASTs.
 These techniques are a natural choice as they make the implementation straightforward.
@@ -82,9 +81,8 @@ suffering from the Expression Problem.
 
 Fortunately, it is possible to rewrite Rompf and Amin~\shortcite{rompf15}'s implementation
 as a shallow EDSL, because the original implementation contains no
-transformations/optimizations on ASTs, which would be another
-motivation to use a deep embedding. Therefore, with modest
-effort, we refactored their implementation using the approach
+transformations/optimizations on ASTs, which would be another motivation to use a deep embedding.
+Therefore, with modest effort, we refactored their implementation using the approach
 presented in this pearl. The implementation is made modular with almost the same source lines of code.  Moreover, it is common
 to embed SQL into a general purpose language, for instance Circumflex
 ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does
@@ -102,7 +100,8 @@ In fact, the syntax of our EDSL is closer to that of LINQ~\cite{meijer2006linq},
 Compared to an external DSL approach, our EDSL approach has the benefit of reusing the mechanisms
 provided by the host language for free.  For example, through variable
 declarations, we are able to build a complex query from parts or reuse common queries for improving the readability and modularity of the embedded programs.
-This is illustrated by |q0|, which is an extracted |from| clause reused by |q1| and |q2|.
+This is illustrated by |q0|, which is reused by |q1| and |q2|.
+% Type safety
 
 %The following subsections give an overview of rewriting the core of the original
 %implementation - the interpreter for relational algebra operations.
@@ -112,20 +111,21 @@ This is illustrated by |q0|, which is an extracted |from| clause reused by |q1| 
 % string embedded: the syntax of string encoded DSL programs is not statically checked but parsed at runtime; hence, syntactic errors are not detected during compilation and can occur after deploying the software.
 % static safety
 
-\subsection{A Relational Algebra Interpreter}
+\subsection{A Relational Algebra Compiler}
 A SQL query can be represented using a relational algebra operator.
 The basic interface of operators is modeled in Scala as a |trait|:
 
 > trait Operator {
->   def execOp(yld: Record => Rep[Unit])
->   def exec: Rep[Unit] = execOp { _ => }
+>   def execOp(yld: Record => Rep[Unit]): Rep[Unit]
+>   def exec = execOp { _ => }
 > }
 
-A \emph{context-sensitive} interpretation |execOp| should be implemented in concrete operators.
-|execOp| executes a SQL query by taking a callback |yld| and accumulating what each concrete operator does to a record in
-|yld|. The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
+Each concrete operator should implement a \emph{context-sensitive} interpretation |execOp|,
+which takes a callback |yld| and accumulates what the operator does to records into |yld|.
+|Rep| is a type constructor introduced by the LMS framework for marking staged computations. As our target is C, |Rep[Unit]| represents actions to be performed in the generated C code.
+The interpretation |exec| is a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
 
-Concrete operators implement |Operator| through defining |execOp|:
+Here are some concrete relational algebra operators:
 
 > trait Join extends Operator {
 >   val op1, op2: Operator
@@ -146,7 +146,7 @@ Concrete operators implement |Operator| through defining |execOp|:
 There are also other operators, such as |Project|, which rearranges the fields of a record.
 Besides these relational algebra operators, there are two utility operators, |Print| and |Scan|,
 for dealing with inputs and outputs. |Print| prints out the fields of a record and is used in the definition of |exec| for
-displaying the execution result at last. |Scan| processes a CSV (comma-separated values) file and produces a record per line.
+displaying the execution result at last. |Scan| processes a comma-separated values (CSV) file and produces a record per line.
 The implementation of |Scan| is shown next:
 
 > trait Scan extends Operator {
@@ -154,19 +154,18 @@ The implementation of |Scan| is shown next:
 >   def execOp(yld: Record => Rep[Unit]) = processCSV(file)(yld)
 > }
 
-\subsection{Syntax}
-It would be cumbersome to directly write such a relational algebra operator to query data files. That is why we need SQL as a surface language for queries.
-In Rompf and Amin\shortcite{rompf15}'s implementation, SQL queries are encoded using strings, and a parser will parse a query string into an operator.
+\subsection{Embedded Syntax}
+It would be cumbersome to directly write such a relational algebra operator for querying data files. That is why we need SQL as a surface language for queries.
+In Rompf and Amin~\shortcite{rompf15}'s implementation, SQL queries are plain strings, and a parser will parse a query string into an operator.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
 Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} in implementing smart constructors for primitives to lift field names and literals implicitly.
 For the syntax of combinators such as |Filter| and |Project|, we adopt fluent interface style~\cite{fowler2005fluent}.
 Fluent interface style allows us to write something like ``|q0.WHERE(...).SELECT(...)|''.
-Scala's infix notation further allows us to write this query as
-``|q0 WHERE ... SELECT ...|''.
+Scala's infix notation further allows to omit ``|.|'' in method chains.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 We implement the syntax in a pluggable way, in the sense that the semantics is decoupled from the syntax (the |Operator| hierarchy).
 Details of the syntax implementation are beyond the scope of this pearl.
-The interested reader can view the code in our online implementation.
+The interested reader can consult the companion code.
 
 With the syntax defined, we are able to write SQL queries in a concise way, as illustrated by |q0|, |q1| and |q2|.
 Beneath the surface syntax, a relational algebra operator object is constructed.
@@ -176,25 +175,27 @@ For example, we will get the following operator structure for |q1|:
 >           Filter(  Eq(Field("time"),Value("09:00 AM")),
 >                    Scan("talks.csv")))
 
-To actually run a query, we call the |exec| method.
-For example, the execution result of |q1| is:
+%Then calling |exec| on an operator inside
+%To actually run a query, we call the  method.
+%For example, the execution result of |q1| is:
+%
+%< scala > q1.exec
+%< New York Central,Erlang 101 - Actor and MultiCore Programming
+%< ...
+%
+%\noindent where the room and title of the first item from |talks.csv| is printed.
 
-< scala > q1.exec
-< New York Central,Erlang 101 - Actor and MultiCore Programming
-< ...
-
-\noindent where the room and title of the first item from |talks.csv| is printed.
-
+% TODO: Generate to different targets as new interpretations
 \subsection{Extensions}
 More benefits of our approach emerge when the DSL evolves.
 Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness, performance, and flexibility.
 % The extensions include a new operator |Group| for aggregations, an efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
-However, due to the limited extensibility in their implementation,
-extensions are actually done through modifying existing code.
-In contrast, our implementation allows extensions to be introduced modularly.
+%However, due to the limited extensibility in their implementation,
+%extensions are actually done through modifying existing code.
+%In contrast, our implementation allows extensions to be introduced modularly.
 
 The implementation presented so far can only process CSV files.
-The first extension is to let it support DSV (delimiter-separated values) files
+The first extension is to let it support delimiter-separated values (DSV) files
 with an optional header schema describing the names of fields.
 
 We first extend the |Operator| interface with a new interpretation |resultSchema| for collecting the schema to be projected:
@@ -225,10 +226,23 @@ All interpretations have to be modified anyway, as the pattern has been changed.
 The reader may notice that the interpretation |execOp| becomes very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive}.
 Like |tlayout|, |execOp| is both context-sensitive (taking a |yld|) and dependent (depending on |resultSchema|).
 
-Other similar extensions are also possible. For example to boost the
-performance of |Join| by replacing naive loops with an efficient
-implementation based on hash maps.  Similar to |Scan|, this is done
-through overriding |execOp|.
+\paragraph{Hash Joins}
+The current implementation of |Join| uses naive nested loops to compare records from the two tables. To boost the performace, we replace the implementation with a hash-based algorithm:
+
+\begin{spec}
+trait Join2 extends Join {
+  def resultSchema = op1.resultSchema ++ op2.resultSchema
+  override def execOp(yld: Record => Rep[Unit]) = {
+    val keys = op1.resultSchema intersect op2.resultSchema
+    val hm = new HashMapBuffer(keys, op1.resultSchema)
+    op1.execOp { rec1 =>
+      hm(rec1(keys)) += rec1.fields }
+    op2.execOp { rec2 =>
+      hm(rec2(keys)) foreach { rec1 =>
+        yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
+}
+\end{spec}
+Similar to |Scan|, this is done through overriding |execOp|.
 
 \paragraph{New Language Constructs}
 A second extension is to support more SQL clauses in the implementation.

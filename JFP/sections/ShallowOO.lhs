@@ -41,10 +41,9 @@ The grammar of \dsl is given below:
 Their meanings are: |identity n| contains |n| parallel wires;
 |fan n| has |n| parallel wires with its first wire connected to
 all the remaining wires from top to bottom; |beside c1 c2| joins two circuits
-|c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
+|c1| and |c2| horizontally; |above c1 c2| combines two circuits vertically, where |c1| and |c2| are of same width;
 |stretch ns c| inserts more wires into the circuit |c| by summing up |ns|.
-For example, Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
-The construction of the circuit is explained as follows.
+Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs. The structure of this circuit is explained as follows.
 The whole circuit is composed by three sub-circuits, vertically:
 the top sub-circuit is a two 2-|fan|s put side by side;
 the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
@@ -100,11 +99,12 @@ as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| is more
 appropriate to deal correctly with potential control-flow
-language constructs. Interpretations of a more complex domain will be shown in Section~\ref{sec:interp}.
+language constructs.
+% Interpretations of a more complex domain will be shown in Section~\ref{sec:interp}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}
-A simple, \emph{semantics preserving}, rewriting of the |width| interpretation is given
+A simple, \emph{semantics preserving} rewriting of |width| is given
 below, where a record with one field captures the domain and is declared as a |newtype|:
 
 
@@ -136,6 +136,7 @@ Indeed, we can easily translate the program from Haskell to Scala:
 %format (="\!("
 %format [="\!["
 
+\begin{minipage}{.5\textwidth}
 \begin{spec}
 trait Circuit1 {
   def width: Int
@@ -148,6 +149,11 @@ trait Fan1 extends Circuit1 {
   val n: Int
   def width = n
 }
+\end{spec}
+\end{minipage}
+%
+\begin{minipage}{.5\textwidth}
+\begin{spec}
 trait Beside1 extends Circuit1 {
   val c1, c2: Circuit1
   def width = c1.width + c2.width
@@ -161,6 +167,8 @@ trait Stretch1 extends Circuit1 {
   def width = ns.sum
 }
 \end{spec}
+\end{minipage}
+%  \end{figure}
 Haskell's record type maps to an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
@@ -170,9 +178,7 @@ Each case in the semantic function corresponds to a concrete implementation of |
 This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of
 traits, instead of classes. For example, an equivalent class implementation of |Identity1| is:
 
-> class Identity1(n: Int) extends Circuit1 {
->   def width = n
-> }
+> class Identity1(n: Int) extends Circuit1 { def width = n }
 
 Although such a class definition better distinguishes itself with an object interface and simplifies field declarations, it loses some additional modularity offered by the trait version such as \emph{multiple inheritance}.
 % discuss the meaning of different use of traits
@@ -202,8 +208,8 @@ val c  = above(  beside(fan(2),fan(2)),
 
 As this example illustrates, shallow embeddings and straightforward OO
 programming are closely related. The syntax of the Scala code is not
-as compact as the Haskell version. There is some extra verbosity due
-to trait declarations and smart constructors.
+as concise as the Haskell version due to some extra verbosity caused by
+trait declarations and smart constructors.
 %It would be nice if Scala directly supported constructors for traits, but unfortunately this is not supported.
 Nevertheless, the code is still quite compact
 and elegant, and the Scala implementation has advantages in terms of
