@@ -180,7 +180,7 @@ traits, instead of classes. For example, an equivalent class implementation of |
 
 > class Identity1(n: Int) extends Circuit1 { def width = n }
 
-Although such a class definition better distinguishes itself with an object interface and simplifies field declarations, it loses some additional modularity offered by the trait version such as \emph{multiple inheritance}.
+Although such a class definition better distinguishes itself with an object interface and simplifies field declarations, it loses some additional modularity offered by the trait version.
 % discuss the meaning of different use of traits
 
 To use this Scala implementation in a manner similar to the Haskell implementation, we define some smart constructors for creating objects:

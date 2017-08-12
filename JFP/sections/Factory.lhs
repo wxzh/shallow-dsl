@@ -7,8 +7,7 @@
 
 \section{Towards Interpretation-independent Terms}
 \weixin{cite polymorphic embedding of DSLs / Object Algebras?}
-This section illustrates how to write DSL terms without commiting to a particular implementation.
-This can be done by combining our OOP approach with the {\sc Abstract Factory} pattern.
+This section illustrates how to write DSL terms without commiting to a particular implementation. The idea is to combine our approach with the {\sc Abstract Factory} pattern.
 
 \paragraph{Abstract Factories} Here is an abstract factory for \dsl:
 \begin{code}
@@ -20,7 +19,7 @@ trait CircuitFactory[C] {
   def stretch(x: C, xs: Int*): C
 }
 \end{code}
-which defines a factory method for each supported circuit construct.
+which exposes factory methods for each supported circuit construct.
 
 \paragraph{Abstract Terms} By using an abstract factory instance, we can build abstract terms that are independent of any implementation. For example, the circuit shown in Fig.~\ref{fig:circuit} can be constructed as follows:
 
@@ -32,15 +31,15 @@ def c[C](f: CircuitFactory[C]) =
              f.above (  f.stretch(f.fan(2),2,2),
                         f.beside(f.beside(f.identity(1),f.fan(2)),f.identity(1))))
 \end{spec}
-The definition can be even fancier by importing |f| to remove the need of a |f.| prefix.
+The definition can be even fancier by importing |f| so that the ``|f.|'' prefix can be eliminated.
 
 \paragraph{Concrete Factories} To actually build a term, concrete factories are needed, which are implementations of the factory interface.
 Here is a concrete factory that produces |Circuit1|:
 \begin{code}
 trait Circuit1Factory extends CircuitFactory[Circuit1] { ... }
 \end{code}
-where the omitted code is identical to the smart constructors presented in Section~\ref{}.
-Similar concrete factories can be defined for different versions of circuit implementations, e.g.
+where the omitted code is identical to the smart constructors presented in Section~\ref{subsec:shallow}.
+Similar concrete factories can be defined for other circuit implementations:
 \begin{code}
 trait Circuit4Factory extends CircuitFactory[Circuit4] { ... }
 \end{code}

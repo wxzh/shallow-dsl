@@ -56,7 +56,6 @@ In contrast, an OO language like Scala allows new interpretations to be introduc
 %format Above2
 %format Stretch2
 
-\begin{minipage}{.5\textwidth}
 \begin{spec}
 trait Circuit2 extends Circuit1 {
   def depth: Int
@@ -67,11 +66,6 @@ trait Identity2 extends Identity1 with Circuit2 {
 trait Fan2 extends Fan1 with Circuit2 {
   def depth = 1
 }
-\end{spec}
-\end{minipage}
-%
-\begin{minipage}{.5\textwidth}
-\begin{spec}
 trait Above2 extends Above1 with Circuit2 {
   override val c1, c2: Circuit2
   def depth = c1.depth + c2.depth
@@ -85,8 +79,6 @@ trait Stretch2 extends Stretch1 with Circuit2 {
   def depth = c.depth
 }
 \end{spec}
-\end{minipage}
-%\end{figure}
 
 The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
@@ -162,7 +154,7 @@ knowing only the signature of |width| in |Circuit|.
 In the definition of |Above3|, for example, it is possible 
 not only to call |wellSized|, but also |width|. 
 
-\subsection{Context-Sensitive Interpretations}\label{sec:ctxsensitive}
+\subsection{Context-sensitive Interpretations}\label{sec:ctxsensitive}
 Interpretations may rely on some contexts.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
@@ -178,7 +170,7 @@ An intuitive implementation of |tlayout| performs these changes immediately to t
 A more efficient implementation accumulates these changes and applies them all at once.
 An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensitive.
 
-\paragraph{Context-Sensitive Interpretations in Haskell}
+\paragraph{Context-sensitive Interpretations in Haskell}
 The following Haskell code implements (non-modular) |tlayout|:
 
 %format Circuit4
@@ -217,7 +209,7 @@ to elements of the same index, and appending the remaining elements from
 the longer list to the resulting list.
 By calling |tlayout| on a circuit and supplying |id| as the initial value for the accumulating parameter, we will get the layout.
 
-\paragraph{Context-Sensitive Interpretations in Scala}
+\paragraph{Context-sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
 
 %format Identity4
