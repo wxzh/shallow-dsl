@@ -21,8 +21,9 @@ discussed~\cite{}. The reported strenghts of deep embeddings are that they
 enable tranformations on the abstract syntax, and multiple
 interpretations are easy to implement. The reported strenghts of
 shallow-embeddings are that enforce the property of \emph{compositionality}
-by construction. As a consequence shallow EDSLs can be easily extended with new EDSL
-operations.\bruno{last sentence redundant?}
+by construction, and can be easily extended with new EDSL
+operations. However shallow embeddings make it difficult to support
+multiple interpretations and transformations.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
@@ -100,14 +101,17 @@ procedural abstraction being a way to encode data abstractions using
 functions.
 \end{comment}
 
-At the center of this pearl is Reynolds idea of procedural abstraction, which
+At the center of this pearl is Reynolds idea of \emph{procedural abstraction}, which
 enables us to directly relate shallow embeddings and object-oriented programming.
 \bruno{what is it?}
-This pearl starts by discussing two independently observed connections procedural abstraction.
+This pearl starts by discussing two independently observed connections to procedural abstraction, which
+are pictorially described in Figure~\ref{}. 
 The first connection is between procedural abstraction and shallow embeddings.
-As Gibbons an Wu say "it was probably known to Reynolds [26], who contrasted
+As Gibbons an Wu state "\emph{it was probably known to Reynolds, who contrasted
 deep embeddings (‘user defined types’) and shallow (‘procedural data
-structures’)". The second connection is the connection between OOP and procedural
+structures’)}". Gibbons and Wu noted the connection between shallow embeddings
+and procedural abstractions, although they did not go into a lot of detail.
+The second connection is the connection between OOP and procedural
 abstraction, which was widely discussed by Cook~\shortcite{cook09abstraction}.
 
 \bruno{Draw the diagram with the connections.}
@@ -151,7 +155,7 @@ OOP languages. Thus using just standard OOP mechanisms enables
 shallow embeddings.
 \end{comment}
 
-We make our arguments by taking a recent paper by Gibbons and Wu~\shortcite{gibbons2014folding},
+We make our arguments by taking the examples in Gibbons and Wu~\shortcite{gibbons2014folding} recent paper,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala, using a
 recently proposed design pattern~\cite{eptrivially16}, which provides
@@ -159,7 +163,8 @@ a simple solution to the \emph{Expression Problem}~\cite{expPb} in
 OOP languages.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
-Scala version has clear advantages over the Haskell version.
+resulting Scala version has clear advantages over the Haskell version, due
+to the use of subtyping, inheritance and type-refinement.
 
 
 While the technique proposed here does not deal with transformations,
