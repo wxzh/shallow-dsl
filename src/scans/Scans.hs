@@ -11,9 +11,7 @@ beside c1 c2   =  c1 + c2
 above c1 c2    =  c1
 stretch ns c   =  sum ns
 
-c  =  ( fan 2 `beside` fan 2) `above`
-      stretch [2,2] (fan 2) `above`
-      (identity 1 `beside` fan 2 `beside` identity 1)
+c  =  ( fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (identity 1 `beside` fan 2 `beside` identity 1)
 
 newtype Circuit1   =  Circuit1 {width1  ::  Int}
 identity1 n        =  Circuit1 {width1  =   n}

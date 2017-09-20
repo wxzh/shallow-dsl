@@ -25,11 +25,17 @@
 
 \invisiblecomments
 
-\section{An Embedded DSL for SQL Queries}
-%An important motivation to prefer deep embedding over shallow embedding.
-To further illustrate the applicability of shallow OO embeddings,
-we refactored an existing \emph{deep external} DSL implementation
-to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
+\section{A Shallow EDSL for SQL Queries}
+Another important reason to prefer deep embeddings over shallow embeddings is the simplicity of performing program transformations.
+A deep embedding using algebraic datatype and pattern matching greatly simplify program transformations.
+Although simple program transformations without the need of deep patterns can be simulated with a shallow embedding, more complex program transformations decrease the simplicity and modularity of a shallow embedding.
+An alternative approach to performant EDSLs is
+Nevertheless, staging is , which suits better for shallow embeddings.
+This section presents a shallow EDSL for SQL queries based on staging.
+
+%To further illustrate the applicability of shallow OO embeddings,
+%we refactored an existing \emph{deep external} DSL implementation
+%to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is one of the most well-known DSLs for data queries.
@@ -174,17 +180,19 @@ There are also two utility operators, |Print| and |Scan|, for processing data fi
 % TODO: Generate to different targets as new interpretations
 
 
-%\subsection{Extensions}
-%Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness and performance.
+\subsection{Extensions}
+Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness and performance.
 % The extensions include a new operator |Group| for aggregations, an efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
 %However, due to the limited extensibility in their implementation,
 %extensions are actually done through modifying existing code.
 %In contrast, our implementation allows extensions to be introduced modularly.
 
-\subsection{From Interpreter to Compiler}
+\paragraph{From Interpreter to Compiler}
 The query interpreter is elegant but slow.
-Fortunately, it is easy to convert the slow query interpreter to a fast query compiler by generating specialized code regarding the given query.
-The LMS framework makes this conversion rather easy. It provides a type constructor |Rep| for annotating computations that are to be performed in the next stage. Here comes the signature of the staged |execOp|:
+Fortunately, it is easy to convert the slow query interpreter to a fast query compiler
+with the help of the LMS framework.
+The idea is to generate specialized code for a given the given query.
+LMS provides a type constructor |Rep| for annotating computations that are to be performed in the next stage. Here comes the signature of the staged |execOp|:
 
 > def execOp(yld: Record => Rep[Unit]): Rep[Unit]
 
@@ -196,7 +204,7 @@ As it turns out, switching frow interpretation to compilation achieves dramatic 
 %\indent The implementation still has plenty of room for extensions - only a subset of SQL is supported currently.
 %As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.
 
-\subsection{New Language Constructs}
+\paragraph{New Language Constructs}
 To further accelarte the query compiler, Rompf and Amin extended the query processor with two new language constructs, hash joins and aggregates. Due to the use algebraic datatypes and pattern matching in their implementation, the support for these new constructs are actually done by modifying existing interpretations with cases. On the other hand, our shallow OO embedding facilitates modular additions of language constructs:
 
 \begin{spec}

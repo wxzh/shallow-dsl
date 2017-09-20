@@ -17,6 +17,7 @@
 %format override = "\mathbf{override}"
 %format implicit = "\mathbf{implicit}"
 %format super = "\mathbf{super}"
+%format object = "\mathbf{object}"
 %format in = "in"
 %format s1
 %format s2

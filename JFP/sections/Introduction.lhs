@@ -82,7 +82,7 @@ shallow Scala EDSL. The resulting implementation allows both new
 interpretations and new constructs to be introduced modularly, and
 can be used directly (as an EDSL) in Scala.
 
-All the code and case study shown in the paper can be found online at:
+The complete code for examples and the case study is available at:
 \begin{center}\url{https://github.com/wxzh/shallow-dsl}\end{center}
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
