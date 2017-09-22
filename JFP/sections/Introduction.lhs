@@ -17,12 +17,12 @@ domain. Therefore there is no data type representing uninterpreted
 abstract syntax. 
 
 The trade-offs between shallow and deep embeddings have been widely
-discussed~\cite{}. The reported strenghts of deep embeddings are that they
+discussed~\cite{svenningsson2012combining,yinyang}. The reported strengths of deep embeddings are that they
 enable tranformations on the abstract syntax, and multiple
-interpretations are easy to implement. The reported strenghts of
-shallow-embeddings are that enforce the property of \emph{compositionality}
+interpretations are easy to implement. The reported strengths of
+shallow-embeddings are that they enforce the property of \emph{compositionality}
 by construction, and can be easily extended with new EDSL
-operations. However shallow embeddings make it difficult to support
+operations. However, shallow embeddings make it difficult to support
 multiple interpretations and transformations.
 
 Compositionality is considered a sign of good language design, and
@@ -32,27 +32,26 @@ its parts. One reason why compositionality is desirable is that it
 is naturally leads to a modular semantics, where adding new language
 constructs does not require changes in the semantics of existing constructs.
 Because compositionality serves as a guideline for good language design,
-some authors~\cite{} argue that a semantics-first
+some authors~\cite{erwig2014semantics} argue that a semantics-first
 approach to EDSLs is superior to a syntax-first approach. In such
 semantics-driven approach, the idea is to first find target domain
 that leads to a compositional denotational semantics, and later grow
 the syntax on top of the semantic core. Shallow embeddings fit
-naturally with such a semantics driven approach.
-Nevertheless the limitations of shallow embeddings with respect to
+naturally with such a semantics-driven approach.
+Nevertheless, the limitations of shallow embeddings with respect to
 deep embeddings can be a deterrant to their use.
 
 This functional perl shows that, given adequate language support,
 supporting multiple modular interpretations in shallow DSLs is not
 only possible, but simple. Therefore, the often-cited limitation
 of shallow-embeddings to only support a single interpretations
-is not really a limitation. Several previous authors~\cite{} already
+is not really a limitation. Several previous authors~\cite{gibbons2014folding} already
 observed that, in conventional functional programming, by using
 products and projections multiple interpretations can be supported.
-Nevertheless the use of products and projections is very cumbersome,
+Nevertheless, the use of products and projections is very cumbersome,
 and often leads to code that is not modular.
 We argue that multiple interpretations can be encoded naturally
-when the language employed to implement the EDSL supports
-common OO features, such as
+when the host language supports common OO features, such as
 \emph{subtyping}, \emph{inheritance} and \emph{type-refinement}.
 
 \begin{comment}
@@ -93,7 +92,6 @@ abstraction} where
 \begin{quote}
 The abstract form of data is characterized by the primitive operations which can be peformed upon it, and an item of data is simply a procedure or collection of procedures for performing these operations.~\cite{reynolds75userdefined}
 \end{quote}
-% Essence: an item of procedural data is a kind of record called a closure which contains both an internal representation of the data and a pointer to code for procedures for manipulating this representation. A program with access to a closure record is only permitted to examine or access the internal representation by executing the code indicated by the pointer, so that this code serves to close off or protect the internal representation
 
 \noindent This is the definition of a shallow embedding in this paper. Such interpretation
 arises naturally from the domain of shallow EDSLs being functions, and
@@ -102,24 +100,27 @@ functions.
 \end{comment}
 
 At the center of this pearl is Reynolds idea of \emph{procedural abstraction}, which
-enables us to directly relate shallow embeddings and object-oriented programming.
+enables us to directly relate shallow embeddings and OOP.
 \bruno{what is it?}
 This pearl starts by discussing two independently observed connections to procedural abstraction, which
-are pictorially described in Figure~\ref{}. 
+are pictorially described in Figure~\ref{connections}.
 The first connection is between procedural abstraction and shallow embeddings.
-As Gibbons an Wu state "\emph{it was probably known to Reynolds, who contrasted
+As Gibbons an Wu state ``\emph{it was probably known to Reynolds, who contrasted
 deep embeddings (‘user defined types’) and shallow (‘procedural data
-structures’)}". Gibbons and Wu noted the connection between shallow embeddings
+structures’)}''. Gibbons and Wu noted the connection between shallow embeddings
 and procedural abstractions, although they did not go into a lot of detail.
 The second connection is the connection between OOP and procedural
 abstraction, which was widely discussed by Cook~\shortcite{cook09abstraction}.
 
-\bruno{Draw the diagram with the connections.}
-\begin{comment}
+\begin{figure}
+\xymatrixcolsep{7pc}
+\xymatrix{
+\text{Shallow Embeddings} \ar@@{<->}[r]^-*+{Gibbons\ \&\ Wu} & \text{Procedural Abstraction}\ar@@{<->}[r]^-*+{Cook} & \text{OOP}
+}
+\caption{Connections.}
+\label{connections}
+\end{figure}
 
-                    Gibbons&Wu                          Cook                         
-Shallow Embeddings <----------> Procedural Abstraction <-----> OOP
-\end{comment}
 
 \begin{comment}
 The first goal of this pearl is to show the close relationship between
@@ -166,27 +167,9 @@ From the \emph{modularity} point of view the
 resulting Scala version has clear advantages over the Haskell version, due
 to the use of subtyping, inheritance and type-refinement.
 
-
-While the technique proposed here does not deal with transformations,
-by removing the limitation of single-interpretation we enlarge the
-applicability of shallow embeddings. In particular the technique
-proposed here can be useful for DSLs that do not require
-transformations, but need multiple interpretations. A concrete
-example is our case study.
-Rompf and Amin~\shortcite{rompf15} present a SQL to C compiler in Scala, which
-is an external DSL but uses deep embedding techniques such as
-algebraic datatypes and pattern matching in the implementation. The use of deep
-embedding techniques facilitates multiple interpretations at the price
-of modular language extensions.
-We rewrote the implementation as a
-shallow Scala EDSL. The resulting implementation allows both new
-interpretations and new constructs to be introduced modularly, and
-can be used directly (as an EDSL) in Scala.
-The original query DSL does not use any
-transformations because it employs staging, which removes the need
-for manual optimisations (and transformations). By using our technique
-and staging we enable a high-performing query EDSL, with multiple
-interpretations, to be written in a shallow style.
+While the technique proposed here does not deal with transformations, yielding efficient shallow EDSL is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
+By removing the limitation of single-interpretation, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techiniques~\cite{rompf15} into a shallow EDSL.
+The resulting implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing the performance.
 
 \begin{comment}
 To further illustrate the applicability of our OOP approach, we conduct

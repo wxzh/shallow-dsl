@@ -3,7 +3,6 @@
 %include def.fmt
 \section{Shallow Object-Oriented Programming}\label{sec:oo}
 
-\weixin{TODO: Cite circuit figure and SQL examples more properly}
 This section shows that an OOP approach and a shallow embedding using
 procedural abstraction are closely related.  We use the same
 DSL presented by Gibbons and Wu~\shortcite{gibbons2014folding} as
@@ -39,11 +38,11 @@ The grammar of \dsl is given below:
 \noindent \dsl has five constructs: two primitives
 (|id| and |fan|) and three combinators (|beside|, |above| and |stretch|).
 Their meanings are: |id n| contains |n| parallel wires;
-|fan n| has |n| parallel wires with its first wire connected to
-all the remaining wires from top to bottom; |beside c1 c2| joins two circuits
+|fan n| has |n| parallel wires with the leftmost wire connected to
+all other wires from top to bottom; |beside c1 c2| joins two circuits
 |c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
 |stretch ns c| inserts wires into the circuit |c| by summing up |ns|.
-Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
+Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs.
 The structure of this circuit is explained as follows.
 The whole circuit is composed by three sub-circuits, vertically:
 the top sub-circuit is a two 2-|fan|s put side by side;
@@ -77,7 +76,7 @@ Suppose that the semantics of \dsl calculates the width of a
 circuit. The definitions are:
 
 > type Circuit   =  Int
-> id n     =  n
+> id n           =  n
 > fan n          =  n
 > beside c1 c2   =  c1 + c2
 > above c1 c2    =  c1
@@ -88,7 +87,7 @@ circuit. The definitions are:
 >  (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 
 \noindent For this simple interpretation, the Haskell domain is simply |Int|.
-This means that we will get the width right after the construction of a circuit (4 for this case)
+This means that we will get the width right after the construction of a circuit (4 for this case).
 Note that the |Int| domain for |width| is a degenerate case of procedural abstraction: |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,

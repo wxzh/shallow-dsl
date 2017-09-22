@@ -281,12 +281,12 @@ Shallow embeddings make the addition of |rstretch| easy by defining a new functi
 
 %}
 
-\noindent |rstretch| happens to be a syntactic sugar that can be defined in terms of existing constructs.
-For non-sugar constructs, we need to define a new function that implements all supported interpretations.
+\noindent |rstretch| happens to be syntactic sugar over existing constructs.
+For non-sugar constructs, a new function that implements all supported interpretations is needed.
 
 \paragraph{New Constructs in Scala}
 Such simplicity of adding new constructs is retained in our OOP approach.
-Differently from the Haskell approach, there is a clear distinction between 
+Differently from the Haskell approach, there is a clear distinction between
 syntactic sugar and ordinary constructs in the OOP approach.
 
 In our OOP approach, a syntatic sugar is defined as a smart constructor upon other smart constructors:
