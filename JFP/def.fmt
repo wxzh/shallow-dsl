@@ -27,6 +27,7 @@
 %format r2
 %format ^^ = "\;"
 
+%format Id1
 %format Op2
 %format Operator2
 %format Scan2

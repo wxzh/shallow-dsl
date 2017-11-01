@@ -105,7 +105,7 @@ enables us to directly relate shallow embeddings and OOP.
 This pearl starts by discussing two independently observed connections to procedural abstraction, which
 are pictorially described in Figure~\ref{connections}.
 The first connection is between procedural abstraction and shallow embeddings.
-As Gibbons an Wu state ``\emph{it was probably known to Reynolds, who contrasted
+As Gibbons and Wu~\shortcite{gibbons2014folding} state ``\emph{it was probably known to Reynolds, who contrasted
 deep embeddings (‘user defined types’) and shallow (‘procedural data
 structures’)}''. Gibbons and Wu noted the connection between shallow embeddings
 and procedural abstractions, although they did not go into a lot of detail.
@@ -115,7 +115,7 @@ abstraction, which was widely discussed by Cook~\shortcite{cook09abstraction}.
 \begin{figure}
 \xymatrixcolsep{7pc}
 \xymatrix{
-\text{Shallow Embeddings} \ar@@{<->}[r]^-*+{Gibbons\ \&\ Wu} & \text{Procedural Abstraction}\ar@@{<->}[r]^-*+{Cook} & \text{OOP}
+\text{Shallow Embeddings} \ar@@{<->}[r]^-*+{\text{Gibbons and Wu~\shortcite{gibbons2014folding}}} & \text{Procedural Abstraction}\ar@@{<->}[r]^-*+{\text{Cook~\shortcite{cook09abstraction}}} & \text{OOP}
 }
 \caption{Connections.}
 \label{connections}
@@ -156,7 +156,7 @@ OOP languages. Thus using just standard OOP mechanisms enables
 shallow embeddings.
 \end{comment}
 
-We make our arguments by taking the examples in Gibbons and Wu~\shortcite{gibbons2014folding} recent paper,
+We make our arguments by taking the examples in Gibbons and Wu~\shortcite{gibbons2014folding}'s paper,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala, using a
 recently proposed design pattern~\cite{eptrivially16}, which provides
@@ -169,7 +169,7 @@ to the use of subtyping, inheritance and type-refinement.
 
 While the technique proposed here does not deal with transformations, yielding efficient shallow EDSL is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
 By removing the limitation of single-interpretation, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techiniques~\cite{rompf15} into a shallow EDSL.
-The resulting implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing the performance.
+The refactored implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing the performance.
 
 \begin{comment}
 To further illustrate the applicability of our OOP approach, we conduct
@@ -184,7 +184,7 @@ interpretations and new constructs to be introduced modularly, and
 can be used directly (as an EDSL) in Scala.
 \end{comment}
 
-The complete code for examples and the case study is available at:
+Complete code for examples and the case study is available at:
 \begin{center}\url{https://github.com/wxzh/shallow-dsl}\end{center}
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote

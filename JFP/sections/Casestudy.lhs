@@ -23,14 +23,17 @@
 %format ` = "\textquotesingle"
 %format MultiCore = "Multi\text{-}Core"
 
-\invisiblecomments
-
+\weixin{Isn't staging transformation?}
 \section{A Shallow EDSL for SQL Queries}
-Another important reason to prefer deep embeddings over shallow embeddings is the simplicity of performing program transformations.
-A deep embedding using algebraic datatype and pattern matching greatly simplify program transformations.
-Although simple program transformations without the need of deep patterns can be simulated with a shallow embedding, more complex program transformations decrease the simplicity and modularity of a shallow embedding.
-An alternative approach to performant EDSLs is
-Nevertheless, staging is , which suits better for shallow embeddings.
+%Performance is critical for realistic DSLs. Transformation
+% AST rewriting vs. staging
+%hurt compositionality
+%Program transformation is frequently used in optimizing DSLs, which becomes
+%another important reason to prefer deep embeddings over shallow embeddings.
+Representing embedded program concretely as an AST and equipped with pattern matching, deep embeddings greatly simplify AST rewritings.
+Although simple transformations can be simulated with shallow embeddings, more complex transformations that require.
+more complex program transformations decrease the simplicity and modularity of a shallow embedding.
+Staging, as an alternative approach to performant EDSLs, suits better for shallow embeddings.
 This section presents a shallow EDSL for SQL queries based on staging.
 
 %To further illustrate the applicability of shallow OO embeddings,
@@ -38,11 +41,11 @@ This section presents a shallow EDSL for SQL queries based on staging.
 %to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
-SQL is one of the most well-known DSLs for data queries.
+SQL is perhaps the most well-known DSLs for data queries.
 Rompf and Amin~\shortcite{rompf15} present a SQL query processor implementation in Scala.
 Their implementation is an \emph{external} DSL,
 which first parses a SQL query into a relational algebra AST and then executes the query in terms of that AST.
-Three backends are provided: a SQL interpreter, a SQL to Scala compiler and a SQL to C compiler.
+%Three backends are provided: a SQL interpreter, a SQL to Scala compiler and a SQL to C compiler.
 Based on the LMS framework~\cite{rompf2012lightweight},
 the SQL compilers are nearly as simple as an interpreter while having performance comparable to hand-written code.
 The implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching for representing and interpreting ASTs.
@@ -53,13 +56,13 @@ suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 First, multiple interpretation is not a problem for our shallow OO embedding techinique;
-Second, the original implementation contains no hand-coded transformation, which is better supported in a deep embedding;
+Second, the original implementation contains no hand-coded transformation over AST;
 Third, it is common to embed SQL into a general purpose language,
 for instance Circumflex ORM\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
 To illustrate our shallow EDSL, imagine there is a data file |talks.csv| that contains a list of talks with time, title and room. Here are several sample queries on this file written with our EDSL.
-A simple query that lists all items in |talks.csv| is:
+Here is a simple query that lists all items in |talks.csv|:
 
 > def q0     =  FROM ("talks.csv")
 
@@ -73,7 +76,7 @@ Yet another relatively complex query to find all unique talks happening at the s
 >               (q0 SELECT (`time, `room, `title AS ^^ `title2))  WHERE
 >               `title1 <> `title2
 
-Compared to the original external implementation, our embedded implementation has benefits of reusing the mechanisms provided by the host language for free.
+Compared to an external implementation, our embedded implementation has benefits of reusing the mechanisms provided by the host language for free.
 As illustrated by the sample queries above, we are able to reuse common subqueries (|q0|) in building complex queries (|q1| and |q2|).
 This improves the readability and modularity of the embedded programs.
 
@@ -99,10 +102,10 @@ This improves the readability and modularity of the embedded programs.
 Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
 The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is a optional, terminating clause of a query.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} lifting field names and literals implicitly.
+Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
 For the syntax of combinators such as |where| and |join|, we adopt fluent interface style~\cite{fowler2005fluent}.
 Fluent interface style enables writing something like ``|FROM(...).WHERE(...).SELECT(...)|''.
-Scala's infix notation further allows to omit ``|.|'' in method chains.
+Scala's infix notation further allows to omit ``|.|'' in chaining these methods.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 The syntax is implemented in a pluggable way, in the sense that the semantics is decoupled from the syntax.
 Details of the syntax implementation are beyond the scope of this pearl.
@@ -116,15 +119,6 @@ For example, we will get the following operator structure for |q1|:
 >                    Scan("talks.csv")))
 
 whose meaning will be explained next.
-% Type safety
-
-%The following subsections give an overview of rewriting the core of the original
-%implementation - the interpreter for relational algebra operations.
-%Similar rewritings are also applicable to staged versions derived
-%from this interpreter.
-
-% string embedded: the syntax of string encoded DSL programs is not statically checked but parsed at runtime; hence, syntactic errors are not detected during compilation and can occur after deploying the software.
-% static safety
 
 \subsection{A Relational Algebra Interpreter}
 A SQL query can be represented by a relational algebra operator.
@@ -137,8 +131,7 @@ The basic interface of operators is modeled as follows:
 
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
 Very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive},
-|execOp| is \emph{context-sensitive}, which takes a callback |yld| and accumulates what the operator does to records into |yld|.
-% |exec| is just a wrapper of |execOp|, supplying a callback that does nothing as the initial value.
+|execOp| is both \emph{context-sensitive} and \emph{dependent}, which takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
 
 Here are some core concrete relational algebra operators:
 
@@ -165,9 +158,9 @@ Here are some core concrete relational algebra operators:
 |Project| rearranges the fields of a record;
 |Join| matches a record against another and combines the two records if their common fields share the same values;
 |Filter| keeps a record only when it meets a certain predicate.
-There are also two utility operators, |Print| and |Scan|, for processing data files and displaying results. % Their definitions are omitted for space reasons.
+There are also two utility operators, |Print| and |Scan|, for processing inputs and outputs, whose definitions are omitted for space reasons.
 
-%Then calling |exec| on an operator inside
+%By calling |execOp| on an operator, we execute a query
 %To actually run a query, we call the  method.
 %For example, the execution result of |q1| is:
 %
@@ -180,32 +173,24 @@ There are also two utility operators, |Print| and |Scan|, for processing data fi
 % TODO: Generate to different targets as new interpretations
 
 
-\subsection{Extensions}
-Rompf and Amin extend the SQL processor in various ways to achieve better expressiveness and performance.
-% The extensions include a new operator |Group| for aggregations, an efficient implementation of |Join| and a more flexible |Scan| that can deal with more forms of files.
-%However, due to the limited extensibility in their implementation,
-%extensions are actually done through modifying existing code.
-%In contrast, our implementation allows extensions to be introduced modularly.
-
-\paragraph{From Interpreter to Compiler}
-The query interpreter is elegant but slow.
-Fortunately, it is easy to convert the slow query interpreter to a fast query compiler
-with the help of the LMS framework.
-The idea is to generate specialized code for a given the given query.
+\subsection{From Interpreter to Compiler}
+The query interpreter presented so far is elegant but unfortunately slow.
+To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
+The first extension is to turn the slow query interpreter into a fast query compiler.
+The idea is to generate specialized low-level code for a given query.
+With the help of the LMS framework, this task becomes rather easy.
 LMS provides a type constructor |Rep| for annotating computations that are to be performed in the next stage. Here comes the signature of the staged |execOp|:
 
 > def execOp(yld: Record => Rep[Unit]): Rep[Unit]
 
-where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code. Similar liftings are performed elsewhere.
-The new version of |execOp| is introduced as an extension so that exisitng interpretations like |resultSchema| can be reused.
-The implementation of the staged |execOp| is almost identical to the previous version except for minor API differences on staged types.
-As it turns out, switching frow interpretation to compilation achieves dramatic speedups without comprising the elegance of the implementation.
+where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
+By using the techinique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse exisitng interpretations such as |resultSchema|.
+Concrete definition of the staged |execOp| is almost identical to the corresponding unstaged implementation except for minor API differences on staged and unstaged types.
+Hence the simplicity of the implementation retains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
-%\indent The implementation still has plenty of room for extensions - only a subset of SQL is supported currently.
-%As our shallow OO embedding illustrates, both new relational algebra operators and new interpretations can be modularly added.
-
-\paragraph{New Language Constructs}
-To further accelarte the query compiler, Rompf and Amin extended the query processor with two new language constructs, hash joins and aggregates. Due to the use algebraic datatypes and pattern matching in their implementation, the support for these new constructs are actually done by modifying existing interpretations with cases. On the other hand, our shallow OO embedding facilitates modular additions of language constructs:
+\subsection{Language Extensions}
+Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
+Differently from the original implementation, the introduction of these constructs can be done in a modular manner with our shallow OO embedding:
 
 \begin{spec}
 trait Group extends Operator {
@@ -216,7 +201,7 @@ trait Group extends Operator {
 trait HashJoin extends Join {
   override def execOp(yld: Record => Unit) = {
     val keys = op1.resultSchema intersect op2.resultSchema
-    val hm = new HashMap(keys, op1.resultSchema)
+    val hm = new HashMapBuffer(keys, op1.resultSchema)
     op1.execOp { rec1 =>
       hm(rec1(keys)) += rec1.fields }
     op2.execOp { rec2 =>
@@ -225,8 +210,8 @@ trait HashJoin extends Join {
 }
 \end{spec}
 
-\noindent |Group| deals with |group by| clause in SQL, which partitions records and sums up specified fields from the composed operator.
-|HashJoin| overrides the naive nested loop |execOp| with an efficient hash-based implementation while reusing field declarations and other interpretations from |Join|.
+\noindent |Group| supports SQL's |group by| clause, which partitions records and sums up specified fields from the composed operator.
+|HashJoin| is a replacement of |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overridding, we are able to reuse the field declarations and other interpretations from |Join|.
 
 \subsection{Evaluation}
 We evaluate our refactored shallow implementation with respect to the original deep implementation. As the same code is generated, the performance difference is insignificant.

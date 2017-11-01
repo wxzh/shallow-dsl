@@ -85,14 +85,14 @@ The encoding relies on three OOP abstraction mechanisms:
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
-Also, fields of type |Circuit1| are refined with type |Circuit2| to allow |depth| invocations.
+Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
 Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \emph{modularly reused} here.
 
 \subsection{Dependent Interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
 interpretations. A dependent interpretation does not only depend on itself but also on other interpretations.
 An instance of dependent interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
-|wellSized| is dependent because combinators like |above| have |width| constraints on its circuit components.
+|wellSized| is dependent because combinators like |above| have |width| constraints on its constituent circuits.
 
 \paragraph{Dependent Interpretations in Haskell}
 In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
@@ -168,7 +168,7 @@ For example, if two circuits are put side by side, all the indices of the right 
 Hence the interpretation, called |tlayout|, that produces a layout is firstly dependent, relying on itself as well as |width|.
 An intuitive implementation of |tlayout| performs these changes immediately to the affected circuit.
 A more efficient implementation accumulates these changes and applies them all at once.
-An accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensitive.
+Therefore, an accumulating parameter is used to achieve this goal, which makes |tlayout| context-sensitive.
 
 \paragraph{Context-sensitive Interpretations in Haskell}
 The following Haskell code implements (non-modular) |tlayout|:
@@ -201,13 +201,13 @@ tlayout =  snd
 \end{code}
 %}
 
-\noindent The domain of |tlayout| is not |Layout| but a function type that takes a transformation on wires and then produces a layout (|(Int->Int)->Layout|).
-An anonymous function that takes as an accumulating parameter |f| is created for each case.
-Note that |f| is accumulated in |beside4| and |stretch4| through function composition\footnote{The function composition order is incorrect in the original paper. |f| should be put on the left-hand side of $\circ$, as the circuit is built bottom up.}, propagated in |above4|, and finally applied to wire connections in |fan4|.
+\noindent The domain of |tlayout| is a function type (|(Int->Int)->Layout|), which takes a transformation on wires and produces a layout.
+An anonymous function is hence defined for each case, where |f| is the accumulating parameter.
+Note that |f| is accumulated in |beside4| and |stretch4| through function composition\footnote{The composition position of |f| is incorrect in the original paper.}, propagated in |above4|, and finally applied to wire connections in |fan4|.
 An auxiliary definition |lzw| (stands for ``long zip with'') zips two lists by applying the binary operator
 to elements of the same index, and appending the remaining elements from
 the longer list to the resulting list.
-By calling |tlayout| on a circuit and supplying |id| as the initial value for the accumulating parameter, we will get the layout.
+By calling |tlayout| on a circuit and supplying |id| as the initial value of the accumulating parameter, we will get the layout.
 
 \paragraph{Context-sensitive Interpretations in Scala}
 Context-sensitive interpretations in our OO approach are unproblematic as well:
@@ -261,7 +261,7 @@ First, in |Fan4|, a |for comprehension| is used for producing a list of connecti
 Second, for simplicity, anonymous functions are created without a parameter list.
 For example, inside |Beside4|, |c1.width + _| is a shorthand for |i => c1.width + i|, where the placeholder |_| plays the role of the named parameter |i|.
 Third, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
-Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference on |f|.
+Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 
@@ -308,7 +308,7 @@ trait RStretch extends Stretch4 {
 Such an implementation of |RStretch| illustrates another strength of our OO approach regarding modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherits |Stretch4| and overrides the |tlayout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
-Inheritance and overriding enable partial reuse of an existing language construct implementation,
+Inheritance and method overriding enable partial reuse of an existing language construct implementation,
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
@@ -326,8 +326,7 @@ interpretations are easy to add in shallow embeddings. In other words,
 the circuit DSL presented so far does not suffer from the Expression
 Problem. The key point is that procedural abstraction combined with
 OOP features (subtyping, inheritance, and type-refinement) adds
-expressiveness over traditional procedural abstraction. 
-
+expressiveness over traditional procedural abstraction.
 
 Gibbons and Wu do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
