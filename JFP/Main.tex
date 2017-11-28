@@ -15,6 +15,13 @@
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
+\let\oldpar\paragraph
+\renewcommand{\paragraph}[1]{\vspace{-7pt}\oldpar{#1}}
+\let\oldsec\section
+\renewcommand{\section}[1]{\vspace{-7pt}\oldsec{#1}}
+\let\oldsubsec\subsection
+\renewcommand{\subsection}[1]{\vspace{-7pt}\oldsubsec{#1}}
+
 %% for comments
 \input{Preamble}
 
