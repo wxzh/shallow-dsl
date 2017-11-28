@@ -57,7 +57,7 @@ the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
 \end{figure}
 
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
-Shallow embeddings define a language directly through encoding its semantics
+Shallow embeddings define a language directly by encoding its semantics
 using procedural abstraction. In the case of \dsl,
 a shallow embedded implementation (in Haskell) conforms to the following
 types:
@@ -86,7 +86,7 @@ circuit. The definitions are:
 
 >  (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 
-\noindent For this simple interpretation, the Haskell domain is simply |Int|.
+\noindent For this interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit (e.g. 4 for the circuit above).
 Note that the |Int| domain for |width| is a degenerate case of procedural abstraction: |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|

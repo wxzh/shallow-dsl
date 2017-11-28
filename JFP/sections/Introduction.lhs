@@ -153,7 +153,7 @@ shallow embeddings.
 
 To make our arguments we take the examples in Gibbons and Wu~\shortcite{gibbons2014folding}'s paper,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
-EDSL. We recode that EDSL in Scala, using a
+EDSL. We recode that EDSL in Scala using a
 recently proposed design pattern~\cite{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.

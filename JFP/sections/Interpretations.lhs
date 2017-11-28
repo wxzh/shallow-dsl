@@ -4,7 +4,7 @@
 \vspace{-7pt}
 \section{Interpretations in Shallow Embeddings}\label{sec:interp}
 
-An often stated limitation of shallow embeddings is that they multiple 
+An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined using standard OOP techniques by comparing with Gibbons and Wu's implementation.
