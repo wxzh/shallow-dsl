@@ -70,9 +70,6 @@ c(new Factory4{}).tlayout { x => x } // List(List((0,1), (2,3)), List((1,3)), Li
 
 \paragraph{Modular Extensions} Both factories and terms can be \emph{modularly} reused when the DSL is extended with new language constructs. To support right stretch for \dsl, we first extend the abstract factory:
 
-\bruno{The code in the remaining of this section is wrong (it does not type-check: 
-You forgot to parametrize by Circuit everywhere! PLEASE make sure that all code in the 
-paper is type-checked!}
 \begin{code}
 trait ExtendedFactory[Circuit] extends Factory[Circuit] {
   def rstretch(x: Circuit, xs: Int*): Circuit
