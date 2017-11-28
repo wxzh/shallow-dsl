@@ -7,7 +7,7 @@ bring extra modularity to traditional procedural abstraction. As a
 result, multiple interpretations are allowed to co-exist in shallow
 embeddings.
 
-It has always being a hard choice between shallow and deep
+It has always been a hard choice between shallow and deep
 embeddings when designing a EDSL: there are some tradeoffs between
 the two styles.
 A nice aspect of shallow embeddings is their simplicity.
