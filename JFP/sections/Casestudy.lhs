@@ -234,6 +234,7 @@ trait HashJoin extends Join {
 
 \paragraph{Evaluation}
 \begin{wraptable}{r}{.42\textwidth}
+\vspace{-15pt}
 \begin{tabular}{lcc}
                         & \text{Deep } & \text{ Shallow}\\
 \hline
@@ -242,9 +243,10 @@ SQL to Scala compiler   & 179  & 191 \\
 SQL to C compiler       & 245  & 259 \\
 \hline
 \end{tabular}
+\caption{Number of SLOC for the original (Deep) and the refactored (Shallow) implementations.}
 \end{wraptable}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
-Both implementations of the DSL (the original and our refactored version) generate the same code: thus the performance of the two implementations is the same.
+Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is the same.
 We hence compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are compared (code related to surface syntax is excluded).
 The SLOC of the two implementations are close, as seen in the table.
