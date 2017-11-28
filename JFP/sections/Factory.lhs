@@ -28,7 +28,7 @@ independent of any specific interpretation.
 \paragraph{Abstract Factories} To capture the generic interface of the constructors we use an abstract factory for circuits:
 \begin{code}
 trait Factory[Circuit] {
-  def identity(x: Int): Circuit
+  def id(x: Int): Circuit
   def fan(x: Int): Circuit
   def above(x: Circuit, y: Circuit): Circuit
   def beside(x: Circuit, y: Circuit): Circuit
@@ -49,7 +49,7 @@ the circuit shown in Fig.~\ref{fig:circuit} is built as:
 def c[Circuit](f: Factory[Circuit]) =
   f.above (  f.beside(f.fan(2),f.fan(2)),
              f.above (  f.stretch(f.fan(2),2,2),
-                        f.beside(f.beside(f.identity(1),f.fan(2)),f.identity(1))))
+                        f.beside(f.beside(f.id(1),f.fan(2)),f.id(1))))
 \end{spec}
 |c| is a generic method that takes an |Factory| instance and constructs a circuit through that instance. The definition of |c| can be even simpler with Scala. By importing |f|, we can avoid prefixing ``|f.|'' everywhere, but here we show a more language independent approach.
 
@@ -74,17 +74,17 @@ c(new Factory4{}).tlayout { x => x } // List(List((0,1), (2,3)), List((1,3)), Li
 You forgot to parametrize by Circuit everywhere! PLEASE make sure that all code in the 
 paper is type-checked!}
 \begin{code}
-trait ExtendedFactory extends Factory {
+trait ExtendedFactory[Circuit] extends Factory[Circuit] {
   def rstretch(x: Circuit, xs: Int*): Circuit
 }
 \end{code}
 We can also build extended concrete factories upon existing concrete factories:
 
 \begin{code}
-trait ExtendedFactory4 extends Factory4 with ExtendedFactory {
+trait ExtendedFactory4 extends ExtendedFactory[Circuit4] with Factory4 {
   def rstretch(x: Circuit4, xs: Int*) = new RStretch {val c=x; val ns=xs.toList}
 }
 \end{code}
 Moreover, previously defined terms can be reused in constructing extended terms:
 
-> def c2[Circuit](f: ExtendedFactory) = f.rstretch(c(f),2,2,2,2)
+> def c2[Circuit](f: ExtendedFactory[Circuit]) = f.rstretch(c(f),2,2,2,2)

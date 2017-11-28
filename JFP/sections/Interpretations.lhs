@@ -26,7 +26,7 @@ Here is Gibbons and Wu~\shortcite{gibbons2014folding}'s solution:
 
 \begin{code}
 type Circuit2  =  (Int,Int)
-id2 n    =  (n,0)
+id2 n          =  (n,0)
 fan2 n         =  (n,1)
 above2 c1 c2   =  (width c1,depth c1 + depth c2)
 beside2 c1 c2  =  (width c1 + width c2, depth c1 `max` depth c2)
@@ -174,7 +174,7 @@ The following Haskell code implements (non-modular) |tlayout|:
 \begin{code}
 type Layout    =  [[(Int, Int)]]
 type Circuit4  =  (Int,(Int -> Int) -> Layout)
-id4 n    =  (n,\f -> [])
+id4 n          =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
 beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
