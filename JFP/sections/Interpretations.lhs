@@ -7,7 +7,7 @@
 An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined using standard OOP techniques by comparing with Gibbons and Wu's implementation.
+interpretations can be \emph{modularly} defined using standard OOP techniques by comparing with Gibbons and Wu's Haskell implementations.
 
 \subsection{Multiple Interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
@@ -58,7 +58,7 @@ In contrast, an OO language like Scala allows new interpretations to be introduc
 %format Stretch2
 
 \begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}      // The semantic domain
+trait Circuit2 extends Circuit1 {def depth: Int}      // The extended semantic domain
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
@@ -249,11 +249,11 @@ The Scala version is both modular and arguably more intuitive, since
 contexts are captured as method arguments.
 The implementation of |tlayout| is a direct translation from the Haskell version.
 There are some minor syntax differences that need explanations.
-First, in |Fan4|, a |for comprehension| is used for producing a list of connections.
-Second, for simplicity, anonymous functions are created without a parameter list.
+Firstly, in |Fan4|, a |for comprehension| is used for producing a list of connections.
+Secondly, for simplicity, anonymous functions are created without a parameter list.
 For example, inside |Beside4|, |c1.width + _| is a shorthand for |i => c1.width + i|, where the placeholder |_| plays the role of the named parameter |i|.
-Third, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
-Fourth, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
+Thirdly, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
+Fourthly, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
 
 \subsection{Modular Language Constructs}\label{sec:construct}
 
@@ -277,11 +277,11 @@ Shallow embeddings make the addition of |rstretch| easy by defining a new functi
 For non-sugar constructs, a new function that implements all supported interpretations is needed.
 
 \paragraph{New Constructs in Scala}
-Such simplicity of adding new constructs is retained in our OOP approach.
+Such simplicity of adding new constructs is retained in Scala.
 Differently from the Haskell approach, there is a clear distinction between
-syntactic sugar and ordinary constructs in the OOP approach.
+syntactic sugar and ordinary constructs in Scala.
 
-In our OOP approach, a syntatic sugar is defined as a smart constructor upon other smart constructors:
+In Scala, a syntatic sugar is defined as a smart constructor upon other smart constructors:
 
 > def rstretch(ns: List[Int], c: Circuit4) = stretch (1 :: ns.init, beside(c, id(ns.last - 1)))
 
@@ -312,7 +312,7 @@ It is possible to define multiple interpretations via tuples,
 is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
 language support}''~\cite{gibbons2014folding}.
-In other words, Haskell's approach based on tuples is essentially non-modular.
+Moreover, Haskell's approach based on tuples is essentially non-modular.
 However, as our OOP approach shows, in OOP both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,
 the circuit DSL presented so far does not suffer from the Expression
@@ -323,7 +323,7 @@ expressiveness over traditional procedural abstraction.
 Gibbons and Wu do discuss a number of advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} 
-can deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, these techniques complicate the encoding of the EDSL.
+can deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
 Moreover, dependent interpretations (Section~\ref{sec:dependent}) remain non-modular
 because an encoding via tuples is still needed. In contrast,
 the approach proposed here is just straightforward OOP, it uses only simple types, and dependent

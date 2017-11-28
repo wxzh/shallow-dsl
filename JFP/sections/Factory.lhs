@@ -9,7 +9,7 @@
 %format ExtendedFactory4
 %format Circuit4
 
-\section{Modular Terms}
+\section{Modular Terms}\label{sec:modterms}
 
 One potential criticism to the approach presented so far is that while
 the interpretations are modular, building terms is not. 
