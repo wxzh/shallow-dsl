@@ -233,13 +233,7 @@ trait HashJoin extends Join {
 |HashJoin| is a replacement of |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overridding, we are able to reuse the field declarations and other interpretations from |Join|.
 
 \paragraph{Evaluation}
-We evaluate our refactored shallow implementation with respect to the original deep implementation.
-Both implementations of the DSL (the original and our refactored version) generate the same code: thus the performance of the two implementations is the same.
-We hence compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
-the interpretations are compared (code related to surface syntax is excluded).
-The SLOC of the two implementations are close, as seen in the table below:\bruno{Put table on the side of the text instead.}
-
-\begin{table}[h]
+\begin{wraptable}{r}{.42\textwidth}
 \begin{tabular}{lcc}
                         & \text{Deep } & \text{ Shallow}\\
 \hline
@@ -248,5 +242,9 @@ SQL to Scala compiler   & 179  & 191 \\
 SQL to C compiler       & 245  & 259 \\
 \hline
 \end{tabular}
-\end{table}
-
+\end{wraptable}
+We evaluate our refactored shallow implementation with respect to the original deep implementation.
+Both implementations of the DSL (the original and our refactored version) generate the same code: thus the performance of the two implementations is the same.
+We hence compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
+the interpretations are compared (code related to surface syntax is excluded).
+The SLOC of the two implementations are close, as seen in the table.

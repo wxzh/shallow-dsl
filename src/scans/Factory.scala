@@ -45,5 +45,5 @@ trait ExtendedFactory4 extends ExtendedFactory[Circuit4] with Factory4 {
 
 def c2[Circuit](f: ExtendedFactory[Circuit]) = f.rstretch(c(f),2,2,2,2)
 
-//println(new ExtendedTerm with ExtenededFactory4{}.c2.tlayout { x => x }) // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
+println(c2(new ExtendedFactory4{}).tlayout { x => x }) // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
 }
