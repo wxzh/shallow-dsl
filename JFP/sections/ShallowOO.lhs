@@ -129,7 +129,8 @@ behavior to the program. Hence the two programs are effectively the
 same. However, having fields makes the program look more like an
 OO program.
 
-Indeed, we can easily translate the program from Haskell to Scala.
+\vspace{-5pt}
+\paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala.
 %format (="\!("
 %format [="\!["
 
@@ -166,8 +167,7 @@ trait Stretch1 extends Circuit1 {
 \end{spec}
 \end{minipage}
 
-\paragraph{Porting to Scala}
-The idea is to map 
+\noindent The idea is to map 
 Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Object interfaces make the connection to procedural abstraction clear: 

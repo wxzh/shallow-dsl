@@ -76,11 +76,10 @@ suffering from the Expression Problem.
 We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 Firstly, multiple interpretations are no longer a problem for our shallow OO embedding techinique.
 Secondly, the original implementation contains no hand-coded transformations over AST, due to the use of staging.
-Thirdly, it is common to embed SQL into a general purpose language,
-for instance Circumflex ORM. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
+Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
-To illustrate our shallow EDSL, imagine there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file written with our EDSL.
+To illustrate our shallow EDSL, suppose that there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file written with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
 > def q0     =  FROM ("talks.csv")
@@ -151,7 +150,7 @@ The basic interface of operators is modeled as follows:
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
 Very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive},
 |execOp| is both \emph{context-sensitive} and \emph{dependent}:
-|tlayout| takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
+|execOp| takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
 Here are some core concrete relational algebra operators:
 
 > trait Project extends Operator {
@@ -203,7 +202,7 @@ LMS provides a type constructor |Rep| for annotating computations that are to be
 > def execOp(yld: Record => Rep[Unit]): Rep[Unit]
 
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
-By using the techinique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse exisitng interpretations such as |resultSchema|.
+By using the technique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse exisitng interpretations such as |resultSchema|.
 The concrete definition of the staged |execOp| is almost identical to the corresponding unstaged implementation except for minor API differences on staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
