@@ -46,7 +46,7 @@ only possible, but simple. Therefore this perl aims to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
 observed that, in conventional functional programming, by using
-products and projections multiple interpretations can be supported.
+products and projections, multiple interpretations can be supported.
 Nevertheless, the use of products and projections is very cumbersome,
 and often leads to code that is not modular.
 We argue that multiple interpretations can be encoded naturally
@@ -167,7 +167,7 @@ By removing the limitation of multiple interpretations, we enlarge the applicabi
 The refactored implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing performance.
 Complete code for all examples and the case study is available online:
 
-\center{\url{https://github.com/wxzh/shallow-dsl}}
+\begin{center}{\url{https://github.com/wxzh/shallow-dsl}}\end{center}
 
 \begin{comment}
 To further illustrate the applicability of our OOP approach, we conduct
