@@ -58,7 +58,7 @@ In contrast, an OO language like Scala allows new interpretations to be introduc
 %format Stretch2
 
 \begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}      // The extended semantic domain
+trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // the extended semantic domain} "-}
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
@@ -121,12 +121,12 @@ Once again, it is easy to model dependent interpretation with a simple OO approa
 %format Stretch3
 
 \begin{spec}
-trait Circuit3 extends Circuit1 { def wellSized: Boolean } // The semantic domain
+trait Circuit3 extends Circuit1 { def wellSized: Boolean } {-" \text{ // the semantic domain} "-}
 trait Id3 extends Id1 with Circuit3 {def wellSized = true}
 trait Fan3 extends Fan1 with Circuit3 {def wellSized = true}
 trait Above3 extends Above1 with Circuit3 {
   override val c1, c2: Circuit3
-  def wellSized = c1.wellSized && c2.wellSized && c1.width==c2.width  // width dependency
+  def wellSized = c1.wellSized && c2.wellSized && c1.width==c2.width {-" \text{ // width dependency} "-}
 }
 trait Beside3 extends Beside1 with Circuit3 {
   override val c1, c2: Circuit3
@@ -134,7 +134,7 @@ trait Beside3 extends Beside1 with Circuit3 {
 }
 trait Stretch3 extends Stretch1 with Circuit3 {
   override val c: Circuit3
-  def wellSized = c.wellSized && ns.length==c.width  // width dependency
+  def wellSized = c.wellSized && ns.length==c.width {-" \text{ // width dependency} "-}
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
