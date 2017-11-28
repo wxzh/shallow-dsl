@@ -74,7 +74,7 @@ All existing interpretations have to be modified for dealing with these new case
 suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
-Firstly, multiple interpretations are no longer a problem for our shallow OO embedding techinique.
+Firstly, multiple interpretations are no longer a problem for our shallow OO embedding technique.
 Secondly, the original implementation contains no hand-coded transformations over AST, due to the use of staging.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
@@ -118,12 +118,12 @@ This improves the readability and modularity of the embedded programs.
 
 \subsection{Embedded Syntax}
 Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
-The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is a optional, terminating the clause of a query.
+The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is an optional, terminating the clause of a query.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
 Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
 For the syntax of combinators such as |where| and |join|, we adopt a fluent interface style.
 Fluent interfaces enable writing something like ``|FROM(...).WHERE(...).SELECT(...)|''.
-Scala's infix notation further allows to omit ``|.|'' in chaining these methods.
+Scala's infix notation further allows omitting ``|.|'' in method chains.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 The syntax is implemented in a pluggable way, in the sense that the semantics is decoupled from the syntax.
 Details of the syntax implementation are beyond the scope of this pearl.
@@ -202,7 +202,7 @@ LMS provides a type constructor |Rep| for annotating computations that are to be
 > def execOp(yld: Record => Rep[Unit]): Rep[Unit]
 
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
-By using the technique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse exisitng interpretations such as |resultSchema|.
+By using the technique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse existing interpretations such as |resultSchema|.
 The concrete definition of the staged |execOp| is almost identical to the corresponding unstaged implementation except for minor API differences on staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
@@ -229,7 +229,7 @@ trait HashJoin extends Join {
 \end{spec}
 
 \noindent |Group| supports SQL's |group by| clause, which partitions records and sums up specified fields from the composed operator.
-|HashJoin| is a replacement of |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overridding, we are able to reuse the field declarations and other interpretations from |Join|.
+|HashJoin| is a replacement for |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overriding, we are able to reuse the field declarations and other interpretations from |Join|.
 
 \paragraph{Evaluation}
 \begin{wraptable}{r}{.42\textwidth}

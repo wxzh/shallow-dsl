@@ -40,9 +40,9 @@ well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
 deep embeddings can deter their use.
 
-This functional perl shows that, given adequate language support,
+This functional pearl shows that, given adequate language support,
 supporting multiple modular interpretations in shallow DSLs is not
-only possible, but simple. Therefore this perl aims to debunk the belief
+only possible, but simple. Therefore this pearl aims to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
 observed that, in conventional functional programming, by using
@@ -51,7 +51,7 @@ Nevertheless, the use of products and projections is very cumbersome,
 and often leads to code that is not modular.
 We argue that multiple interpretations can be encoded naturally
 when the host language supports common OO features, such as
-\emph{subtyping}, \emph{inheritance} and \emph{type-refinement}.
+\emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
 
 \begin{comment}
 . We show that
@@ -61,7 +61,7 @@ it is easy to modularly support multiple interpretations, while retaining
 the other advantages of shallow-embeddings: \emph{compositionality}.
 
 
-Not the expression porblem. in the EP we have only multiple independent
+Not the expression problem. in the EP we have only multiple independent
 interpretations. The techniques that we propose here go further and
 allow multiple dependent 
 By removing this limitation, the 
@@ -71,7 +71,7 @@ By removing this limitation, the
 \begin{comment}
 The origin of that terminology can be
 attributed to Boulton et al.~\shortcite{Boulton92dsl}. The difference between these
-two styles of embeddings is commonly described as follows:
+two styles of embeddings are commonly described as follows:
 
 \begin{quote}
 With a \emph{deep embedding}, terms in the DSL are implemented simply to
@@ -99,7 +99,7 @@ functions.
 \end{comment}
 
 At the center of this pearl is Reynolds \shortcite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
-enables us to directly relate shallow embeddings and OOP. With procedural abstraction data is characterized by the operations that are performed over it.
+enables us to directly relate shallow embeddings and OOP. With procedural abstraction, data is characterized by the operations that are performed over it.
 This pearl starts by discussing two independently observed connections to procedural abstraction:
 
 \xymatrixcolsep{6pc}
@@ -159,7 +159,7 @@ a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view the
 resulting Scala version has clear advantages over the Haskell version, due
-to the use of subtyping, inheritance and type-refinement. In particular, the Scala code
+to the use of subtyping, inheritance, and type-refinement. In particular, the Scala code
 allows the denotation of a program to easily \emph{depend on other modular denotations}. 
 
 While the technique proposed here does not deal with transformations, yielding efficient shallow EDSL is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.

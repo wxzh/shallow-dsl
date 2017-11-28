@@ -31,9 +31,9 @@ Their meanings are: |id n| contains |n| parallel wires;
 all other wires from top to bottom; |beside c1 c2| joins two circuits
 |c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
 |stretch ns c| inserts wires into the circuit |c| by summing up |ns|.
-Fig.~\ref{fig:circuit} visualises a circuit constructed using all these five constructs.
+Fig.~\ref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The structure of this circuit is explained as follows.
-The whole circuit is composed by three sub-circuits, vertically:
+The whole circuit is vertically composed by three sub-circuits:
 the top sub-circuit is a two 2-|fan|s put side by side;
 the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
 the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
@@ -171,7 +171,7 @@ trait Stretch1 extends Circuit1 {
 Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Object interfaces make the connection to procedural abstraction clear: 
-data is modelled by the operations that can be performed over it.
+data is modeled by the operations that can be performed over it.
 Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
 
 

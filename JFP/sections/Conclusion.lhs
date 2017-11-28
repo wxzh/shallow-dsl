@@ -8,7 +8,7 @@ result, multiple interpretations are allowed to co-exist in shallow
 embeddings.
 
 It has always been a hard choice between shallow and deep
-embeddings when designing a EDSL: there are some tradeoffs between
+embeddings when designing an EDSL: there are some tradeoffs between
 the two styles.
 A nice aspect of shallow embeddings is their simplicity.
 Deep embeddings trade some simplicity and the ability to
@@ -20,7 +20,7 @@ over the AST.
 % what Cook calls pure OOP, but allowing transformations to be defined.
 As this pearl shows, in OO languages, multiple interpretations are
 still easy to do with shallow embeddings.
-Moveover, Erwig and Walkingshaw~\shortcite{erwig2014semantics} argue that
+Moreover, Erwig and Walkingshaw~\shortcite{erwig2014semantics} argue that
 shallow embeddings are more semantics-driven compared to deep embeddings
 which have many preferable properties in designing DSLs.
 Therefore the motivation to employ deep embeddings becomes weaker.

@@ -13,16 +13,16 @@
 
 One potential criticism to the approach presented so far is that while
 the interpretations are modular, building terms is not. 
-Everytime we develop new interpretations, a new set of companion smart
-constructors has to be develop as well. Unfortunatelly the different smart 
+Every time we develop new interpretations, a new set of companion smart
+constructors has to be developed as well. Unfortunately the different smart
 constructors build terms that are specific to a particular interpretation, leading 
 to duplication of code whenever the same term needs to be run with different interpretations. 
-Fortunatelly, there is an easy 
+Fortunately, there is an easy
 solution to this problem: we overload the constructors, making them
 independent of any specific interpretation.
 
 %\weixin{cite polymorphic embedding of DSLs / Object Algebras?}
-%This section illustrates how to write modular DSL terms without commiting to a particular implementation.
+%This section illustrates how to write modular DSL terms without committing to a particular implementation.
 %The idea is to combine our approach with the {\sc Abstract Factory} design pattern.
 
 \paragraph{Abstract Factories} To capture the generic interface of the constructors we use an abstract factory for circuits:
