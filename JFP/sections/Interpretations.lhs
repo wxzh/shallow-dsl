@@ -1,6 +1,7 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
+\vspace{-7pt}
 \section{Interpretations in Shallow Embeddings}\label{sec:interp}
 
 An often stated limitation of shallow embeddings is that they multiple 

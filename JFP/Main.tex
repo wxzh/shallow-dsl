@@ -17,8 +17,8 @@
 
 \let\oldpar\paragraph
 \renewcommand{\paragraph}[1]{\vspace{-7pt}\oldpar{#1}}
-\let\oldsec\section
-\renewcommand{\section}[1]{\vspace{-7pt}\oldsec{#1}}
+%\let\oldsec\section
+%\renewcommand{\section}[1]{\vspace{-7pt}\oldsec{#1}}
 \let\oldsubsec\subsection
 \renewcommand{\subsection}[1]{\vspace{-7pt}\oldsubsec{#1}}
 
@@ -75,6 +75,9 @@ more modular, shallow, and embedded.
 \input{sections/Conclusion}
 
 % Bibliography
+%\renewcommand{\section}[1]{\oldsec{#1}}
+
+\vspace{-7pt}
 \bibliography{Main}
 
 % History dates
