@@ -23,19 +23,8 @@ Then translating the program into an OOP language like Scala becomes straightfor
 \dsl~\cite{hinze2004algebra} is a DSL for describing parallel prefix circuits.
 Given an associative binary operator |@|, the prefix sum of a non-empty sequence |x1,x2,...,x_n| is |x1,x1@x2,...,x1@x2@ ... @x_n|. Such computation can be performed in parallel for a parallel prefix circuit.
 Parallel prefix circuits have many applications, including binary addition and sorting algorithms.
-The grammar of \dsl is given below:
-\setlength{\grammarindent}{5em} % increase separation between LHS/RHS
-
-\begin{grammar}
- <circuit> ::= `id' <positive-number>
- \alt `fan' <positive-number>
- \alt `beside' <circuit> <circuit>
- \alt `above' <circuit> <circuit>
- \alt `stretch' <positive-numbers> <circuit>
-\end{grammar}
-
-
-\noindent \dsl has five constructs: two primitives
+The grammar of \dsl is given in Fig.~\ref{grammar}.
+\dsl has five constructs: two primitives
 (|id| and |fan|) and three combinators (|beside|, |above| and |stretch|).
 Their meanings are: |id n| contains |n| parallel wires;
 |fan n| has |n| parallel wires with the leftmost wire connected to
@@ -49,11 +38,27 @@ the top sub-circuit is a two 2-|fan|s put side by side;
 the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
 the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
 
+\setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 \begin{figure}
-  \center
-  \includegraphics[width=.25\textwidth]{circuit}
-  \caption{The Brent-Kung parallel prefix circuit of width 4}
+\centering
+\begin{minipage}{.55\textwidth}
+  \centering
+\begin{grammar}
+ <circuit> ::= `id' <positive-number>
+ \alt `fan' <positive-number>
+ \alt `beside' <circuit> <circuit>
+ \alt `above' <circuit> <circuit>
+ \alt `stretch' <positive-numbers> <circuit>
+\end{grammar}
+  \captionof{figure}{The Grammar of \dsl}
+  \label{grammar}
+\end{minipage}%
+\begin{minipage}{.45\textwidth}
+  \centering
+  \includegraphics[width=.5\textwidth]{circuit}
+  \captionof{figure}{The Brent-Kung parallel prefix circuit of width 4}
   \label{fig:circuit}
+\end{minipage}
 \end{figure}
 
 \subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
