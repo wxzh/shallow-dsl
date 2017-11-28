@@ -10,11 +10,22 @@
 %format Circuit4
 
 \section{Modular Terms}
-\weixin{cite polymorphic embedding of DSLs / Object Algebras?}
-This section illustrates how to write modular DSL terms without commiting to a particular implementation.
-The idea is to combine our approach with the {\sc Abstract Factory} design pattern.
 
-\paragraph{Abstract Factories} Here is an abstract factory for constructing circuits:
+One potential criticism to the approach presented so far is that while
+the interpretations are modular, building terms is not. 
+Everytime we develop new interpretations, a new set of companion smart
+constructors has to be develop as well. Unfortunatelly the different smart 
+constructors build terms that are specific to a particular interpretation, leading 
+to duplication of code whenever the same term needs to be run with different interpretations. 
+Fortunatelly, there is an easy 
+solution to this problem: we overload the constructors, making them
+independent of any specific interpretation.
+
+%\weixin{cite polymorphic embedding of DSLs / Object Algebras?}
+%This section illustrates how to write modular DSL terms without commiting to a particular implementation.
+%The idea is to combine our approach with the {\sc Abstract Factory} design pattern.
+
+\paragraph{Abstract Factories} To capture the generic interface of the constructors we use an abstract factory for circuits:
 \begin{code}
 trait Factory[Circuit] {
   def identity(x: Int): Circuit
@@ -24,9 +35,15 @@ trait Factory[Circuit] {
   def stretch(x: Circuit, xs: Int*): Circuit
 }
 \end{code}
-|Factory| is a generic interface, which exposes factory methods for each circuit construct supported by \dsl.
+|Factory| is a generic interface, which exposes factory methods for
+each circuit construct supported by \dsl. The idea of capturing 
+the interfaces of constructors is inspired by the 
+Finally Tagless~\cite{carette2009finally} or Object Algebras~\cite{oliveira2012extensibility} 
+approaches, which employ such a technique.
 
-\paragraph{Abstract Terms} Modular terms can be built via an abstract factory, e.g. the circuit shown in Fig.~\ref{fig:circuit}:
+\paragraph{Abstract Terms} 
+Modular terms can be built via the abstract factory. For example, 
+the circuit shown in Fig.~\ref{fig:circuit} is built as:
 
 \begin{spec}
 def c[Circuit](f: Factory[Circuit]) =
@@ -34,7 +51,7 @@ def c[Circuit](f: Factory[Circuit]) =
              f.above (  f.stretch(f.fan(2),2,2),
                         f.beside(f.beside(f.identity(1),f.fan(2)),f.identity(1))))
 \end{spec}
-|c| is a generic method that takes an |Factory| instance and constructs a circuit through that instance. The definition of |c| can be even simpler with Scala. By importing |f|, we can avoid prefixing ``|f.|'' everywhere.
+|c| is a generic method that takes an |Factory| instance and constructs a circuit through that instance. The definition of |c| can be even simpler with Scala. By importing |f|, we can avoid prefixing ``|f.|'' everywhere, but here we show a more language independent approach.
 
 \paragraph{Concrete Factories} We need concrete factories that implement |Factory| to actually invoke |c|. Here is a concrete factory that produces |Circuit1|:
 
@@ -53,6 +70,9 @@ c(new Factory4{}).tlayout { x => x } // List(List((0,1), (2,3)), List((1,3)), Li
 
 \paragraph{Modular Extensions} Both factories and terms can be \emph{modularly} reused when the DSL is extended with new language constructs. To support right stretch for \dsl, we first extend the abstract factory:
 
+\bruno{The code in the remaining of this section is wrong (it does not type-check: 
+You forgot to parametrize by Circuit everywhere! PLEASE make sure that all code in the 
+paper is type-checked!}
 \begin{code}
 trait ExtendedFactory extends Factory {
   def rstretch(x: Circuit, xs: Int*): Circuit
