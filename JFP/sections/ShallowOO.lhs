@@ -27,7 +27,7 @@ The grammar of \dsl is given below:
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 
 \begin{grammar}
- <circuit> ::= `identity' <positive-number>
+ <circuit> ::= `id' <positive-number>
  \alt `fan' <positive-number>
  \alt `beside' <circuit> <circuit>
  \alt `above' <circuit> <circuit>
@@ -36,8 +36,8 @@ The grammar of \dsl is given below:
 
 
 \noindent \dsl has five constructs: two primitives
-(|identity| and |fan|) and three combinators (|beside|, |above| and |stretch|).
-Their meanings are: |identity n| contains |n| parallel wires;
+(|id| and |fan|) and three combinators (|beside|, |above| and |stretch|).
+Their meanings are: |id n| contains |n| parallel wires;
 |fan n| has |n| parallel wires with the leftmost wire connected to
 all other wires from top to bottom; |beside c1 c2| joins two circuits
 |c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
@@ -47,7 +47,7 @@ The structure of this circuit is explained as follows.
 The whole circuit is composed by three sub-circuits, vertically:
 the top sub-circuit is a two 2-|fan|s put side by side;
 the middle sub-circuit is a 2-|fan| stretched by inserting a wire on the left-hand side of its first and second wire;
-the bottom sub-circuit is a 2-|fan| in the middle of two 1-|identity|s.
+the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
 
 \begin{figure}
   \center
@@ -63,8 +63,8 @@ a shallow embedded implementation (in Haskell) conforms to the following
 types:
 
 \begin{code}
-type Circuit  =  ...
-identity      ::  Int -> Circuit
+type Circuit  =  ...          -- the operations we wish to support for circuits
+id            ::  Int -> Circuit
 fan           ::  Int -> Circuit
 beside        ::  Circuit -> Circuit -> Circuit
 above         ::  Circuit -> Circuit -> Circuit
@@ -76,17 +76,15 @@ Suppose that the semantics of \dsl calculates the width of a
 circuit. The definitions are:
 
 > type Circuit   =  Int
-> identity n     =  n
+> id n           =  n
 > fan n          =  n
 > beside c1 c2   =  c1 + c2
 > above c1 c2    =  c1
 > stretch ns c   =  sum ns
 
-\indent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
+\noindent Now we are able to construct the circuit in Fig.~\ref{fig:circuit} using these definitions:
 
->  (fan 2 `beside` fan 2) `above`
->  stretch [2,2] (fan 2) `above`
->  (identity 1 `beside` fan 2 `beside` identity 1)
+>  (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 
 \noindent For this simple interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width right after the construction of a circuit (e.g. 4 for the circuit above).
@@ -105,7 +103,7 @@ below, where a record with one field captures the domain and is declared as a |n
 
 
 %format Circuit1
-%format identity1
+%format id1
 %format fan1
 %format beside1
 %format above1
@@ -114,20 +112,24 @@ below, where a record with one field captures the domain and is declared as a |n
 
 \begin{code}
 newtype Circuit1   =  Circuit1 {width1  ::  Int}
-identity1 n        =  Circuit1 {width1  =   n}
+id1 n              =  Circuit1 {width1  =   n}
 fan1 n             =  Circuit1 {width1  =   n}
 beside1 c1 c2      =  Circuit1 {width1  =   width1 c1 + width1 c2}
 above1 c1 c2       =  Circuit1 {width1  =   width1 c1}
 stretch1 ns c      =  Circuit1 {width1  =   sum ns}
 \end{code}
 
-The implementation is still shallow because |newtype| does not add any operational
-behavior to the program, and hence the two programs are effectively the
-same.  However, having fields makes the program look more like an
+\noindent The implementation is still shallow because Haskell's |newtype| does not add any operational
+behavior to the program. Hence the two programs are effectively the
+same. However, having fields makes the program look more like an
 OO program.
 
 \paragraph{Porting to Scala}
-Indeed, we can easily translate the program from Haskell to Scala:
+Indeed, we can easily translate the program from Haskell to Scala.
+The idea is to map 
+Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
+declarations become method declarations.
+Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
 
 %format (="\!("
 %format [="\!["
@@ -137,7 +139,7 @@ Indeed, we can easily translate the program from Haskell to Scala:
 trait Circuit1 {
   def width: Int
 }
-trait Identity1 extends Circuit1 {
+trait Id1 extends Circuit1 {
   val n: Int
   def width = n
 }
@@ -165,22 +167,18 @@ trait Stretch1 extends Circuit1 {
 \end{spec}
 \end{minipage}
 %  \end{figure}
-Haskell's record type maps to an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
-declarations become method declarations.
-Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
 % a class is a procedure that returns a value satisfying an interface
 % All these classes are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of traits instead of classes. Although a class definition like % An equivalent class implementation for |Identity1| is like this:
+This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of traits instead of classes. Although a class definition like % An equivalent class implementation for |Id1| is like this:
 
-> class Identity1(n: Int) extends Circuit1 { def width = n }
+> class Id1(n: Int) extends Circuit1 { def width = n }
 
- better distinguishes itself with an object interface, some modularity offered by the trait version (e.g. multiple inheritance) is lost.
-
+is more common, some modularity offered by the trait version (e.g. multiple inheritance) is lost.
 To use this Scala implementation in a manner similar to the Haskell implementation, we need some smart constructors for creating objects conveniently:
 
 \begin{spec}
-def identity(x: Int)                  =  new Identity1  {val n=x}
+def id(x: Int)                        =  new Id1        {val n=x}
 def fan(x: Int)                       =  new Fan1       {val n=x}
 def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
 def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
@@ -192,7 +190,7 @@ def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c
 \begin{spec}
 val c  = above(  beside(fan(2),fan(2)),
                  above(  stretch(fan(2),2,2),
-                         beside(beside(identity(1),fan(2)),identity(1))))
+                         beside(beside(id(1),fan(2)),id(1))))
 \end{spec}
 
 \noindent Finally, calling |c.width| will return 4 as expected.
