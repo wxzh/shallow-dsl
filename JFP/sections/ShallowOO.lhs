@@ -129,16 +129,7 @@ behavior to the program. Hence the two programs are effectively the
 same. However, having fields makes the program look more like an
 OO program.
 
-\paragraph{Porting to Scala}
 Indeed, we can easily translate the program from Haskell to Scala.
-The idea is to map 
-Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
-declarations become method declarations.
-Object interfaces make the connection to procedural abstraction clear: 
-data is modelled by the operations that can be performed over it.
-Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
-
-
 %format (="\!("
 %format [="\!["
 
@@ -174,7 +165,16 @@ trait Stretch1 extends Circuit1 {
 }
 \end{spec}
 \end{minipage}
-%  \end{figure}
+
+\paragraph{Porting to Scala}
+The idea is to map 
+Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
+declarations become method declarations.
+Object interfaces make the connection to procedural abstraction clear: 
+data is modelled by the operations that can be performed over it.
+Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+
+
 % a class is a procedure that returns a value satisfying an interface
 % All these classes are concrete implementations of |Circuit1| with the |width| method defined.
 
