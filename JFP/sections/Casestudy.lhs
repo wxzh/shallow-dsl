@@ -122,8 +122,8 @@ Thanks to the good support for EDSLs in Scala, we can precisely model the syntax
 The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is a optional, terminating the clause of a query.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
 Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
-For the syntax of combinators such as |where| and |join|, we adopt fluent interface style~\cite{fowler2005fluent}.
-Fluent interface style enables writing something like ``|FROM(...).WHERE(...).SELECT(...)|''.
+For the syntax of combinators such as |where| and |join|, we adopt a fluent interface style.
+Fluent interfaces enable writing something like ``|FROM(...).WHERE(...).SELECT(...)|''.
 Scala's infix notation further allows to omit ``|.|'' in chaining these methods.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 The syntax is implemented in a pluggable way, in the sense that the semantics is decoupled from the syntax.
