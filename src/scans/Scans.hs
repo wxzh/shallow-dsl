@@ -44,9 +44,9 @@ type Layout    =  [[(Int, Int)]]
 type Circuit4  =  (Int,(Int -> Int) -> Layout)
 id4 n          =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
-above4 c1 c2   =  (width c1,\f -> tlayout c1 f ++ tlayout c2 f)
-beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (tlayout c1 f) (tlayout c2 (f . (width c1+))))
-stretch4 ns c  =  (sum ns,\f -> tlayout c (f . pred . (vs !!)))
+above4 c1 c2   =  (width c1,\f -> layout c1 f ++ layout c2 f)
+beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (layout c1 f) (layout c2 (f . (width c1+))))
+stretch4 ns c  =  (sum ns,\f -> layout c (f . pred . (vs !!)))
   where vs = scanl1 (+) ns
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
@@ -54,7 +54,7 @@ lzw f [ ] ys             =  ys
 lzw f xs [ ]             =  xs
 lzw f (x : xs) (y : ys)  =  f x y : lzw f xs ys
 
-tlayout =  snd
+layout =  snd
 
 rstretch        ::  [Int] -> Circuit4 -> Circuit4
 rstretch  ns c  =   stretch4 (1 : init ns) c `beside4` id4 (last ns - 1)

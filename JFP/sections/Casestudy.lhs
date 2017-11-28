@@ -25,7 +25,7 @@
 
 %%\weixin{Isn't staging transformation?}
 \vspace{-15pt}
-\section{Case Study: A Shallow EDSL for SQL Queries}
+\section{Case study: A shallow EDSL for SQL queries}
 %Performance is critical for realistic DSLs. Transformation
 % AST rewriting vs. staging
 %hurt compositionality
@@ -60,7 +60,7 @@ shallow EDSL for SQL queries based on staging.
 %to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
-SQL is the most well-known DSL for data queries.
+SQL is the best-known DSL for data queries.
 Rompf and Amin~\shortcite{rompf15} present a SQL query processor implementation in Scala.
 Their implementation is an \emph{external} DSL,
 which first parses a SQL query into a relational algebra AST and then executes the query in terms of that AST.
@@ -79,7 +79,7 @@ Secondly, the original implementation contains no hand-coded transformations ove
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
-To illustrate our shallow EDSL, suppose that there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file written with our EDSL.
+To illustrate our shallow EDSL, suppose that there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
 > def q0     =  FROM ("talks.csv")
@@ -116,14 +116,14 @@ This improves the readability and modularity of the embedded programs.
 
 
 
-\subsection{Embedded Syntax}
+\subsection{Embedded syntax}
 Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
 The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is an optional, terminating the clause of a query.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
-Specifically, we use the \emph{Pimp my Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
+Specifically, we use the \emph{Pimp My Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
 For the syntax of combinators such as |where| and |join|, we adopt a fluent interface style.
 Fluent interfaces enable writing something like ``|FROM(...).WHERE(...).SELECT(...)|''.
-Scala's infix notation further allows omitting ``|.|'' in method chains.
+Scala's infix notation further omits ``|.|'' in method chains.
 Other famous embedded SQL implementations in OOP such as LINQ~\cite{meijer2006linq} also adopt similar techniques in designing their syntax.
 The syntax is implemented in a pluggable way, in the sense that the semantics is decoupled from the syntax.
 Details of the syntax implementation are beyond the scope of this pearl.
@@ -138,7 +138,7 @@ For example, we will get the following operator structure for |q1|:
 
 %%whose meaning will be explained next.
 
-\subsection{A Relational Algebra Interpreter}
+\subsection{A relational algebra compiler}
 A SQL query can be represented by a relational algebra operator.
 The basic interface of operators is modeled as follows:
 
@@ -191,7 +191,7 @@ There are also two utility operators, |Print| and |Scan|, for processing inputs 
 % TODO: Generate to different targets as new interpretations
 
 
-\paragraph{From an Interpreter to a Compiler}
+\paragraph{From an interpreter to a compiler}
 The query interpreter presented so far is elegant but unfortunately slow.
 To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
 The first extension is to turn the slow query interpreter into a fast query compiler.
@@ -206,9 +206,9 @@ By using the technique presented in Section~\ref{sec:interp}, the staged version
 The concrete definition of the staged |execOp| is almost identical to the corresponding unstaged implementation except for minor API differences on staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
-\paragraph{Language Extensions}
+\paragraph{Language extensions}
 Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
-Differently from the original implementation, the introduction of these constructs can be done in a modular manner with our shallow OO embedding:
+Differently from the original implementation, the introduction of these constructs is done in a modular manner with our shallow OO embedding:
 
 \begin{spec}
 trait Group extends Operator {
@@ -231,7 +231,7 @@ trait HashJoin extends Join {
 \noindent |Group| supports SQL's |group by| clause, which partitions records and sums up specified fields from the composed operator.
 |HashJoin| is a replacement for |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overriding, we are able to reuse the field declarations and other interpretations from |Join|.
 
-\paragraph{Evaluation}
+\subsection{Evaluation}
 \begin{wraptable}{r}{.42\textwidth}
 \vspace{-15pt}
 \begin{tabular}{lcc}
@@ -245,7 +245,7 @@ SQL to C compiler       & 245  & 259 \\
 \caption{SLOC for original (Deep) and refactored (Shallow) code.}
 \end{wraptable}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
-Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is the same.
+Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is close.
 We hence compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are compared (code related to surface syntax is excluded).
 The SLOC of the two implementations are close, as seen in the table.

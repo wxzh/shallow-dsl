@@ -45,6 +45,6 @@ val c  = above(  beside(fan(2),fan(2)),
 println(c.width)
 println(c.depth)
 println(c.wellSized)
-println(c.tlayout(x => x))
+println(c.layout(x => x))
 }
 }

@@ -34,7 +34,7 @@ def c[Circuit](f: Factory[Circuit]) =
                         f.beside(f.beside(f.id(1),f.fan(2)),f.id(1))))
 
 println(c(new Factory1{}).width) // 4 
-println(c(new Factory4{}).tlayout { x => x }) // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
+println(c(new Factory4{}).layout { x => x }) // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
 
 trait ExtendedFactory[Circuit] extends Factory[Circuit] {
   def rstretch(x: Circuit, xs: Int*): Circuit
@@ -45,5 +45,5 @@ trait ExtendedFactory4 extends ExtendedFactory[Circuit4] with Factory4 {
 
 def c2[Circuit](f: ExtendedFactory[Circuit]) = f.rstretch(c(f),2,2,2,2)
 
-println(c2(new ExtendedFactory4{}).tlayout { x => x }) // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
+println(c2(new ExtendedFactory4{}).layout { x => x }) // List(List((1,3), (5,7)), List((3,7)), List((3,5)))
 }

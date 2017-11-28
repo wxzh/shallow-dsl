@@ -1,7 +1,7 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
-\section{Shallow Object-Oriented Programming}\label{sec:oo}
+\section{Shallow object-oriented programming}\label{sec:oo}
 
 This section shows that an OOP approach and a shallow embedding using
 procedural abstraction are closely related.  We use the same
@@ -15,7 +15,7 @@ Then translating the program into an OOP language like Scala becomes straightfor
 %However the code can be adapted to any OOP language that supports subtyping,
 %mulinheritance and type-refinements.
 
-\subsection{\dsl: A DSL for Parallel Prefix Circuits}
+\subsection{\dsl: A DSL for parallel prefix circuits}
 %format @ = "\bullet"
 %format x1
 %format x2
@@ -41,7 +41,7 @@ the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 \begin{figure}
 \centering
-\begin{minipage}{.55\textwidth}
+\begin{minipage}{.58\textwidth}
   \centering
 \begin{grammar}
  <circuit> ::= `id' <positive-number>
@@ -50,18 +50,18 @@ the bottom sub-circuit is a 2-|fan| in the middle of two 1-|id|s.
  \alt `above' <circuit> <circuit>
  \alt `stretch' <positive-numbers> <circuit>
 \end{grammar}
-  \captionof{figure}{The Grammar of \dsl}
+  \captionof{figure}{The grammar of \dsl}
   \label{grammar}
 \end{minipage}%
-\begin{minipage}{.45\textwidth}
+\begin{minipage}{.42\textwidth}
   \centering
-  \includegraphics[width=.5\textwidth]{circuit}
-  \captionof{figure}{The Brent-Kung parallel prefix circuit of width 4}
+  \includegraphics[width=.4\textwidth]{circuit}
+  \captionof{figure}{The Brent-Kung circuit of width 4}
   \label{fig:circuit}
 \end{minipage}
 \end{figure}
 
-\subsection{Shallow Embeddings and OOP}\label{subsec:shallow}
+\subsection{Shallow embeddings and OOP}\label{subsec:shallow}
 Shallow embeddings define a language directly by encoding its semantics
 using procedural abstraction. In the case of \dsl,
 a shallow embedded implementation (in Haskell) conforms to the following
@@ -130,7 +130,7 @@ same. However, having fields makes the program look more like an
 OO program.
 
 \vspace{-5pt}
-\paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala.
+\paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala:
 %format (="\!("
 %format [="\!["
 
@@ -178,7 +178,7 @@ Each case in the semantic function corresponds to a concrete implementation of |
 % a class is a procedure that returns a value satisfying an interface
 % All these classes are concrete implementations of |Circuit1| with the |width| method defined.
 
-This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of traits instead of classes. Although a class definition like % An equivalent class implementation for |Id1| is like this:
+This implementation is essentially how we would model \dsl with an OOP language in the first place. A minor difference is the use of traits instead of classes in implementing |Circuit1|. Although a class definition like % An equivalent class implementation for |Id1| is like this:
 
 > class Id1(n: Int) extends Circuit1 { def width = n }
 
