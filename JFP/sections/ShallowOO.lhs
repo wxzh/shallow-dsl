@@ -129,7 +129,10 @@ Indeed, we can easily translate the program from Haskell to Scala.
 The idea is to map 
 Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
+Object interfaces make the connection to procedural abstraction clear: 
+data is modelled by the operations that can be performed over it.
 Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+
 
 %format (="\!("
 %format [="\!["
