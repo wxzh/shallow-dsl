@@ -243,7 +243,7 @@ SQL to Scala compiler   & 179  & 191 \\
 SQL to C compiler       & 245  & 259 \\
 \hline
 \end{tabular}
-\caption{Number of SLOC for the original (Deep) and the refactored (Shallow) implementations.}
+\caption{SLOC for original (Deep) and refactored (Shallow) code.}
 \end{wraptable}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is the same.
