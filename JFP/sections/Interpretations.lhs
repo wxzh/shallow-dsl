@@ -7,7 +7,7 @@
 An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined using standard OOP techniques by comparing with Gibbons and Wu's Haskell implementations.
+interpretations can be \emph{modularly} defined using standard OOP techniques, and compares the result with Gibbons and Wu's Haskell implementations.
 
 \subsection{Multiple interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
@@ -62,15 +62,15 @@ trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // the extende
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
-  override val c1, c2: Circuit2
+  override val c1, c2: Circuit2    {-"  \text{   // type-refinement that allows depth invocations } "-}
   def depth = c1.depth + c2.depth
 }
 trait Beside2 extends Beside1 with Circuit2 {
-  override val c1, c2: Circuit2
+  override val c1, c2: Circuit2    {-"  \text{   // type-refinement that allows depth invocations } "-}
   def depth = Math.max(c1.depth, c2.depth)
 }
 trait Stretch2 extends Stretch1 with Circuit2 {
-  override val c: Circuit2
+  override val c: Circuit2         {-"  \text{   // type-refinement that allows depth invocations } "-}
   def depth = c.depth
 }
 \end{spec}
