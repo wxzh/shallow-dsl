@@ -150,7 +150,7 @@ The basic interface of operators is modeled as follows:
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
 Very much like the interpretation |layout| discussed in Section~\ref{sec:ctxsensitive},
 |execOp| is both \emph{context-sensitive} and \emph{dependent}:
-|execOp| takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
+it takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
 Here are some core concrete relational algebra operators:
 
 > trait Project extends Operator {
@@ -194,16 +194,16 @@ There are also two utility operators, |Print| and |Scan|, for processing inputs 
 \paragraph{From an interpreter to a compiler}
 The query interpreter presented so far is elegant but unfortunately slow.
 To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
-The first extension is to turn the slow query interpreter into a fast query compiler.
-The idea is to generate specialized low-level code for a given query.
+The idea is to turn the slow query interpreter into a fast query compiler by generating specialized low-level code for a given query.
 With the help of the LMS framework, this task becomes rather easy.
 LMS provides a type constructor |Rep| for annotating computations that are to be performed in the next stage. The signature of the staged |execOp| is:
 
 > def execOp(yld: Record => Rep[Unit]): Rep[Unit]
 
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
-By using the technique presented in Section~\ref{sec:interp}, the staged version of |execOp| is introduced as an extension so as to reuse existing interpretations such as |resultSchema|.
-The concrete definition of the staged |execOp| is almost identical to the corresponding unstaged implementation except for minor API differences on staged and unstaged types.
+Two staged versions of |execOp| are introduced for generating Scala and C code respectively.
+By using the technique presented in Section~\ref{sec:interp}, they are added modularly with existing interpretations such as |resultSchema| reused.
+The implementation of staged |execOp| is almost identical to the unstaged counterpart except for minor API differences on staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
 \paragraph{Language extensions}
@@ -232,14 +232,14 @@ trait HashJoin extends Join {
 |HashJoin| is a replacement for |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overriding, we are able to reuse the field declarations and other interpretations from |Join|.
 
 \subsection{Evaluation}
-\begin{wraptable}{r}{.42\textwidth}
+\begin{wraptable}{r}{.595\textwidth}
 \vspace{-15pt}
-\begin{tabular}{lcc}
-                        & \text{Deep } & \text{ Shallow}\\
+\begin{tabular}{lccc}
+ \text{Source}  & \text{Functionality}  & \text{Deep } & \text{ Shallow}\\
 \hline
-SQL interpreter         & 83   & 95 \\
-SQL to Scala compiler   & 179  & 191 \\
-SQL to C compiler       & 245  & 259 \\
+\emph{query_unstaged} & SQL interpreter        & 83   & 95 \\
+\emph{query_staged} & SQL to Scala compiler  & 179  & 191 \\
+\emph{query_optc} & SQL to C compiler        & 245  & 259 \\
 \hline
 \end{tabular}
 \caption{SLOC for original (Deep) and refactored (Shallow) versions.}
