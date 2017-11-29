@@ -154,7 +154,7 @@ For instance, the circuit shown in Fig.~\ref{fig:circuit} has the following layo
 
 The combinator |stretch| and |beside| will change the layout of a circuit.
 For example, if two circuits are put side by side, all the indices of the right circuit will be increased by the width of the left circuit.
-Hence the interpretation, called |layout|, that produces a layout is also dependent, relying on itself as well as |width|.
+Hence the interpretation |layout| is also dependent, relying on itself as well as |width|.
 An intuitive implementation of |layout| performs these changes immediately to the affected circuit.
 A more efficient implementation accumulates these changes and applies them all at once.
 Therefore, an accumulating parameter is used to achieve this goal, which makes |layout| context-sensitive.
@@ -200,7 +200,7 @@ incorrect in Gibbons and Wu's paper.}, propagated in
 auxiliary definition |lzw| (stands for ``long zip with'') zips two
 lists by applying the binary operator to elements of the same index,
 and appending the remaining elements from the longer list to the
-resulting list.  By calling |layout| on a circuit and supplying |id|
+resulting list.  By calling |layout| on a circuit and supplying an identity function
 as the initial value of the accumulating parameter, we will get the
 layout.
 

@@ -64,7 +64,7 @@ where the omitted code is identical to the smart constructors presented in Secti
 
 \begin{code}
 c(new Factory1{}).width // 4
-c(new Factory4{}).tlayout { x => x } // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
+c(new Factory4{}).layout { x => x } // List(List((0,1), (2,3)), List((1,3)), List((1,2)))
 \end{code}
 
 \paragraph{Modular extensions} Both factories and terms can be \emph{modularly} reused when the DSL is extended with new language constructs. To support right stretch for \dsl, we first extend the abstract factory with new factory methods:

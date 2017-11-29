@@ -148,7 +148,7 @@ The basic interface of operators is modeled as follows:
 > }
 
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
-Very much like the interpretation |tlayout| discussed in Section~\ref{sec:ctxsensitive},
+Very much like the interpretation |layout| discussed in Section~\ref{sec:ctxsensitive},
 |execOp| is both \emph{context-sensitive} and \emph{dependent}:
 |execOp| takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
 Here are some core concrete relational algebra operators:
