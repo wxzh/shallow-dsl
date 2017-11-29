@@ -163,7 +163,7 @@ to the use of subtyping, inheritance, and type-refinement. In particular, the Sc
 allows the denotation of a program to easily \emph{depend on other modular denotations}. 
 
 While the technique proposed here does not deal with transformations, yielding efficient shallow EDSL is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
-By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techiniques~\cite{rompf15} into a shallow EDSL.
+By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techniques~\cite{rompf15} into a shallow EDSL.
 The refactored implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing performance.
 Complete code for all examples and the case study is available online:
 

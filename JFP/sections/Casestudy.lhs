@@ -245,7 +245,7 @@ SQL to C compiler       & 245  & 259 \\
 \caption{SLOC for original (Deep) and refactored (Shallow) code.}
 \end{wraptable}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
-Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is close.
-We hence compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
+Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
+Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are compared (code related to surface syntax is excluded).
 The SLOC of the two implementations are close, as seen in the table.
