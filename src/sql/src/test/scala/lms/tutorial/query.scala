@@ -57,16 +57,6 @@ trait Syntax {
   // some smart constructors
   def Scan(tableName: String): O = Scan(tableName, None, None)
   def Scan(tableName: String, schema: Option[Schema], delim: Option[Char]): O
-
-  def t1 = FROM("t.csv")
-  def t2 = t1 SELECT 'Name
-  def t3 = t1 WHERE 'Flag === "yes" SELECT 'Name
-  def t4h = t1 JOIN (t1 SELECT ('Name AS 'Name1))
-  def t5h = t1 JOIN t2
-  def t6 = t1 GROUP_BY 'Name SUM 'Value
-
-  def t1gram1 = FROM("?", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount)
-  def t1gram2 = FROM("?", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount) WHERE 'Phrase === "Auswanderung"
 }
 
 trait FullQueryInterpreter extends QueryInterpreter {
@@ -170,7 +160,7 @@ Unit Tests
 
 */
 
-trait QueryProcessor extends Syntax {
+trait QueryProcessor {
   type Table
   type Schema = Vector[String]
   type P <: Predicate
@@ -180,7 +170,6 @@ trait QueryProcessor extends Syntax {
   val defaultFieldDelimiter = ','
 
   def Schema(schema: String*): Schema = schema.toVector
-  def PrintCSV(o: O): O
 
   trait Predicate {
     def show: String
@@ -243,7 +232,6 @@ trait QueryProcessor extends Syntax {
     def show = s"Group($keys,$agg,${op.show})"
   }
   def filePath(table: String) = if (table == "?") throw new Exception("file path for table ? not available") else table
-  def version = "query_optc"
 
   def dynamicFilePath(table: String): Table
 
@@ -275,11 +263,24 @@ trait StagedQueryProcessor extends QueryProcessor with Dsl {
 class QueryTest extends TutorialFunSuite {
   val under = "query_"
 
-  trait TestDriver extends QueryProcessor {
+  trait TestDriver extends QueryProcessor with Syntax {
+    type O <: Operator
+    type R <: Reference
+    type P <: Predicate
     def name: String
     def query: O
     def expected: O
     override def filePath(table: String) = dataFilePath(table)
+
+    def t1 = FROM("t.csv")
+    def t2 = t1 SELECT 'Name
+    def t3 = t1 WHERE 'Flag === "yes" SELECT 'Name
+    def t4h = t1 JOIN (t1 SELECT ('Name AS 'Name1))
+    def t5h = t1 JOIN t2
+    def t6 = t1 GROUP_BY 'Name SUM 'Value
+
+    def t1gram1 = FROM("?", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount)
+    def t1gram2 = FROM("?", '\t', 'Phrase, 'Year, 'MatchCount, 'VolumeCount) WHERE 'Phrase === "Auswanderung"
   }
 
   trait PlainTestDriver extends TestDriver with PlainQueryProcessor {
@@ -412,49 +413,6 @@ class QueryTest extends TutorialFunSuite {
   new CStagedQueryDriver with T8 {}.runtest
 
   val defaultEvalTable = dataFilePath("t1gram.csv")
-
-  // NOTE: we can use "select * from ?" to use dynamic file names (not used here right now)
-
-
-//    val expectedAstForTest = Map(
-//      t1 -> scan_t,
-//      t2 -> Project(Schema("Name"), Schema("Name"), scan_t),
-//      t3 -> Project(Schema("Name"), Schema("Name"),
-//                      Filter(Eq(Field("Flag"), Value("yes")),
-//                             scan_t)),
-//      t4 -> Join(scan_t,
-//                   Project(Schema("Name1"), Schema("Name"), scan_t)),
-//      t5 -> Join(scan_t,
-//                   Project(Schema("Name"), Schema("Name"), scan_t)),
-//      t4h -> HashJoin(scan_t,
-//                   Project(Schema("Name1"), Schema("Name"), scan_t)),
-//      "t5h" -> HashJoin(scan_t,
-//                   Project(Schema("Name"), Schema("Name"), scan_t)),
-//      t6  -> Group(Schema("Name"),Schema("Value"), scan_t),
-//
-//      t1gram1 -> scan_t1gram,
-//      t1gram2 -> Filter(Eq(Field("Phrase"), Value("Auswanderung")), scan_t1gram)
-//    )
-//  }
-//
-//  testquery("t1", "select * from t.csv")
-//  testquery("t2", "select Name from t.csv")
-//  testquery("t3", "select Name from t.csv where Flag='yes'")
-//  testquery("t4", "select * from nestedloops t.csv join (select Name as Name1 from t.csv)")
-//  testquery("t5", "select * from nestedloops t.csv join (select Name from t.csv)")
-//  testquery("t4h","select * from t.csv join (select Name as Name1 from t.csv)")
-//  testquery("t5h","select * from t.csv join (select Name from t.csv)")
-//  testquery("t6", "select * from t.csv group by Name sum Value") // not 100% right syntax, but hey ...
-//
-//  val t1gram = "? schema Phrase, Year, MatchCount, VolumeCount delim \\t"
-//  testquery("t1gram1", s"select * from $t1gram")
-//  testquery("t1gram2", s"select * from $t1gram where Phrase='Auswanderung'")
-//  testquery("t1gram2n", s"select * from nestedloops words.csv join (select Phrase as Word, Year, MatchCount, VolumeCount from $t1gram)")
-//  testquery("t1gram2h", s"select * from words.csv join (select Phrase as Word, Year, MatchCount, VolumeCount from $t1gram)")
-//  testquery("t1gram3", s"select * from nestedloops words.csv join (select * from $t1gram)")
-//  testquery("t1gram3h", s"select * from words.csv join (select * from $t1gram)")
-//  testquery("t1gram4", s"select * from nestedloops words.csv join (select Phrase as Word, Year, MatchCount, VolumeCount from $t1gram)")
-//  testquery("t1gram4h", s"select * from words.csv join (select Phrase as Word, Year, MatchCount, VolumeCount from $t1gram)")
 }
 
 

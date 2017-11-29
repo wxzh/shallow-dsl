@@ -14,7 +14,7 @@ import scala.lms.common._
     type P <: Predicate
     type R <: Reference
     type O <: Operator
-    override def version = "query_staged"
+    def version = "query_staged"
 
     /**
     Low-Level Processing Logic

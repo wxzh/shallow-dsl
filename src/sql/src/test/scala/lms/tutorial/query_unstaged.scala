@@ -10,7 +10,7 @@ trait QueryInterpreter extends PlainQueryProcessor {
   type P <: Predicate
   type R <: Reference
   type O <: Operator
-  override def version = "query_unstaged"
+  def version = "query_unstaged"
 
 /**
 Low-Level Processing Logic

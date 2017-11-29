@@ -10,7 +10,7 @@ trait QueryCCompiler extends StagedQueryProcessor with ScannerLowerBase {
   type P <: Predicate
   type R <: Reference
   type O <: Operator
-  override def version = "query_cstaged"
+  def version = "query_cstaged"
 
 /**
 Input File Tokenizer
