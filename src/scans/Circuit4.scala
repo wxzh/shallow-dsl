@@ -16,7 +16,7 @@ trait Above4 extends Above1 with Circuit4 {
 }
 trait Beside4 extends Beside1 with Circuit4 {
   val c1, c2: Circuit4
-  def layout(f: Int => Int) = lzw (c1.layout(f), c2.layout(f.compose(c1.width + _))) (_ ++ _)
+  def layout(f: Int => Int) = lzw (c1 layout f, c2.layout(f compose (c1.width + _))) (_ ++ _)
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
   val c: Circuit4

@@ -163,9 +163,6 @@ Unit Tests
 trait QueryProcessor {
   type Table
   type Schema = Vector[String]
-  type P <: Predicate
-  type R <: Reference
-  type O <: Operator
 
   val defaultFieldDelimiter = ','
 
@@ -175,7 +172,7 @@ trait QueryProcessor {
     def show: String
   }
   trait Eq extends Predicate {
-    val ref1, ref2: R
+    val ref1, ref2: Reference
     def show = s"Eq(${ref1.show},${ref2.show})"
   }
 
@@ -205,29 +202,29 @@ trait QueryProcessor {
     def show = s"Scan($filename,$schema,$externalSchema)"
   }
   trait Print extends Operator {
-    val op: O
+    val op: Operator
     def resultSchema = Schema()
     def show = s"Print(${op.show})"
   }
   trait Project extends Operator {
-    val so, si: Schema; val op: O
+    val so, si: Schema; val op: Operator
     def resultSchema = so
     def show = s"Project($so,$si,${op.show})"
   }
   trait Filter extends Operator {
-    val pred: P; val op: O
+    val pred: Predicate; val op: Operator
     def resultSchema = op.resultSchema
     def show = s"Filter(${pred.show},${op.show})"
   }
   trait Join extends Operator {
-    val op1, op2: O
+    val op1, op2: Operator
     def resultSchema = op1.resultSchema ++ op2.resultSchema
     def show = s"Join(${op1.show},${op2.show})"
   }
 
   trait Group extends Operator {
     val keys, agg: Schema
-    val op: O
+    val op: Operator
     def resultSchema = keys ++ agg
     def show = s"Group($keys,$agg,${op.show})"
   }

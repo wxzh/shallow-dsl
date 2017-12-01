@@ -34,7 +34,7 @@ Because compositionality offers a guideline for good language design,
 some authors~\cite{erwig2014semantics} argue that a semantics-first
 approach to EDSLs is superior to a syntax-first approach. In such
 semantics-driven approach, the idea is to first find target domain
-that leads to a compositional denotational semantics, and later grow
+that leads to a compositional denotational semantics and later grow
 the syntax on top of the semantic core. Shallow embeddings fit
 well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
@@ -157,7 +157,7 @@ EDSL. We recode that EDSL in Scala using a
 recently proposed design pattern~\cite{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
-From the \emph{modularity} point of view the
+From the \emph{modularity} point of view, the
 resulting Scala version has clear advantages over the Haskell version, due
 to the use of subtyping, inheritance, and type-refinement. In particular, the Scala code
 allows the denotation of a program to easily \emph{depend on other modular denotations}. 
