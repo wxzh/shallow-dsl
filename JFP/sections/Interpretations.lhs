@@ -278,7 +278,7 @@ Such simplicity of adding new constructs is retained in Scala.
 Differently from the Haskell approach, there is a clear distinction between
 syntactic sugar and ordinary constructs in Scala.
 
-In Scala, a syntatic sugar is defined as a smart constructor upon other smart constructors:
+In Scala, syntactic sugar is defined as a smart constructor upon other smart constructors:
 
 > def rstretch(ns: List[Int], c: Circuit4) = stretch (1 :: ns.init, beside(c, id(ns.last - 1)))
 

@@ -33,13 +33,8 @@ constructs does not require changes in the semantics of existing constructs.
 Because compositionality offers a guideline for good language design,
 some authors~\cite{erwig2014semantics} argue that a semantics-first
 approach to EDSLs is superior to a syntax-first approach. In such
-<<<<<<< HEAD
-semantics-driven approach, the idea is to first find target domain
-that leads to a compositional denotational semantics and later grow
-=======
 semantics-driven approach, the idea is to first find a target domain
 that leads to a compositional denotational semantics, and later grow
->>>>>>> 293b035efce445f1c3edcb8d6d1fa2eedd573d2c
 the syntax on top of the semantic core. Shallow embeddings fit
 well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
