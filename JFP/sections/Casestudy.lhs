@@ -75,7 +75,7 @@ suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 Firstly, multiple interpretations are no longer a problem for our shallow OO embedding technique.
-Secondly, the original implementation contains no hand-coded transformations over AST, due to the use of staging.
+Secondly, the original implementation contains no hand-coded transformations over the AST, due to the use of staging.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
@@ -248,4 +248,4 @@ We evaluate our refactored shallow implementation with respect to the original d
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
 Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are considered (code related to surface syntax is excluded).
-As seen in the table, our shallow approach takes a few more lines of code than the orginal deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition is more compact than object-oriented decomposition in Scala.
+As seen in the table, our shallow approach takes a few more lines of code than the orginal deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.
