@@ -46,8 +46,7 @@ id4 n          =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> layout c1 f ++ layout c2 f)
 beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (layout c1 f) (layout c2 (f . (width c1+))))
-stretch4 ns c  =  (sum ns,\f -> layout c (f . pred . (vs !!)))
-  where vs = scanl1 (+) ns
+stretch4 ns c  =  (sum ns,\f -> layout c (f . pred . (scanl1 (+) ns !!)))
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
 lzw f [ ] ys             =  ys
