@@ -56,7 +56,24 @@ trait Syntax {
 
   // some smart constructors
   def Scan(tableName: String): O = Scan(tableName, None, None)
-  def Scan(tableName: String, schema: Option[Schema], delim: Option[Char]): O
+  def Scan(tableName: String, schema: Option[Schema], delim: Option[Char]): O = {
+    val dfile = dynamicFilePath(tableName)
+    val (schema1, externalSchema) = schema.map(s=>(s,true)).getOrElse((loadSchema(filePath(tableName)),false))
+    Scan(dfile, schema1, delim.getOrElse(defaultFieldDelimiter), externalSchema)
+  }
+
+  val defaultFieldDelimiter: Char
+
+  def filePath(table: String): String
+  def dynamicFilePath(table: String): Table
+
+
+  def loadSchema(filename: String): Schema = {
+    val s = new Scanner(filename)
+    val schema = Schema(s.next('\n').split(defaultFieldDelimiter): _*)
+    s.close
+    schema
+  }
 }
 
 trait FullQueryInterpreter extends QueryInterpreter {
@@ -70,7 +87,6 @@ trait FullQueryInterpreter extends QueryInterpreter {
     val filename = name
     val externalSchema = extSchema
   }
-
   def PrintCSV(parent: O) = new Print { val op = parent }
   def Project(outSchema: Schema, inSchema: Schema, parent: O) = new Project {
     val op = parent
@@ -98,7 +114,6 @@ trait FullQueryScalaCompiler extends QueryScalaCompiler {
     val filename = name
     val externalSchema = extSchema
   }
-
   def PrintCSV(parent: O) = new Print { val op = parent }
   def Project(outSchema: Schema, inSchema: Schema, parent: O) = new Project {
     val op = parent
@@ -126,7 +141,6 @@ trait FullQueryCCompiler extends QueryCCompiler {
     val filename = name
     val externalSchema = extSchema
   }
-
   def PrintCSV(parent: O) = new Print { val op = parent }
   def Project(outSchema: Schema, inSchema: Schema, parent: O) = new Project {
     val op = parent
@@ -165,6 +179,7 @@ trait QueryProcessor {
   type Schema = Vector[String]
 
   val defaultFieldDelimiter = ','
+  def filePath(table: String) = if (table == "?") throw new Exception("file path for table ? not available") else table
 
   def Schema(schema: String*): Schema = schema.toVector
 
@@ -227,23 +242,6 @@ trait QueryProcessor {
     val op: Operator
     def resultSchema = keys ++ agg
     def show = s"Group($keys,$agg,${op.show})"
-  }
-  def filePath(table: String) = if (table == "?") throw new Exception("file path for table ? not available") else table
-
-  def dynamicFilePath(table: String): Table
-
-  def Scan(tableName: String, schema: Option[Schema], delim: Option[Char]): O = {
-    val dfile = dynamicFilePath(tableName)
-    val (schema1, externalSchema) = schema.map(s=>(s,true)).getOrElse((loadSchema(filePath(tableName)),false))
-    Scan(dfile, schema1, delim.getOrElse(defaultFieldDelimiter), externalSchema)
-  }
-  def Scan(name: Table, schema: Schema, delim: Char, extSchema: Boolean): O
-
-  def loadSchema(filename: String): Schema = {
-    val s = new Scanner(filename)
-    val schema = Schema(s.next('\n').split(defaultFieldDelimiter): _*)
-    s.close
-    schema
   }
 }
 

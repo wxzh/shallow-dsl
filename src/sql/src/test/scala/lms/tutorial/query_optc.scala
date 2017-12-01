@@ -7,9 +7,6 @@ package scala.lms.tutorial
 import scala.lms.common._
 
 trait QueryCCompiler extends StagedQueryProcessor with ScannerLowerBase {
-  type P <: Predicate
-  type R <: Reference
-  type O <: Operator
   def version = "query_cstaged"
 
 /**
@@ -122,6 +119,7 @@ Query Interpretation = Compilation
   }
 
   trait Eq extends Predicate with super.Eq {
+    override val ref1, ref2: Reference
     def eval(rec: Record) = ref1.eval(rec) compare ref2.eval(rec)
   }
 
@@ -146,6 +144,7 @@ Query Interpretation = Compilation
     def execOp(yld: Record => Rep[Unit]): Rep[Unit] = processCSV(filename,schema,fieldDelimiter,externalSchema)(yld)
   }
   trait Print extends Operator with super.Print {
+    override val op: Operator
     def execOp(yld: Record => Rep[Unit]) = {
       val schema = op.resultSchema
       printSchema(schema)
@@ -153,12 +152,15 @@ Query Interpretation = Compilation
     }
   }
   trait Project extends Operator with super.Project {
+    override val op: Operator
     def execOp(yld: Record => Rep[Unit]) = op.execOp {rec => yld(Record(rec(si), so))}
   }
   trait Filter extends Operator with super.Filter {
+    override val op: Operator; override val pred: Predicate
     def execOp(yld: Record => Rep[Unit]) = op.execOp { rec => if (pred.eval(rec)) yld(rec)}
   }
   trait Join extends Operator with super.Join {
+    override val op1, op2: Operator
     def execOp(yld: Record => Rep[Unit]) = op1.execOp { rec1 =>
       op2.execOp { rec2 =>
         val keys = rec1.schema.intersect(rec2.schema)
@@ -167,6 +169,7 @@ Query Interpretation = Compilation
   }
 
   trait HashJoin extends Join {
+    override val op1, op2: Operator
     override def execOp(yld: Record => Rep[Unit]) = {
       val keys = op1.resultSchema intersect op2.resultSchema
       val hm = new HashMapBuffer(keys, op1.resultSchema)
@@ -182,6 +185,7 @@ Query Interpretation = Compilation
   }
 
   trait Group extends Operator with super.Group {
+    override val op: Operator
     def execOp(yld: Record => Rep[Unit]) = {
       val hm = new HashMapAgg(keys, agg)
       op.execOp { rec =>

@@ -11,9 +11,6 @@ package scala.lms.tutorial
 import scala.lms.common._
 
   trait QueryScalaCompiler extends StagedQueryProcessor with ScannerBase {
-    type P <: Predicate
-    type R <: Reference
-    type O <: Operator
     def version = "query_staged"
 
     /**
@@ -59,6 +56,7 @@ import scala.lms.common._
     }
 
     trait Eq extends Predicate with super.Eq {
+      override val ref1, ref2: Reference
       def eval(rec: Record) = ref1.eval(rec) == ref2.eval(rec)
     }
 
@@ -83,6 +81,7 @@ import scala.lms.common._
     }
 
     trait Print extends Operator with super.Print {
+      override val op: Operator
       def execOp(yld: Record => Rep[Unit]) = {
         val schema = op.resultSchema
         printSchema(schema)
@@ -91,14 +90,17 @@ import scala.lms.common._
     }
 
     trait Project extends Operator with super.Project {
+      override val op: Operator
       def execOp(yld: Record => Rep[Unit]) = op.execOp {rec => yld(Record(rec(si), so))}
     }
 
     trait Filter extends Operator with super.Filter {
+      override val op: Operator; override val pred: Predicate
       def execOp(yld: Record => Rep[Unit]) = op.execOp { rec => if (pred.eval(rec)) yld(rec)}
     }
 
     trait Join extends Operator with super.Join {
+      override val op1, op2: Operator
       def execOp(yld: Record => Rep[Unit]) = op1.execOp { rec1 =>
         op2.execOp { rec2 =>
           val keys = rec1.schema.intersect(rec2.schema)
@@ -107,6 +109,7 @@ import scala.lms.common._
     }
 
     trait Group extends Operator with super.Group {
+      override val op: Operator
       def execOp(yld: Record => Rep[Unit]) = {
         val hm = new HashMapAgg(keys, agg)
         op.execOp { rec =>
