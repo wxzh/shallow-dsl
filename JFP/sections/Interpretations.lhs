@@ -85,7 +85,7 @@ Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \em
 
 \subsection{Dependent interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
-interpretations. A dependent interpretation does not only depend on itself but also on other interpretations, which goes beyond a simple compositional definition.
+interpretations. A dependent interpretation does not only depend on itself but also on other interpretations, which goes beyond simple compositional interpretations.
 An instance of dependent interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
 The interpretation of |wellSized| is dependent because combinators like |above| use |width| in their definitions.
 
@@ -311,9 +311,11 @@ new interpretation is added, and wide tuples generally lack good
 language support}''~\cite{gibbons2014folding}.
 In other words, Haskell's approach based on tuples is essentially non-modular.
 However, as our Scala code shows, using OOP mechanisms both language constructs and
-interpretations are easy to add in shallow embeddings. In other words,
-the circuit DSL presented so far does not suffer from the Expression
-Problem. The key point is that procedural abstraction combined with
+interpretations are easy to add in shallow embeddings.
+Moreover, dependent interpretations are possible too, which enables 
+interpretations that may depend on other modular interpretations and go beyond
+simple compositionality.  
+ The key point is that procedural abstraction combined with
 OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction.
 
