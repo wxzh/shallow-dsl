@@ -51,7 +51,7 @@ def c[Circuit](f: Factory[Circuit]) =
              f.above (  f.stretch(f.fan(2),2,2),
                         f.beside(f.beside(f.id(1),f.fan(2)),f.id(1))))
 \end{spec}
-|c| is a generic method that takes an |Factory| instance and builds a circuit through that instance. With Scala the definition of |c| can be simpler: we can avoid prefixing ``|f.|'' everywhere by importing |f|. Nevertheless, the definition shown here is more language-independent.
+|c| is a generic method that takes a |Factory| instance and builds a circuit through that instance. With Scala the definition of |c| can be simpler: we can avoid prefixing ``|f.|'' everywhere by importing |f|. Nevertheless, the definition shown here is more language-independent.
 \paragraph{Concrete factories} We need concrete factories that implement |Factory| to actually invoke |c|. Here is a concrete factory that produces |Circuit1|:
 
 > trait Factory1 extends Factory[Circuit1] { ... }

@@ -118,7 +118,7 @@ This improves the readability and modularity of the embedded programs.
 
 \subsection{Embedded syntax}
 Thanks to the good support for EDSLs in Scala, we can precisely model the syntax of SQL.
-The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is an optional, terminating the clause of a query.
+The syntax of our EDSL is close to that of LINQ~\cite{meijer2006linq}, where |select| is an optional, terminating clause of a query.
 We employ well-established OO and Scala techniques to simulate the syntax of SQL queries in our shallow EDSL implementation.
 Specifically, we use the \emph{Pimp My Library} pattern~\cite{odersky06pimp} for lifting field names and literals implicitly.
 For the syntax of combinators such as |where| and |join|, we adopt a fluent interface style.

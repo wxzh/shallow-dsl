@@ -33,15 +33,20 @@ constructs does not require changes in the semantics of existing constructs.
 Because compositionality offers a guideline for good language design,
 some authors~\cite{erwig2014semantics} argue that a semantics-first
 approach to EDSLs is superior to a syntax-first approach. In such
+<<<<<<< HEAD
 semantics-driven approach, the idea is to first find target domain
 that leads to a compositional denotational semantics and later grow
+=======
+semantics-driven approach, the idea is to first find a target domain
+that leads to a compositional denotational semantics, and later grow
+>>>>>>> 293b035efce445f1c3edcb8d6d1fa2eedd573d2c
 the syntax on top of the semantic core. Shallow embeddings fit
 well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
 deep embeddings can deter their use.
 
 This functional pearl shows that, given adequate language support,
-supporting multiple modular interpretations in shallow DSLs is not
+having multiple modular interpretations in shallow DSLs is not
 only possible, but simple. Therefore this pearl aims to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
@@ -151,10 +156,10 @@ a simple solution to the \emph{Expression Problem}~\cite{expPb}. Thus using just
 shallow embeddings.
 \end{comment}
 
-To make our arguments we take the examples in Gibbons and Wu~\shortcite{gibbons2014folding}'s paper,
+To make our arguments concrete we take the examples in Gibbons and Wu~\shortcite{gibbons2014folding}'s paper,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala using a
-recently proposed design pattern~\cite{eptrivially16}, which provides
+design pattern~\cite{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view, the
