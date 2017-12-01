@@ -239,7 +239,7 @@ trait HashJoin extends Join {
 \hline
 \emph{query_unstaged} & SQL interpreter        & 83   & 98 \\
 \emph{query_staged} & SQL to Scala compiler  & 179  & 194 \\
-\emph{query_optc} & SQL to C compiler        & 245  & 263 \\
+\emph{query_optc} & SQL to C compiler        & 245  & 262 \\
 \hline
 \end{tabular}
 \caption{SLOC for original (Deep) and refactored (Shallow) versions.}

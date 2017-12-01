@@ -169,7 +169,6 @@ Query Interpretation = Compilation
   }
 
   trait HashJoin extends Join {
-    override val op1, op2: Operator
     override def execOp(yld: Record => Rep[Unit]) = {
       val keys = op1.resultSchema intersect op2.resultSchema
       val hm = new HashMapBuffer(keys, op1.resultSchema)
