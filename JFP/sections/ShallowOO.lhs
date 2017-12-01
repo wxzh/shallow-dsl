@@ -3,12 +3,12 @@
 %include def.fmt
 \section{Shallow object-oriented programming}\label{sec:oo}
 
-This section shows that an OOP approach and a shallow embedding using
-procedural abstraction are closely related.  We use the same
+This section shows how OOP and shallow embeddings are related via
+procedural abstraction.  We use the same
 DSL presented by Gibbons and Wu~\shortcite{gibbons2014folding} as
 a running example.  We first give the original shallow embedded
 implementation in Haskell, and rewrite it towards an ``OOP style''.
-Then translating the program into an OOP language like Scala becomes straightforward.
+Then translating the program into a functional OOP language like Scala becomes straightforward.
 % We choose Scala to present the OOP code throughout this pearl.
 % because of its relatively elegant syntax and its support for multiple-inheritance
 % via traits.  None of Scala's advanced type system features is used.

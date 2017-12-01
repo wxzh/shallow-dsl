@@ -7,7 +7,7 @@
 An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
-interpretations can be \emph{modularly} defined using standard OOP techniques, and compares the result with Gibbons and Wu's Haskell implementations.
+interpretations can be \emph{modularly} defined using standard OOP mechanisms, and compares the result with Gibbons and Wu's Haskell implementations.
 
 \subsection{Multiple interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
@@ -49,7 +49,7 @@ appended to each case.
 %we add the definition of |wellSized| by modifying the original code.
 
 \paragraph{Multiple interpretations in Scala}
-In contrast, an OO language like Scala allows new interpretations to be introduced in a modular way:
+In contrast, Scala allows new interpretations to be introduced in a modular way:
 
 %format Id2
 %format Fan2
@@ -85,7 +85,7 @@ Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \em
 
 \subsection{Dependent interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
-interpretations. A dependent interpretation does not only depend on itself but also on other interpretations.
+interpretations. A dependent interpretation does not only depend on itself but also on other interpretations, which goes beyond a simple compositional definition.
 An instance of dependent interpretation is |wellSized|, which checks whether a circuit is constructed correctly.
 The interpretation of |wellSized| is dependent because combinators like |above| use |width| in their definitions.
 
@@ -205,7 +205,7 @@ as the initial value of the accumulating parameter, we will get the
 layout.
 
 \paragraph{Context-sensitive interpretations in Scala}
-Context-sensitive interpretations in our OO approach are unproblematic as well:
+Context-sensitive interpretations in Scala are unproblematic as well:
 
 %format Id4
 %format Fan4
@@ -295,7 +295,7 @@ trait RStretch extends Stretch4 {
 }
 \end{spec}
 
-Such an implementation of |RStretch| illustrates another strength of our OO approach regarding modularity.
+Such an implementation of |RStretch| illustrates another strength of Scala regarding modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherits |Stretch4| and overrides the |layout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
 Inheritance and method overriding enable partial reuse of an existing language construct implementation,
@@ -311,7 +311,7 @@ is still a bit clumsy: it entails revising existing code each time a
 new interpretation is added, and wide tuples generally lack good
 language support}''~\cite{gibbons2014folding}.
 In other words, Haskell's approach based on tuples is essentially non-modular.
-However, as our OOP approach shows, in OOP both language constructs and
+However, as our Scala code shows, using OOP mechanisms both language constructs and
 interpretations are easy to add in shallow embeddings. In other words,
 the circuit DSL presented so far does not suffer from the Expression
 Problem. The key point is that procedural abstraction combined with
@@ -323,5 +323,5 @@ techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
 Moreover, dependent interpretations (Section~\ref{sec:dependent}) remain non-modular
 because an encoding via tuples is still needed. In contrast,
-the approach proposed here is just straightforward OOP, it uses only simple types, and dependent
+the Scala version is straightforward using OOP mechanisms, it uses only simple types, and dependent
 interpretations are not a problem.

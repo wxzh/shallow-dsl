@@ -45,12 +45,12 @@ supporting multiple modular interpretations in shallow DSLs is not
 only possible, but simple. Therefore this pearl aims to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
-observed that, in conventional functional programming, by using
+observed that, in functional programming, by using
 products and projections, multiple interpretations can be supported.
 Nevertheless, the use of products and projections is very cumbersome,
 and often leads to code that is not modular.
 We argue that multiple interpretations can be encoded naturally
-when the host language supports common OO features, such as
+when the host language combines functional features with common OO features, such as
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
 
 \begin{comment}
@@ -164,7 +164,7 @@ allows the denotation of a program to easily \emph{depend on other modular denot
 
 While the technique proposed here does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
 By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techniques~\cite{rompf15} into a shallow EDSL.
-The refactored implementation allows both new interpretations and new constructs to be introduced modularly without sacrificing performance.
+The refactored implementation allows both new (possibly dependent) interpretations and new constructs to be introduced modularly without sacrificing performance.
 Complete code for all examples and the case study is available online:
 
 \begin{center}{\url{https://github.com/wxzh/shallow-dsl}}\end{center}
