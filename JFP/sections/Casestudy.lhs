@@ -247,5 +247,5 @@ trait HashJoin extends Join {
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
 Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
-the interpretations are compared (code related to surface syntax is excluded).
-The refactored version takes only a few more lines than the original version, as seen in the table.
+the interpretations are considered (code related to surface syntax is excluded).
+As seen in the table, our shallow approach takes a few more lines of code than the orginal deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition is more compact than object-oriented decomposition in Scala.
