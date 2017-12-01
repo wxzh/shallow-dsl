@@ -126,7 +126,8 @@ trait Id3 extends Id1 with Circuit3 {def wellSized = true}
 trait Fan3 extends Fan1 with Circuit3 {def wellSized = true}
 trait Above3 extends Above1 with Circuit3 {
   override val c1, c2: Circuit3
-  def wellSized = c1.wellSized && c2.wellSized && c1.width==c2.width {-" \text{ // width dependency} "-}
+  def wellSized = c1.wellSized && c2.wellSized &&
+    c1.width==c2.width                               {-" \text{ // width dependency} "-}
 }
 trait Beside3 extends Beside1 with Circuit3 {
   override val c1, c2: Circuit3
@@ -134,7 +135,7 @@ trait Beside3 extends Beside1 with Circuit3 {
 }
 trait Stretch3 extends Stretch1 with Circuit3 {
   override val c: Circuit3
-  def wellSized = c.wellSized && ns.length==c.width {-" \text{ // width dependency} "-}
+  def wellSized = c.wellSized && ns.length==c.width  {-" \text{ // width dependency} "-}
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
@@ -176,7 +177,8 @@ type Circuit4  =  (Int,(Int -> Int) -> [[(Int, Int)]])
 id4 n          =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> layout c1 f ++ layout c2 f)
-beside4 c1 c2  =  (width c1 + width c2,\f -> lzw (++) (layout c1 f) (layout c2 (f . (width c1+))))
+beside4 c1 c2  =  (  width c1 + width c2,
+                     \f -> lzw (++) (layout c1 f) (layout c2 (f . (width c1+))))
 stretch4 ns c  =  (sum ns,\f -> layout c (f . pred . (scanl1 (+) ns !!)))
 
 lzw                      ::  (a -> a -> a) -> [a] -> [a] -> [a]
@@ -226,14 +228,14 @@ trait Above4 extends Above1 with Circuit4 {
 }
 trait Beside4 extends Beside1 with Circuit4 {
   override val c1, c2: Circuit4
-  def layout(f: Int => Int) = lzw (c1.layout(f), c2.layout(f.compose(c1.width + _))) (_ ++ _)
+  def layout(f: Int => Int) =
+    lzw (c1.layout(f), c2.layout(f.compose(c1.width + _))) (_ ++ _)
 }
 trait Stretch4 extends Stretch1 with Circuit4 {
   override val c: Circuit4
   def layout(f: Int => Int) = {
     val vs = ns.scanLeft(0)(_ + _).tail
-    c.layout(f.compose(vs(_) - 1))
-  }
+    c.layout(f.compose(vs(_) - 1)) }
 }
 
 def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
@@ -289,8 +291,7 @@ If we treated |rstretch| as an ordinary construct, its definition would be:
 trait RStretch extends Stretch4 {
   override def layout(f: Int => Int) = {
     val vs = ns.scanLeft(ns.last - 1)(_ + _).init
-    c.layout(f.compose(vs(_)))
-  }
+    c.layout(f.compose(vs(_)))}
 }
 \end{spec}
 

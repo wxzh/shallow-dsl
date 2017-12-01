@@ -74,7 +74,7 @@ All existing interpretations have to be modified for dealing with these new case
 suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
-Firstly, multiple interpretations are no longer a problem for our shallow OO embedding technique.
+Firstly, multiple interpretations are no longer a problem for our shallow embedding technique.
 Secondly, the original implementation contains no hand-coded transformations over the AST, due to the use of staging.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
@@ -208,7 +208,7 @@ Hence the simplicity of the implementation remains. At the same time, dramatic s
 
 \paragraph{Language extensions}
 Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
-Differently from the original implementation, the introduction of these constructs is done in a modular manner with our shallow OO embedding:
+Differently from the original implementation, the introduction of these constructs is done in a modular manner with our approach:
 
 \begin{spec}
 trait Group extends Operator {
