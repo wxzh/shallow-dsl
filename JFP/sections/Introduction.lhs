@@ -26,7 +26,7 @@ multiple interpretations and transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
-that the denotation of a language is constructed from the denotations of
+that a denotation (or interpretation) of a language is constructed from the denotation of
 its parts. Compositionality 
 leads to a modular semantics, where adding new language
 constructs does not require changes in the semantics of existing constructs.
@@ -43,15 +43,15 @@ Nevertheless, the limitations of shallow embeddings compared to
 deep embeddings can deter their use.
 
 This functional pearl shows that, given adequate language support,
-having multiple modular (possibly dependent) interpretations in shallow DSLs is not
+having multiple modular interpretations in shallow DSLs is not
 only possible, but simple. 
 Therefore we aim to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
 observed that, by using
 products and projections, multiple interpretations can be supported with a cumbersome and often non-modular encoding.
-Moreover it is also known that multiple interpretations \emph{without dependencies}
-can also be modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
+Moreover it is also known that multiple interpretations \emph{without dependencies} on other interpretations
+are modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
 We show that a full solution for multiple interpretations (including dependencies)
 is encodable naturally
 when the host language combines functional features with common OO features, such as
