@@ -88,7 +88,7 @@ A simple query that lists all items in |talks.csv| is:
 
 > def q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
 
-Yet another relatively complex query to find all conflicting talks happening at the same time in the same room is:
+Yet another relatively complex query to find all conflicting talks that happen at the same time in the same room with different titles is:
 
 > def q2     =  q0 SELECT (`time, `room, `title AS ^^ `title1)    JOIN
 >               (q0 SELECT (`time, `room, `title AS ^^ `title2))  WHERE
@@ -203,7 +203,7 @@ LMS provides a type constructor |Rep| for annotating computations that are to be
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
 Two staged versions of |execOp| are introduced for generating Scala and C code respectively.
 By using the technique presented in Section~\ref{sec:interp}, they are added modularly with existing interpretations such as |resultSchema| reused.
-The implementation of staged |execOp| is almost identical to the unstaged counterpart except for minor API differences between staged and unstaged types.
+The implementation of staged |execOp| is close to the unstaged counterpart except for minor API differences between staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
 \paragraph{Language extensions}
