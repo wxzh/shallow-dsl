@@ -2,14 +2,14 @@
 %include polycode.fmt
 %include def.fmt
 \vspace{-7pt}
-\section{Interpretations in shallow embeddings}\label{sec:interp}
+\section{Multiple interpretations in shallow embeddings}\label{sec:interp}
 
 An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined using standard OOP mechanisms, and compares the result with Gibbons and Wu's Haskell implementations.
 
-\subsection{Multiple interpretations}\label{subsec:multiple}
+\subsection{Simple multiple interpretations}\label{subsec:multiple}
 A single interpretation may not be enough for realistic DSLs.
 For example, besides |width|, we may want to have another interpretation
 that calculates the depth of a circuit in \dsl.
@@ -324,7 +324,9 @@ Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems.
 In their paper Gibbons and Wu show how to support modular |depth| and |width| 
-(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
+(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. This is possible because |depth| and |width| are 
+non-dependent.
+However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
 Such dependent interpretations would still require a cumbersome and non-modular 
 encoding via tuples even with the Finally Tagless approach.
 \begin{comment}
