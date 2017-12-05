@@ -12,14 +12,14 @@
 \section{Modular terms}\label{sec:modterms}
 
 One potential criticism to the approach presented so far is that while
-the interpretations are modular, building terms is not. 
+multiple dependent interpretations can be modularized, building terms cannot. 
 Every time we develop new interpretations, a new set of companion smart
 constructors has to be developed as well. Unfortunately the different smart
-constructors build terms that are specific to a particular interpretation, leading 
-to duplication of code whenever the same term needs to be run with different interpretations. 
-Fortunately, there is an easy
+constructors build terms that are specific to a particular set of multiple interpretations, leading 
+to duplication of code whenever the same term needs to be run with other interpretations. 
+Fortunately, the Finally Tagless~\cite{carette2009finally} and Object Algebras~\cite{oliveira2012extensibility} approaches show that there is an easy
 solution to this problem: we overload the constructors, making them
-independent of any specific interpretation.
+independent of any specific set of interpretations.
 
 %\weixin{cite polymorphic embedding of DSLs / Object Algebras?}
 %This section illustrates how to write modular DSL terms without committing to a particular implementation.
@@ -37,12 +37,12 @@ trait Factory[Circuit] {
 \end{code}
 |Factory| is a generic interface, which exposes factory methods for
 each circuit construct supported by \dsl. The idea of capturing 
-the interfaces of constructors is inspired by the 
+the interfaces of constructors is comes from the 
 Finally Tagless~\cite{carette2009finally} or Object Algebras~\cite{oliveira2012extensibility} 
 approaches, which employ such a technique.
 
 \paragraph{Abstract terms}
-Modular terms can be constructed via the abstract factory. For example,
+Modular terms are constructed via the abstract factory. For example,
 the circuit shown in Fig.~\ref{fig:circuit} is built as:
 
 \begin{spec}

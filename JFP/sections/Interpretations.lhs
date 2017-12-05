@@ -205,7 +205,7 @@ resulting list.  By calling |layout| on a circuit and supplying an identity func
 as the initial value of the accumulating parameter, we will get the
 layout.
 
-\paragraph{Context-sensitive interpretations in Scala}
+\paragraph{Context-sensitive interpretations in Scala}\label{sec:context}
 Context-sensitive interpretations in Scala are unproblematic as well:
 
 %format Id4
@@ -320,10 +320,17 @@ simple compositionality.
 OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction.
 
-Gibbons and Wu do discuss a number of advanced
+Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
-\emph{some} of the modularity problems. For example, Carette \emph{et al}.~\shortcite{carette2009finally} deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
-Moreover, dependent interpretations (Section~\ref{sec:dependent}) remain non-modular
-because an encoding via tuples is still needed. In contrast,
+\emph{some} of the modularity problems.
+In their paper Gibbons and Wu show how to support modular |depth| and |width| 
+(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
+Such dependent interpretations would still require a cumbersome and non-modular 
+encoding via tuples even with the Finally Tagless approach.
+\begin{comment}
+For example, Carette  deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
+More importantly, dependent interpretations (Section~\ref{sec:dependent}) remain non-modular because an encoding via tuples is still needed. 
+\end{comment}
+In contrast,
 the Scala version is straightforward using OOP mechanisms, it uses only simple types, and dependent
 interpretations are not a problem.
