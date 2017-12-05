@@ -26,8 +26,8 @@ multiple interpretations and transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
-that the denotation of a language is constructed from denotations of
-its parts. One advantage of compositionality is that it
+that the denotation of a language is constructed from the denotations of
+its parts. Compositionality 
 leads to a modular semantics, where adding new language
 constructs does not require changes in the semantics of existing constructs.
 Because compositionality offers a guideline for good language design,
