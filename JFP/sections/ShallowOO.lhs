@@ -136,9 +136,10 @@ OO program.
 
 \begin{minipage}{.5\textwidth}
 \begin{spec}
-trait Circuit1 {
-  def width: Int
-}
+{-"\text{// object interface}"-}
+trait Circuit1 { def width: Int }
+
+{-"\text{// concrete implementations}"-}
 trait Id1 extends Circuit1 {
   val n: Int
   def width = n

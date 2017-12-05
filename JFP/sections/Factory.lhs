@@ -14,7 +14,7 @@
 One potential criticism to the approach presented so far is that while
 multiple dependent interpretations can be modularized, building terms cannot. 
 Every time we develop new interpretations, a new set of companion smart
-constructors has to be developed as well. Unfortunately the different smart
+constructors has to be developed as well. Unfortunately, different smart
 constructors build terms that are specific to a particular set of multiple interpretations, leading 
 to duplication of code whenever the same term needs to be run with other interpretations. 
 Fortunately, the Finally Tagless~\cite{carette2009finally} and Object Algebras~\cite{oliveira2012extensibility} approaches show that there is an easy
@@ -37,7 +37,7 @@ trait Factory[Circuit] {
 \end{code}
 |Factory| is a generic interface, which exposes factory methods for
 each circuit construct supported by \dsl. The idea of capturing 
-the interfaces of constructors is comes from the 
+the interfaces of constructors comes from the 
 Finally Tagless~\cite{carette2009finally} or Object Algebras~\cite{oliveira2012extensibility} 
 approaches, which employ such a technique.
 

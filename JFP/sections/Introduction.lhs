@@ -152,7 +152,7 @@ resulting Scala version has advantages over the Haskell version, due
 to the use of subtyping, inheritance, and type-refinement.
 In particular, the Scala code
 can easily express modular interpretations that may
-\emph{not only depend on themselves, but also depend on other modular interpretations}, 
+\emph{not only depend on themselves but also depend on other modular interpretations},
 leading to our motto: \emph{beyond simple compositionality}. 
 
 While the technique does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.

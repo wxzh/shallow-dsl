@@ -33,7 +33,7 @@
 %another important reason to prefer deep embeddings over shallow embeddings.
 
 A common motivation for using deep embeddings is performance. Deep
-embeddings enable complex transformations to be defined over the AST,
+embeddings enable complex transformations to be defined over the abstract syntax tree (AST),
 which is useful to implement optimizations that improve the
 performance. An alternative way to obtain performance is to use
 staging frameworks, such as Lightweight Modular Staging (LMS)~\cite{rompf2012lightweight}.
@@ -67,7 +67,7 @@ which first parses a SQL query into a relational algebra AST and then executes t
 %Three backends are provided: a SQL interpreter, a SQL to Scala compiler and a SQL to C compiler.
 Based on the LMS framework~\cite{rompf2012lightweight},
 the SQL compilers are nearly as simple as an interpreter while having performance comparable to hand-written code.
-The implementation uses deep embedding techniques such as algebraic datatypes (\emph{case classes} in Scala) and pattern matching for representing and interpreting ASTs.
+The implementation uses deep embedding techniques such as algebraic data types (\emph{case classes} in Scala) and pattern matching for representing and interpreting ASTs.
 These techniques are a natural choice as multiple interpretations are needed for supporting different backends.
 But problems arise when the implementation evolves with new language constructs.
 All existing interpretations have to be modified for dealing with these new cases,
@@ -79,7 +79,7 @@ Secondly, the original implementation contains no hand-coded transformations ove
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
-To illustrate our shallow EDSL, suppose that there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
+To illustrate our shallow EDSL, suppose there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
 > def q0     =  FROM ("talks.csv")
@@ -88,7 +88,7 @@ A simple query that lists all items in |talks.csv| is:
 
 > def q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
 
-Yet another relatively complex query to find all unique talks happening at the same time in the same room is:
+Yet another relatively complex query to find all conflicting talks happening at the same time in the same room is:
 
 > def q2     =  q0 SELECT (`time, `room, `title AS ^^ `title1)    JOIN
 >               (q0 SELECT (`time, `room, `title AS ^^ `title2))  WHERE
@@ -192,9 +192,9 @@ There are also two utility operators, |Print| and |Scan|, for processing inputs 
 
 
 \paragraph{From an interpreter to a compiler}
-The query interpreter presented so far is elegant but unfortunately slow.
+The query processor presented so far is elegant but unfortunately slow.
 To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
-The idea is to turn the slow query interpreter into a fast query compiler by generating specialized low-level code for a given query.
+One direction is to turn the slow query interpreter into a fast query compiler by generating specialized low-level code for a given query.
 With the help of the LMS framework, this task becomes rather easy.
 LMS provides a type constructor |Rep| for annotating computations that are to be performed in the next stage. The signature of the staged |execOp| is:
 
@@ -203,7 +203,7 @@ LMS provides a type constructor |Rep| for annotating computations that are to be
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
 Two staged versions of |execOp| are introduced for generating Scala and C code respectively.
 By using the technique presented in Section~\ref{sec:interp}, they are added modularly with existing interpretations such as |resultSchema| reused.
-The implementation of staged |execOp| is almost identical to the unstaged counterpart except for minor API differences on staged and unstaged types.
+The implementation of staged |execOp| is almost identical to the unstaged counterpart except for minor API differences between staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
 \paragraph{Language extensions}
