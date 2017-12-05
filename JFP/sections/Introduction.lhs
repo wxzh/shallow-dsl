@@ -26,46 +26,36 @@ multiple interpretations and transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
-that the denotation of a program is constructed from denotations of
+that the denotation of a language is constructed from denotations of
 its parts. One advantage of compositionality is that it
 leads to a modular semantics, where adding new language
 constructs does not require changes in the semantics of existing constructs.
 Because compositionality offers a guideline for good language design,
 some authors~\cite{erwig2014semantics} argue that a semantics-first
-approach to EDSLs is superior to a syntax-first approach. In such
-semantics-driven approach, the idea is to first find a target domain
-that leads to a compositional denotational semantics, and later grow
-the syntax on top of the semantic core. Shallow embeddings fit
+approach to EDSLs is superior to a syntax-first approach.
+%%In such
+%%semantics-driven approach, the idea is to first find a target domain
+%%that leads to a compositional denotational semantics, and later grow
+%%the syntax on top of the semantic core.
+Shallow embeddings fit
 well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
 deep embeddings can deter their use.
 
 This functional pearl shows that, given adequate language support,
-having multiple modular interpretations in shallow DSLs is not
-only possible, but simple. Therefore this pearl aims to debunk the belief
+having multiple modular (possibly dependent) interpretations in shallow DSLs is not
+only possible, but simple. 
+Therefore we aim to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
-observed that, in functional programming, by using
-products and projections, multiple interpretations can be supported.
-Nevertheless, the use of products and projections is very cumbersome,
-and often leads to code that is not modular.
-We argue that multiple interpretations can be encoded naturally
+observed that, by using
+products and projections, multiple interpretations can be supported with a cumbersome and often non-modular encoding.
+Moreover it is also known that multiple interpretations \emph{without dependencies}
+can also be modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
+We show that a full solution for multiple interpretations (including dependencies)
+is encodable naturally
 when the host language combines functional features with common OO features, such as
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
-
-\begin{comment}
-. We show that
-in languages supporting
-\emph{subtyping}, \emph{inheritance} and \emph{type-refinement}
-it is easy to modularly support multiple interpretations, while retaining
-the other advantages of shallow-embeddings: \emph{compositionality}.
-
-
-Not the expression problem. in the EP we have only multiple independent
-interpretations. The techniques that we propose here go further and
-allow multiple dependent 
-By removing this limitation, the 
-\end{comment}
 
 
 \begin{comment}
@@ -151,23 +141,25 @@ a simple solution to the \emph{Expression Problem}~\cite{expPb}. Thus using just
 shallow embeddings.
 \end{comment}
 
-To make our arguments concrete we take the examples in Gibbons and Wu~\shortcite{gibbons2014folding}'s paper,
+We make our arguments concrete using Gibbons and Wu~\shortcite{gibbons2014folding}'s examples,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala using a
 design pattern~\cite{eptrivially16}, which provides
 a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
 From the \emph{modularity} point of view, the
-resulting Scala version has clear advantages over the Haskell version, due
-to the use of subtyping, inheritance, and type-refinement. In particular, the Scala code
-allows the denotation of a program to easily \emph{depend on other modular denotations}. 
+resulting Scala version has advantages over the Haskell version, due
+to the use of subtyping, inheritance, and type-refinement.
+In particular, the Scala code
+can easily express modular interpretations that may
+\emph{not only depend on themselves, but also depend on other modular interpretations}, 
+leading to our motto: \emph{beyond simple compositionality}. 
 
-While the technique proposed here does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
+While the technique does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
 By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techniques~\cite{rompf15} into a shallow EDSL.
 The refactored implementation allows both new (possibly dependent) interpretations and new constructs to be introduced modularly without sacrificing performance.
-Complete code for all examples and the case study is available online:
-
-\begin{center}{\url{https://github.com/wxzh/shallow-dsl}}\end{center}
+Complete code for all examples/case-study is available at
+\url{https://github.com/wxzh/shallow-dsl}.
 
 \begin{comment}
 To further illustrate the applicability of our OOP approach, we conduct

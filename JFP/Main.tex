@@ -44,19 +44,21 @@
 
 \begin{abstract}
 Shallow embedded domain-specific languages (EDSLs) use
-\emph{procedural abstraction} to directly encode a DSL into an existing host language. Procedural abstraction has
+\emph{procedural abstraction} to directly encode a DSL into an
+existing host language. Procedural abstraction has 
 been argued to be the essence of object-oriented programming (OOP).
 This pearl argues that OOP abstractions
 (including \emph{inheritance}, \emph{subtyping}, and
 \emph{type-refinement})
 increase the modularity and reuse of shallow
-EDSLs when compared to classical procedural abstraction. We make this
+EDSLs when compared to classical procedural abstraction by enabling a
+simple way to express \emph{multiple, possibly dependent, interpretations}. We make this
 argument by taking a recent paper by Gibbons and Wu, where procedural
 abstraction is used in Haskell to model a simple shallow EDSL, and we recode
 that EDSL in Scala. 
-To further illustrate the applicability of our functional OOP approach, we conduct
+We further  illustrate our functional OOP approach, with
 a case study on refactoring a deep external SQL DSL implementation to make it
-more modular, shallow, and embedded without sacrificing performance.
+more modular, shallow, and embedded.
 \end{abstract}
 
 \input{sections/Introduction}
