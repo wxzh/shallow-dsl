@@ -40,8 +40,7 @@ stretch3 ns c  =  (sum ns,wellSized c && length ns==width c)
 
 wellSized  =  snd
 
-type Layout    =  [[(Int, Int)]]
-type Circuit4  =  (Int,(Int -> Int) -> Layout)
+type Circuit4  =  (Int,(Int -> Int) -> [[(Int, Int)]])
 id4 n          =  (n,\f -> [])
 fan4 n         =  (n,\f -> [[(f 0,f j) | j <- [1..n-1]]])
 above4 c1 c2   =  (width c1,\f -> layout c1 f ++ layout c2 f)
