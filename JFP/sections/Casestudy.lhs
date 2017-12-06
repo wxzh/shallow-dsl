@@ -33,7 +33,7 @@
 %another important reason to prefer deep embeddings over shallow embeddings.
 
 A common motivation for using deep embeddings is performance. Deep
-embeddings enable complex transformations to be defined over the abstract syntax tree (AST),
+embeddings enable complex transformations over the abstract syntax tree (AST),
 which is useful to implement optimizations that improve the
 performance. An alternative way to obtain performance is to use
 staging frameworks, such as Lightweight Modular Staging (LMS)~\cite{rompf2012lightweight}.
@@ -141,7 +141,6 @@ For example, we will get the following operator structure for |q1|:
 \subsection{A relational algebra compiler}
 A SQL query can be represented by a relational algebra operator.
 The basic interface of operators is modeled as follows:
-
 > trait Operator {
 >   def resultSchema: Schema
 >   def execOp(yld: Record => Unit): Unit
@@ -150,8 +149,7 @@ The basic interface of operators is modeled as follows:
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
 Very much like the interpretation |layout| discussed in Section~\ref{sec:ctxsensitive},
 |execOp| is both \emph{context-sensitive} and \emph{dependent}:
-it takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results.
-Here are some core concrete relational algebra operators:
+it takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results. In our implementation |execOp| is indeed introduced as an extension just like |layout|. Here we merge the two interpretations for conciseness of presentation. Some core concrete relational algebra operators are given below:
 
 > trait Project extends Operator {
 >   val out, in: Schema; val op: Operator
@@ -190,7 +188,7 @@ There are also two utility operators, |Print| and |Scan|, for processing inputs 
 
 % TODO: Generate to different targets as new interpretations
 
-
+\vspace{-4pt}
 \paragraph{From an interpreter to a compiler}
 The query processor presented so far is elegant but unfortunately slow.
 To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
@@ -206,6 +204,7 @@ By using the technique presented in Section~\ref{sec:interp}, they are added mod
 The implementation of staged |execOp| is similar to the unstaged counterpart except for minor API differences between staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
+\vspace{-4pt}
 \paragraph{Language extensions}
 Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
 Differently from the original implementation, the introduction of these constructs is done in a modular manner with our approach:
@@ -243,9 +242,10 @@ trait HashJoin extends Join {
 \hline
 \end{tabular}
 \caption{SLOC for original (Deep) and refactored (Shallow) versions.}
+\label{sloc}
 \end{wraptable}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
 Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are considered (code related to surface syntax is excluded).
-As seen in the table, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.
+As seen in Table~\ref{sloc}, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.
