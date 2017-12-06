@@ -17,7 +17,7 @@ Every time we develop new interpretations, a new set of companion smart
 constructors has to be developed as well. Unfortunately the different smart
 constructors build terms that are specific to a particular set of multiple interpretations, leading 
 to duplication of code whenever the same term needs to be run with other interpretations. 
-Fortunately, the Finally Tagless~\cite{carette2009finally} and Object Algebras~\cite{oliveira2012extensibility} approaches show that there is an easy
+Fortunately, one of the ideas in the Finally Tagless~\cite{carette2009finally} and Object Algebras~\cite{oliveira2012extensibility} approaches provides an easy
 solution to this problem: we overload the constructors, making them
 independent of any specific set of interpretations.
 
