@@ -7,7 +7,7 @@
 
 % no longer semantics first?
 
-\section{Modular Interpretations in Haskell}
+\section{Modular interpretations in Haskell}
 Indeed, modular interpretations are also possible in Haskell using the Finally Tagless~\cite{carette2009finally} approach.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
@@ -30,8 +30,8 @@ Interpretations such as |width| are then defined as instances of |Scans|:
 > instance Circuit Width where
 >   id n          =  Width n
 >   fan n         =  Width n
->   beside c1 c2  =  Width (width c1 + width c2)
 >   above c1 c2   =  Width (width c1)
+>   beside c1 c2  =  Width (width c1 + width c2)
 >   stretch ns c  =  Width (sum ns)
 
 where |c| is instantiated as a record type |Width|.
@@ -42,10 +42,10 @@ Instantiating the type parameter as |Width| rather than |Int| avoids the conflic
 > newtype Depth = Depth {depth :: Int}
 >
 > instance Circuit Depth where
->   id n           =  Depth n
->   fan n          =  Depth n
->   beside c1 c2   =  Depth (depth c1 + depth c2)
->   above c1 c2    =  Depth (depth c1 `max` depth c2)
+>   id n           =  Depth 0
+>   fan n          =  Depth 1
+>   above c1 c2    =  Depth (depth c1 + depth c2)
+>   beside c1 c2   =  Depth (depth c1 `max` depth c2)
 >   stretch ns c   =  Depth (depth c)
 
 \paragraph{Dependent interpretation} However, adding dependent interpretation like |wellSized| is more challenging.
@@ -94,17 +94,39 @@ The implementation is modular but requires some boilerplate.
 The reuse of |width| is achieved via delegatation, where |inter| needs to be called on each subcircuit. Also, auxiliary definitions |gwidth| and |gwellSized| are necessary for projecting the desired interpretations from the constrained type parameter.
 
 \paragraph{Modular terms}
-The circuit shown in \autoref{fig:circuit} can be constructed and interpreted differently:
+As new interpretations may be added later, a problem is how to construct the term that can be interpreted by those new interpretations without reconstruction.
+We show how to do this for the circuit shown in \autoref{fig:circuit}:
 
-> c  ::  Circuit c => c
-> c  =   (fan 2 `beside` fan 2) `above`
->        stretch [2,2] (fan 2) `above`
->        (id 1 `beside` fanF 2 `beside` id 1)
+> circuit  ::  Circuit c => c
+> circuit  =   (fan 2 `beside` fan 2) `above`
+>              stretch [2,2] (fan 2) `above`
+>              (id 1 `beside` fan 2 `beside` id 1)
+
+|circuit| is a generic circuit that does not tie to any interpretation.
+When interpreting |circuit|, its type needs to be instantiated:
+
+> width (circuit :: Width)                          -- 4
+> depth (circuit :: Depth)                          -- 3
+> gwellSized (circuit :: Compose WellSized Width)   -- True
+
+Note that |circuit| is annotated with the target semantic domain in choosing an appropriate type class instance for interpretation.
+
+We can further \emph{truly} compose interpretations to avoid repeating the construction of |c| for each interpretation:
+
+> circuit' = circuit :: Compose Depth (Compose WellSized Width)
+> gwidth circuit'      -- 4
+> gdepth circuit'      -- 3
+> gwellSized circuit'  -- True
 >
-> width (c :: Width)                          -- 4
-> gwellSized (c :: Compose WellSized Width)   -- True
-
-Note that |c| needs to be annotated with target semantic domain in choosing an appropriate type class instance for interpretation.
+> gdepth :: (Depth :<: c) => c -> Int
+> gdepth = depth . inter
+>
+> instance (Circuit a, Circuit b) => Circuit (Compose a b) where
+>   id n         = (id n, id n)
+>   fan n        = (fan n, fan n)
+>   above c1 c2  = (above (inter c1) (inter c2), above (inter c1) (inter c2))
+>   beside c1 c2 = (beside (inter c1) (inter c2), beside (inter c1) (inter c2))
+>   stretch xs c = (stretch xs (inter c), stretch xs (inter c))
 
 \paragraph{Syntax extensions}
 Type classes also allow us to modularly extend \dsl with more language constructs such as |rstretch|:

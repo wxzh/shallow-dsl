@@ -13,17 +13,17 @@ newtype Width = Width {width :: Int}
 instance Circuit Width where
   id n          =  Width n
   fan n         =  Width n
-  beside c1 c2  =  Width (width c1 + width c2)
   above c1 c2   =  Width (width c1)
+  beside c1 c2  =  Width (width c1 + width c2)
   stretch ns c  =  Width (sum ns)
 
 newtype Depth = Depth {depth :: Int}
 
 instance Circuit Depth where
-  id n           =  Depth n
-  fan n          =  Depth n
-  beside c1 c2   =  Depth (depth c1 + depth c2)
-  above c1 c2    =  Depth (depth c1 `max` depth c2)
+  id n           =  Depth 0
+  fan n          =  Depth 1
+  above c1 c2    =  Depth (depth c1 + depth c2)
+  beside c1 c2   =  Depth (depth c1 `max` depth c2)
   stretch ns c   =  Depth (depth c)
 
 newtype WellSized  = WellSized {wellSized :: Bool}
@@ -69,11 +69,23 @@ gdepth = depth . inter
 gwellSized :: (WellSized :<: e) => e -> Bool
 gwellSized = wellSized . inter
 
-c1 :: Circuit c => c
-c1 = (fan 2 `beside` fan 2) `above`
+circuit :: Circuit c => c
+circuit = (fan 2 `beside` fan 2) `above`
      stretch [2,2] (fan 2) `above`
      (id 1 `beside` fan 2 `beside` id 1)
 
+instance (Circuit i1, Circuit i2) => Circuit (Compose i1 i2) where
+  id n         = (id n, id n)
+  fan n        = (fan n, fan n)
+  above c1 c2  = (above (inter c1) (inter c2), above (inter c1) (inter c2))
+  beside c1 c2 = (beside (inter c1) (inter c2), beside (inter c1) (inter c2))
+  stretch xs c = (stretch xs (inter c), stretch xs (inter c))
 
-v1 = width (c1 :: Width)
-v2 = gwellSized (c1 :: Compose WellSized Width)
+v1 = width (circuit :: Width)
+v2 = depth (circuit :: Depth)
+v3 = gwellSized (circuit :: Compose WellSized Width)
+
+circuit' = circuit :: Compose Depth (Compose WellSized Width)
+u1 = gwidth circuit'
+u2 = gdepth circuit'
+u3 = gwellSized circuit'
