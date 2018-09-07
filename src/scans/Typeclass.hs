@@ -43,8 +43,8 @@ instance (c :<: b) => c :<: (Compose a b) where
   inter = inter . snd
 
 
- instance (Circuit width, Width :<: width) =>
-           Circuit (Compose WellSized width) where
+instance (Circuit width, Width :<: width) =>
+          Circuit (Compose WellSized width) where
    id  n         =  (WellSized True, id n)
    fan n         =  (WellSized True, fan n)
    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
@@ -53,6 +53,12 @@ instance (c :<: b) => c :<: (Compose a b) where
                     ,beside (inter c1) (inter c2))
    stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c)
                     ,stretch ns (inter c))
+
+class Circuit c => ExtendedCircuit c where
+  rstretch :: [Int] -> c -> c
+
+instance ExtendedCircuit Width where
+  rstretch = stretch
 
 gwidth :: (Width :<: e) => e -> Int
 gwidth = width . inter

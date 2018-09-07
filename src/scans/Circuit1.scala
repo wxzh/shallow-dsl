@@ -1,8 +1,10 @@
 package scans
 
+// object interface
 trait Circuit1 {
   def width: Int
 }
+// concrete implementations
 trait Id1 extends Circuit1 {
   val n: Int
   def width = n

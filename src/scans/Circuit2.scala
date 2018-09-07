@@ -1,5 +1,6 @@
 package scans
 
+// extended semantic domain
 trait Circuit2 extends Circuit1 {
   def depth: Int
 }
@@ -10,7 +11,7 @@ trait Fan2 extends Fan1 with Circuit2 {
   def depth = 1
 }
 trait Above2 extends Above1 with Circuit2 {
-  val c1, c2: Circuit2
+  val c1, c2: Circuit2 // type-refinement that allows depth invocations
   def depth = c1.depth + c2.depth
 }
 trait Beside2 extends Beside1 with Circuit2 {

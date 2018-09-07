@@ -18,13 +18,8 @@
 %format [="\!["
 %format ^ = " "
 %format of="of"
-%format += = "\mathrel{+}="
-%format != = "\neq"
-%format ` = "\textquotesingle"
-%format MultiCore = "Multi\text{-}Core"
 
 %%\weixin{Isn't staging transformation?}
-\vspace{-15pt}
 \section{Case study: A shallow EDSL for SQL queries}
 %Performance is critical for realistic DSLs. Transformation
 % AST rewriting vs. staging
@@ -37,31 +32,20 @@ embeddings enable complex transformations over the abstract syntax tree (AST),
 which is useful to implement optimizations that improve the
 performance. An alternative way to obtain performance is to use
 staging frameworks, such as Lightweight Modular Staging (LMS)~\cite{rompf2012lightweight}.
-As illustrated by Rompf and Amin~\shortcite{rompf15} staging can preclude
+As illustrated by Rompf and Amin~\cite{rompf15} staging can preclude
 the need for manual optimizations based on user-defined transformations
 over the AST for a realistic query DSL. To further illustrate the applicability
 of shallow OO embeddings, we refactored Rompf and Amin's deep, external DSL implementation
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 The shallow DSL retains the performance of the original deep DSL.
 
-\begin{comment}
-Representing embedded programs concretely as an AST and equipped with
-pattern matching, deep embeddings greatly simplify AST rewritings.
-Although simple transformations can be simulated with shallow
-embeddings, more complex transformations that require.  more complex
-program transformations decrease the simplicity and modularity of a
-shallow embedding.  Staging, as an alternative approach to performant
-EDSLs, suits better for shallow embeddings.  This section presents a
-shallow EDSL for SQL queries based on staging.
-\end{comment}
-
-%To further illustrate the applicability of shallow OO embeddings,
+% To further illustrate the applicability of shallow OO embeddings,
 %we refactored an existing \emph{deep external} DSL implementation
 %to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 
 \subsection{Overview}
 SQL is the best-known DSL for data queries.
-Rompf and Amin~\shortcite{rompf15} present a SQL query processor implementation in Scala.
+Rompf and Amin~\cite{rompf15} present a SQL query processor implementation in Scala.
 Their implementation is an \emph{external} DSL,
 which first parses a SQL query into a relational algebra AST and then executes the query in terms of that AST.
 %Three backends are provided: a SQL interpreter, a SQL to Scala compiler and a SQL to C compiler.
@@ -73,7 +57,7 @@ But problems arise when the implementation evolves with new language constructs.
 All existing interpretations have to be modified for dealing with these new cases,
 suffering from the Expression Problem.
 
-We refactored Rompf and Amin~\shortcite{rompf15}'s implementation into a shallow EDSL for the following reasons.
+We refactored Rompf and Amin~\cite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 Firstly, multiple interpretations are no longer a problem for our shallow embedding technique.
 Secondly, the original implementation contains no hand-coded transformations over the AST, due to the use of staging.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
@@ -82,7 +66,7 @@ Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{
 To illustrate our shallow EDSL, suppose there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
-> def q0     =  FROM ("talks.csv")
+> def q0 = FROM ("talks.csv")
 
 \noindent Another query that finds all talks at 9 am with their room and title selected is:
 
@@ -139,8 +123,9 @@ For example, we will get the following operator structure for |q1|:
 %%whose meaning will be explained next.
 
 \subsection{A relational algebra compiler}
-A SQL query can be represented by a relational algebra operator.
+A SQL query can be represented by a relational algebra expression.
 The basic interface of operators is modeled as follows:
+
 > trait Operator {
 >   def resultSchema: Schema
 >   def execOp(yld: Record => Unit): Unit
@@ -171,24 +156,13 @@ it takes a callback |yld| and accumulates what the operator does to records into
 >   def resultSchema = op.resultSchema
 >   def execOp(yld: Record => Unit) = op.execOp {rec => if (pred.eval(rec)) yld(rec)}
 > }
+
+
 |Project| rearranges the fields of a record;
 |Join| matches a record against another and combines the two records if their common fields share the same values;
 |Filter| keeps a record only when it meets a certain predicate.
 There are also two utility operators, |Print| and |Scan|, for processing inputs and outputs, whose definitions are omitted for space reasons.
 
-%By calling |execOp| on an operator, we execute a query
-%To actually run a query, we call the  method.
-%For example, the execution result of |q1| is:
-%
-%< scala > q1.exec
-%< New York Central,Erlang 101 - Actor and MultiCore Programming
-%< ...
-%
-%\noindent where the room and title of the first item from |talks.csv| is printed.
-
-% TODO: Generate to different targets as new interpretations
-
-\vspace{-4pt}
 \paragraph{From an interpreter to a compiler}
 The query processor presented so far is elegant but unfortunately slow.
 To achieve better performance, Rompf and Amin extend the SQL processor in various ways.
@@ -204,12 +178,11 @@ By using the technique presented in Section~\ref{sec:interp}, they are added mod
 The implementation of staged |execOp| is similar to the unstaged counterpart except for minor API differences between staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
-\vspace{-4pt}
 \paragraph{Language extensions}
 Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
 Differently from the original implementation, the introduction of these constructs is done in a modular manner with our approach:
 
-\begin{spec}
+\begin{code}
 trait Group extends Operator {
   val keys, agg: Schema; val op: Operator
   def resultSchema = keys ++ agg
@@ -225,27 +198,26 @@ trait HashJoin extends Join {
       hm(rec2(keys)) foreach { rec1 =>
         yld(Record(rec1.fields ++ rec2.fields, rec1.schema ++ rec2.schema)) }}}
 }
-\end{spec}
+\end{code}
 
 \noindent |Group| supports SQL's |group by| clause, which partitions records and sums up specified fields from the composed operator.
-|HashJoin| is a replacement for |Join|, which uses an hash-based implementation instead of naive nested loops. With inheritance and method overriding, we are able to reuse the field declarations and other interpretations from |Join|.
+|HashJoin| is a replacement for |Join|, which uses a hash-based implementation instead of naive nested loops. With inheritance and method overriding, we are able to reuse the field declarations and other interpretations from |Join|.
 
 \subsection{Evaluation}
-\begin{wraptable}{r}{.595\textwidth}
-\vspace{-15pt}
+\begin{table}
+\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
 \begin{tabular}{lccc}
- \text{Source}  & \text{Functionality}  & \text{Deep } & \text{ Shallow}\\
-\hline
+ \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep } & \textbf{ Shallow}\\
+\toprule
 \emph{query_unstaged} & SQL interpreter        & 83   & 98 \\
 \emph{query_staged} & SQL to Scala compiler  & 179  & 194 \\
 \emph{query_optc} & SQL to C compiler        & 245  & 262 \\
-\hline
+\bottomrule
 \end{tabular}
-\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
 \label{sloc}
-\end{wraptable}
+\end{table}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
 Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
 the interpretations are considered (code related to surface syntax is excluded).
-As seen in Table~\ref{sloc}, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.
+As seen in \autoref{sloc}, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.

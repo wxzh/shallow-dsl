@@ -1,9 +1,11 @@
-\documentclass{jfp1}
+\documentclass[english,submission]{programming}
 
+\usepackage{mathtools}
 \usepackage{caption}
 \usepackage{wrapfig}
 \usepackage{xspace}
 \usepackage{xypic}
+\usepackage{hyperref}
 %\usepackage{amsmath}
 \usepackage{url}
 \usepackage{syntax}
@@ -17,6 +19,10 @@
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
+\renewcommand*{\sectionautorefname}{Section}
+% for code that uses string literal in lhs2TeX
+\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\texttt}
+
 \let\oldpar\paragraph
 \renewcommand{\paragraph}[1]{\vspace{-7pt}\oldpar{#1}}
 %\let\oldsec\section
@@ -27,20 +33,34 @@
 %% for comments
 \input{Preamble}
 
-%% Bibliography style
-\bibliographystyle{jfp}
-
 % Document starts
 \begin{document}
 
 % Title portion
-\title{Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality}
+\title{Shallow EDSLs and Object-Oriented Programming}
+\subtitle{Beyond Simple Compositionality}
 
-\author[W. Zhang and B. Oliveira]
-        {WEIXIN ZHANG and BRUNO C. D. S. OLIVEIRA\\
-         The University of Hong Kong, Hong Kong}
+\author[a]{Weixin Zhang}
+\author[a]{Bruno C. d. S. Oliveira}
+\affiliation[a]{The University of Hong Kong, Hong Kong, China}
+%\author[W. Zhang and B. Oliveira]
+%        {WEIXIN ZHANG and BRUNO C. D. S. OLIVEIRA\\
+%         The University of Hong Kong, Hong Kong}
 
-\maketitle[f]
+\paperdetails{
+  %% perspective options are: art, sciencetheoretical, scienceempirical, engineering.
+  %% Choose exactly the one that best describes this work. (see 2.1)
+  perspective=art,
+  %% State one or more areas, separated by a comma. (see 2.2)
+  %% Please see list of areas in http://programming-journal.org/cfp/
+  %% The list is open-ended, so use other areas if yours is/are not listed.
+  area={Domain-Specific Languages, Modularity and separation of concerns},
+  %% You may choose the license for your paper (see 3.)
+  %% License options include: cc-by (default), cc-by-nc
+  % license=cc-by,
+}
+
+\maketitle
 
 \begin{abstract}
 Shallow embedded domain-specific languages (EDSLs) use
@@ -67,6 +87,8 @@ more modular, shallow, and embedded.
 
 \input{sections/Interpretations}
 
+\input{sections/TypeClass}
+
 \input{sections/Factory}
 
 \input{sections/Casestudy}
@@ -76,7 +98,6 @@ more modular, shallow, and embedded.
 % Bibliography
 %\renewcommand{\section}[1]{\oldsec{#1}}
 
-\vspace{-7pt}
 \bibliography{Main}
 
 % History dates
