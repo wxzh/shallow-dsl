@@ -18,11 +18,11 @@ abstract syntax.
 
 The trade-offs between shallow and deep embeddings have been widely
 discussed~\cite{svenningsson2012combining,yinyang}: deep embeddings
-enable tranformations on the abstract syntax, and multiple
+enable tranformations on the abstract syntax tree (AST), and multiple
 interpretations are easy to implement; shallow-embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
-multiple interpretations and transformations in shallow embeddings.
+multiple interpretations and AST transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means

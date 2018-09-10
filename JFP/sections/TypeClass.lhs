@@ -22,7 +22,7 @@ Here is the type class defined for \dsl:
 >   stretch  ::  [Int] -> c -> c
 
 The signatures are the same as what \autoref{subsec:shallow} shows except that the semantic domain is captured by a type parameter |c|.
-Interpretations such as |width| are then defined as instances of |Scans|:
+Interpretations such as |width| are then defined as instances of |Circuit|:
 
 
 > newtype Width = Width {width :: Int}
@@ -89,9 +89,10 @@ Now, defining |wellSized| modularly becomes possible:
 > gwellSized = wellSized . inter
 
 Essentially, dependent interpretations are still defined using tuples.
-The dependency on |width| is expressed by constraining the type parameter as |Width :<: c|. Such dependency is not hard-wired to any concrete implementation of |width|.
+The dependency on |width| is expressed by constraining the type parameter as |Width :<: c|.
+% Nevertheless, such dependency is not hard-wired to any concrete implementation of |width|.
 The implementation is modular but requires some boilerplate.
-The reuse of |width| is achieved via delegatation, where |inter| needs to be called on each subcircuit. Also, auxiliary definitions |gwidth| and |gwellSized| are necessary for projecting the desired interpretations from the constrained type parameter.
+The reuse of |width| interpretation is achieved via delegatation, where |inter| needs to be called on each subcircuit. Also, auxiliary definitions |gwidth| and |gwellSized| are necessary for projecting the desired interpretations from the constrained type parameter.
 
 \paragraph{Modular terms}
 As new interpretations may be added later, a problem is how to construct the term that can be interpreted by those new interpretations without reconstruction.

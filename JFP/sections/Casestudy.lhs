@@ -28,13 +28,13 @@
 %another important reason to prefer deep embeddings over shallow embeddings.
 
 A common motivation for using deep embeddings is performance. Deep
-embeddings enable complex transformations over the abstract syntax tree (AST),
+embeddings enable complex AST transformations,
 which is useful to implement optimizations that improve the
 performance. An alternative way to obtain performance is to use
 staging frameworks, such as Lightweight Modular Staging (LMS)~\cite{rompf2012lightweight}.
 As illustrated by Rompf and Amin~\cite{rompf15} staging can preclude
-the need for manual optimizations based on user-defined transformations
-over the AST for a realistic query DSL. To further illustrate the applicability
+the need for AST transformations for a realistic query DSL.
+To further illustrate the applicability
 of shallow OO embeddings, we refactored Rompf and Amin's deep, external DSL implementation
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
 The shallow DSL retains the performance of the original deep DSL.
@@ -59,7 +59,7 @@ suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\cite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 Firstly, multiple interpretations are no longer a problem for our shallow embedding technique.
-Secondly, the original implementation contains no hand-coded transformations over the AST, due to the use of staging.
+Secondly, the original implementation contains no hand-coded AST transformations, due to the use of staging.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
@@ -218,6 +218,6 @@ trait HashJoin extends Join {
 \end{table}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.
 Both implementations of the DSL (the original and our refactored version) \emph{generate the same code}: thus the performance of the two implementations is similar.
-Hence we compare the two implementations only in terms of the source lines of code (SLOC). To make the comparison fair, only the code for
-the interpretations are considered (code related to surface syntax is excluded).
-As seen in \autoref{sloc}, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala.
+Hence we compare the two implementations only in terms of the source lines of code (SLOC).
+We exclude the code related to surface syntax for the fairness of comparison because our refactored version uses embedded syntax whereas the original uses a parser.
+As seen in \autoref{sloc}, our shallow approach takes a dozen more lines of code than the original deep approach for each version of SQL processor. The SLOC expansion is attributed to the fact that functional decomposition (case classes) is more compact than object-oriented decomposition in Scala. Nevertheless, our shallow approach makes it easier to add new language constructs.

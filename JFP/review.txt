@@ -208,12 +208,16 @@ DONE
   operation was also unclear from the text (but became clear after seeing the
   implementation).
 
+DONE
+
 - Section 2.2, Toward OOP: I think "semantics preserving rewriting" is the
   wrong term here. Maybe "isomorphic encoding"?
 
 DONE
 
 - Section 3: See discussion above.
+
+DONE
 
 - Section 5.3: "represented by a relational algebra operator" -> "represented
   by a relational algebra expresion".
@@ -226,6 +230,7 @@ DONE
   being excluded would be helpful here. You should also remind in this section
   the benefits that come with the slight increase in SLOC.
 
+DONE
 
 #+BEGIN_SRC haskell
 module FinallyTagless where
@@ -374,6 +379,8 @@ not clear, because staging is kind of a transformation and kind of
 manual and hand-coded.  Please draw a firm distinction in terminology
 and concept, which would also strengthen your conclusion about "AST
 transformations" that is the last sentence of the paper.
+
+- DONE
 
 p2 "widely discussed by Cook" is weird: What does it mean for a person
 to "widely" discuss a topic?

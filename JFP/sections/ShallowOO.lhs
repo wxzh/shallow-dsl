@@ -16,24 +16,40 @@ Then translating the program into a functional OOP language like Scala becomes s
 %However the code can be adapted to any OOP language that supports subtyping,
 %mulinheritance and type-refinements.
 
+
+
 \setlength{\grammarindent}{5em} % increase separation between LHS/RHS
 \begin{figure}
 \begin{grammar}
  <circuit> $\Coloneqq$ `id' <positive-number>
  \alt `fan' <positive-number>
- \alt `beside' <circuit> <circuit>
- \alt `above' <circuit> <circuit>
+ \alt <circuit> `beside' <circuit>
+ \alt <circuit> `above' <circuit>
  \alt `stretch' <positive-numbers> <circuit>
+ \alt `(' <circuit> `)'
 \end{grammar}
 \caption{The grammar of \dsl}
   \label{grammar}
 \end{figure}
 
 \begin{figure}
-  \includegraphics[width=.3\textwidth]{circuit}
+\begin{minipage}{.3\textwidth}
+  \includegraphics[width=.8\textwidth]{circuit}
+\end{minipage}
+%
+\begin{minipage}{.5\textwidth}
+$$
+\begin{array}{l}
+(\texttt{fan}\ 2\ \texttt{beside}\ \texttt{fan}\ 2)\ \texttt{above}\\
+(\texttt{stretch}\ 2\ 2\ \texttt{fan}\ 2)\ \texttt{above}\\
+(\texttt{id}\ 1\ \texttt{beside}\ \texttt{fan}\ 2\ \texttt{beside}\ \texttt{id}\ 1)
+\end{array}
+$$
+\end{minipage}
   \caption{The Brent-Kung circuit of width 4}
   \label{fig:circuit}
 \end{figure}
+
 \subsection{\dsl: A DSL for parallel prefix circuits}\label{sec:sig}
 %format @ = "\bullet"
 %format x1
@@ -47,9 +63,9 @@ The grammar of \dsl is given in \autoref{grammar}.
 (|id| and |fan|) and three combinators (|beside|, |above| and |stretch|).
 Their meanings are: |id n| contains |n| parallel wires;
 |fan n| has |n| parallel wires with the leftmost wire connected to
-all other wires from top to bottom; |beside c1 c2| joins two circuits
-|c1| and |c2| horizontally; |above c1 c2| combines two circuits of the same width vertically;
-|stretch ns c| inserts wires into the circuit |c| by summing up |ns|.
+all other wires from top to bottom; |c1 beside c2| joins two circuits
+|c1| and |c2| horizontally; |c1 above c2| combines two circuits of the same width vertically;
+|stretch ns c| inserts wires into the circuit |c|, where the $i^{th}$ wire of |c| is stretched to a position of $ns_1 + ... + ns_i$, resulting a new circuit of width by summing up |ns|.
 \autoref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The structure of this circuit is explained as follows.
 The whole circuit is vertically composed by three sub-circuits:
@@ -171,7 +187,7 @@ trait Stretch1 extends Circuit1 {
 \noindent The idea is to map 
 Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
-Object interfaces make the connection to procedural abstraction clear: 
+Object interfaces make the connection to procedural abstraction clear:
 data is modeled by the operations that can be performed over it.
 Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
 

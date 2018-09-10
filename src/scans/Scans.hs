@@ -58,34 +58,3 @@ layout =  snd
 
 rstretch        ::  [Int] -> Circuit4 -> Circuit4
 rstretch  ns c  =   stretch4 (1 : init ns) c `beside4` id4 (last ns - 1)
-
-class Scans circuit where
-  idF       ::  Int -> circuit
-  fanF      ::  Int -> circuit
-  aboveF    ::  circuit -> circuit -> circuit
-  besideF   ::  circuit -> circuit -> circuit
-  stretchF  ::  [Int] -> circuit -> circuit
-
-instance Scans Circuit1 where
-  idF = id1
-  fanF = fan1
-  besideF = beside1
-  aboveF = above1
-  stretchF = stretch1
-
- {-
-newtype Depth = Depth {depth::Int}
-instance Scans Depth where
-  idF = id1
-  fanF = fan1
-  besideF = beside1
-  aboveF = above1
-  stretchF = stretch1
--}
-
--- generic term
-c  ::  Scans circuit => circuit
-c  =   ( fanF 2 `besideF` fanF 2) `aboveF`
-       stretchF [2,2] (fanF 2) `aboveF` (idF 1 `besideF` fanF 2 `besideF` idF 1)
-
-w2 = width1 (c2 :: Circuit1)
