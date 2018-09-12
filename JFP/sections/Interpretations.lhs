@@ -1,11 +1,10 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
-\vspace{-7pt}
 \section{Multiple interpretations in shallow embeddings}\label{sec:interp}
 
 An often stated limitation of shallow embeddings is that multiple 
-interpretations are difficult. Gibbons and Wu~\shortcite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
+interpretations are difficult. Gibbons and Wu~\cite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
 the original code, and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined using standard OOP mechanisms, and compares the result with Gibbons and Wu's Haskell implementations.
 
@@ -15,7 +14,7 @@ For example, besides |width|, we may want to have another interpretation
 that calculates the depth of a circuit in \dsl.
 
 \paragraph{Multiple interpretations in Haskell}
-Here is Gibbons and Wu~\shortcite{gibbons2014folding}'s solution:
+Here is Gibbons and Wu~\cite{gibbons2014folding}'s solution:
 
 %format Circuit2
 %format id2
@@ -149,7 +148,7 @@ Interpretations may rely on some context.
 Consider an interpretation that simplifies the representation of a circuit.
 A circuit can be divided horizontally into layers.
 Each layer can be represented as a sequence of pairs $(i,j)$, denoting the connection from wire $i$ to wire $j$.
-For instance, the circuit shown in Fig.~\ref{fig:circuit} has the following layout:
+For instance, the circuit shown in \autoref{fig:circuit} has the following layout:
 
 > [[(0,1), (2,3)], [(1,3)], [(1,2)]]
 
@@ -302,6 +301,7 @@ Inheritance and method overriding enable partial reuse of an existing language c
 which is particularly useful for defining specialized constructs.
 However, such partial reuse is hard to achieve in Haskell.
 
+
 \subsection{Discussion}
 Gibbons and Wu claim that in shallow embeddings new language
 constructs are easy to add, but new interpretations are hard.
@@ -320,19 +320,17 @@ simple compositionality.
 OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction.
 
+\begin{comment}
 Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems.
 In their paper Gibbons and Wu show how to support modular |depth| and |width| 
-(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. This is possible because |depth| and |width| are 
+(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. This is possible because |depth| and |width| are
 non-dependent.
 However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
 Such dependent interpretations would still require a cumbersome  
 encoding via tuples even with the Finally Tagless approach.
-\begin{comment}
-For example, Carette  deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
-More importantly, dependent interpretations (Section~\ref{sec:dependent}) remain non-modular because an encoding via tuples is still needed. 
-\end{comment}
 In contrast,
 the Scala version is straightforward using OOP mechanisms, it uses only simple types, and dependent
 interpretations are not a problem.
+\end{comment}

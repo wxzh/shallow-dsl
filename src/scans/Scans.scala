@@ -5,7 +5,7 @@ import Circuit4._
 object Scans {
 
 {
-def id(x: Int)                        =  new Id1  {val n=x}
+def id(x: Int)                        =  new Id1        {val n=x}
 def fan(x: Int)                       =  new Fan1       {val n=x}
 def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
 def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
