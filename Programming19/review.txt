@@ -1,523 +1,523 @@
-Referee: 1
-
-Comments to the Author
-Synopsis
-
-This pearl compares two approaches to embedding domain specific
-languages: a shallow embedding in Scala using the authors' previous
-work (The Expression Problem, Trivially!) and a shallow embedding
-originally presented by Gibbons and Wu, taken from a paper on scans by
-Hinze. The paper argues that "the resulting Scala version has
-advantages over the Haskell version due to the use of subtyping,
-inheritance, and type refinement." A larger case study in the second
-part of the paper sketches how to modify an existing deeply embedded
-EDSL in Scala using the authors' proposed techniques.
-
-Review
-
-Firstly, I would not really consider this to be a functional pearl --
-an 'elegant, instructive examples of functional programming'. The meat
-of the paper -- the Scala approach for combining interpretations of
-shallow DSLs -- relies heavily on OO language features (traits &
-inheritance), rather than an instructive usage of functional features.
-
-The paper claims that the Scala version is more modular/expressive
-than the Haskell version of the DSL. Similar modularity can also be
-achieved in Haskell easily enough, without using many of the OO
-features (subtyping, inheritance, type refinement) claimed to be
-essential for the development. Choosing this particular style of
-shallow embedding in Haskell is a strawman: it will not be as
-extensible/modular as the Scala development -- but drawing any kind of
-wider conclusions about the necessity of language features leads to
-misleading conclusions such as "OOP increases the modularity of
-shallow DSLs". I've included a proof of concept below, sketching how
-to implement dependent and modular interpretations using Haskell in
-the finally tagless style, without using any of the OO features used
-in the Scala solution.
-
-I'm a bit unsure about the main aim of the paper. If it aims to
-illustrate the authors' OO approach to embedded DSLs, it really should
-hardly mention Haskell at all (and I don't think it would qualify as a
-*functional* pearl). If it aims to compare different approaches to
-embedded DSLs, it should be more thorough and fair when considering
-different design alternatives -- and consider alternatives beyond the
-two approaches mentioned in the paper already.
-
-I found that the case study (Section 5) on SQL did not add much. The
-earlier sections spend quite some time discussing the Scala approach
-to EDSLs -- why go through the motions and apply these techniques in
-yet another example? The novel aspects compared to the previous
-example -- such as staging using LMS or the embedded syntax -- are
-only mentioned in passing.
-
-All in all, I can see this turn into a very nice paper comparing
-different techniques for embedded DSLs across different languages,
-evaluating the language features necessary to use these techniques,
-and comparing their relative merits. At the moment, however, I feel
-the paper is unfairly dismissive of Haskell, favoring the OO based
-Scala approach -- without even trying to achieve the same results in a
-functional style. This makes it unsuitable as a functional pearl in
-its current incarnation.
-
---- Haskell proof of concept
-
-{-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
-
-class Circuit a where
- id :: Int -> a
- fan :: Int -> a
- besides :: a -> a -> a
- above :: a -> a -> a
- stretch :: [Int] -> a -> a
-
--- A trivial semantics
-instance Circuit () where
- id n = ()
- fan n = ()
- besides _ _ = ()
- above c _ = ()
- stretch ns _ = ()
-
--- Defining a new semantics
-newtype Width = W Int deriving (Show, Eq)
-
-instance Circuit a => Circuit (Width,a) where
- id n = (W n, Main.id n)
- fan n = (W n, Main.id n)
- besides (W c1, x) (W c2, y) = (W (c1 + c2), besides x y)
- above (W c1, x) (W c2, y) = (W c1, above x y)
- stretch ns (W c, x) = (W (sum ns), stretch ns x)
-
--- Some machinery to work with tuples -- could be replaced by HLists,
--- lenses, etc.
-class Lookup a b where
- prj :: b -> a
-
-instance {-# OVERLAPPING #-} Lookup a (a,b) where
- prj = fst
-
-instance {-# OVERLAPPING #-} Lookup a b => Lookup a (c,b) where
- prj = prj . snd
-
--- An example dependent interpretation
-
-newtype WF = WF Bool deriving (Show, Eq)
-
-instance (Circuit a, Lookup Width a) => Circuit (WF,a) where
- id n = (WF True, Main.id n)
- fan n = (WF True, Main.fan n)
- above (WF c1,x) (WF c2,y) =
-   let checkWidth :: Width -> Width -> Bool
-       checkWidth = (==)
-   in
-   (WF (c1 && c2 && checkWidth (prj x) (prj y))
-                             , above x y)
- besides (WF c1, x) (WF c2, y) = (WF (c1 && c2), besides x y)
- stretch ns (WF n, x) = (WF (W (length ns) == prj x), stretch ns x)
-
--- Putting it all together
-type C = (WF, (Width, ()))
-
-c :: C
-c = Main.id 3  `besides` Main.id 2
-
-
-Referee: 2
-
-Comments to the Author
-
-This pearl illustrates the relationship of object-oriented programming to the
-shallow-embedding (a.k.a. final encoding or combinator library) technique for
-implementing DSLs. In particular, it connects Gibbons and Wu's observation that
-shallow embeddings are a form of procedural abstraction, and Cook's argument
-that procedural abstraction is the essence of object-oriented programming.
-
-The paper then reimplements the majority of Gibbon and Wu's 2014 paper (on the
-relationship of deep and shallow embeddings and folds) in Scala, illustrating
-how object-oriented features make the shallow DSL implementation more modularly
-extensible than a naive shallow embedding in a functional language.
-
-Finally, the paper provides a second illustration of the object-oriented
-shallow embedding technique by translating an existing deeply embedded Scala
-DSL for compiling SQL queries into a shallowly embedded DSL.
-
-Overall, I found this paper quite interesting and a useful perspective on both
-DSL encodings and the expression problem. This paper is perfect for the pearl
-format. It does not present any major new technical achievements, but it is a
-fun, example-driven illustration of some insightful observations about the
-relationships of DSLs, OOP, and FP. It also provides immediately useful
-examples of the authors' technique for shallowly embedding DSLs in an OOP
-language with mixin composition.
-
-I do think there are some significant issues to address in revision, however.
-
-My main complaint is that I think the comparison in Section 3 between the Scala
-encoding and the naive shallow embedding is too simplistic and does not clearly
-relate the advantages of the Scala encoding to its language features. The crux
-of the argument is that OOP makes the Scala encoding more modularly extensible,
-and the paper attributes this to "inheritance, subtyping, and type refinement".
-However, a modularly extensible encoding is also possible in Haskell or ML,
-neither of which have these three features.
-
-I think there are two interconnected problems with the comparison: The first is
-that it compares the Scala encoding only with the naive shallow embedding. The
-second is that it is too vague about *why* the Scala encoding is more extensible.
-
-The paper claims that a shallow embedding in Haskell cannot be modularly
-extended by (1) new interpretations, (2) by dependent interpretations, or (3)
-by context-sensitive interpretations. Points (1) and (2) are nicely illustrated
-(for a naive embedding) by the example. Point (3) is actually not supported by
-the example since the non-modularity is caused by the dependency on a previous
-implementation (i.e. it's the same problem as (2)), not by context sensitivity.
-
-However, a finally tagless encoding can be modularly extended by all three new
-interpretations. The key feature that makes this possible is overloading, which
-can be achieved by type classes or explicit dictionary passing. I included a
-finally tagless implementation of the running example at the end of this
-review. Note that although the dependent interpretation does require some
-boilerplate (both interpretations are still constructed in parallel), it reuses
-the logic of the original implementation and so is modular.
-
-The paper does briefly discuss the finally tagless encoding in Section 3.5, but
-I think it must do this in more depth, either by embedding this comparison
-throughout Section 3, or by simply expanding Section 3.5. This would make the
-comparison more honest and also force a more precise ascription of the benefits
-of the Scala encoding to the language's features. For example, type
-refinement/mixin composition isn't what makes modular extensibility *possible* in
-the Scala encoding, but it is the key to *avoiding the boilerplate* required by
-the finally tagless encoding.
-
-A related question I had throughout is the relationship of this encoding to
-object algebras. Is this essentially just the object algebra pattern
-implemented in a very clean and simple way thanks to Scala's mixin composition?
-If so, it would be helpful to state this explicitly.
-
-I think that with a more direct comparison to the finally tagless encoding, and
-a more precise account of how Scala's OOP features support the encoding
-described in this paper, this will be very nice function pearl.
-
-
-Detailed comments:
-
-- Section 1: "widely discussed by Cook" -> "discussed in depth by Cook"
-
-DONE
-
-- Section 2.1: I think it would help to show the example program directly
-  in the concrete syntax of the SCANS. The explanation of the stretch
-  operation was also unclear from the text (but became clear after seeing the
-  implementation).
-
-DONE
-
-- Section 2.2, Toward OOP: I think "semantics preserving rewriting" is the
-  wrong term here. Maybe "isomorphic encoding"?
-
-DONE
-
-- Section 3: See discussion above.
-
-DONE
-
-- Section 5.3: "represented by a relational algebra operator" -> "represented
-  by a relational algebra expresion".
-
-DONE
-
-- Section 5.4: I don't really understand the rationale for excluding SLOC
-  related to syntax. Is this essentially just excluding code related to
-  parsing (which seems reasonable)? A bit more explanation of what exactly is
-  being excluded would be helpful here. You should also remind in this section
-  the benefits that come with the slight increase in SLOC.
-
-DONE
-
-#+BEGIN_SRC haskell
-module FinallyTagless where
-
-import Prelude hiding (id)
-
-
--- * Syntax of circuits
-
-class Circuit c where
- id      :: Int -> c
- fan     :: Int -> c
- above   :: c -> c -> c
- beside  :: c -> c -> c
- stretch :: [Int] -> c -> c
-
-brentKung4 :: Circuit c => c
-brentKung4 =
- above (beside (fan 2) (fan 2))
-       (above (stretch [2,2] (fan 2))
-              (beside (beside (id 1) (fan 2)) (id 1)))
-
-
--- * Initial interpretation
-
-newtype Width = Width { width :: Int }
- deriving (Eq,Show)
-
-instance Circuit Width where
- id n         = Width n
- fan n        = Width n
- above c1 _   = Width (width c1)
- beside c1 c2 = Width (width c1 + width c2)
- stretch ns _ = Width (sum ns)
-
-
--- * Modular extension by new interpretation
-
-newtype Depth = Depth { depth :: Int }
-
-instance Circuit Depth where
- id _         = Depth 0
- fan _        = Depth 1
- above c1 c2  = Depth (depth c1 + depth c2)
- beside c1 c2 = Depth (depth c1 `max` depth c2)
- stretch _ c  = Depth (depth c)
-
-
--- * Modular extension by dependent interpretation
-
-data WellSized = WellSized { width' :: Width, wellSized :: Bool }
-
-instance Circuit WellSized where
- id n         = WellSized (id n) True
- fan n        = WellSized (fan n) True
- above c1 c2  = WellSized (above w1 w2)
-                          (wellSized c1 && wellSized c2 && w1 == w2)
-                  where w1 = width' c1
-                        w2 = width' c2
- beside c1 c2 = WellSized (beside w1 w2)
-                          (wellSized c1 && wellSized c2)
-                  where w1 = width' c1
-                        w2 = width' c2
- stretch ns c = WellSized (stretch ns w)
-                          (wellSized c && length ns == width w)
-                  where w = width' c
-
-
--- * Modular extension by dependent, context-sensitive interpretation
-
-type LayoutDomain = (Int -> Int) -> [[(Int,Int)]]
-
-data Layout = Layout { width'' :: Width, layout :: LayoutDomain }
-
-instance Circuit Layout where
- id n         = Layout (id n) (const [])
- fan n        = Layout (fan n) (\f -> [[(f 0, f i) | i <- [1..n-1]]])
- above c1 c2  = Layout (above w1 w2) (\f -> layout c1 f ++ layout c2 f)
-                  where w1 = width'' c1
-                        w2 = width'' c2
- beside c1 c2 = Layout (beside w1 w2)
-                       (\f -> lzw (++) (layout c1 f)
-                                       (layout c2 (f . (width w1 +))))
-                  where w1 = width'' c1
-                        w2 = width'' c2
- stretch ns c = Layout (stretch ns w)
-                       (\f -> layout c (f . pred . (scanl1 (+) ns !!)))
-                  where w = width'' c
-
-lzw :: (a -> a -> a) -> [a] -> [a] -> [a]
-lzw _ [] ys = ys
-lzw _ xs [] = xs
-lzw f (x:xs) (y:ys) = f x y : lzw f xs ys
-#+END_SRC
-
-
-Referee: 3
-
-Comments to the Author
-
-This paper "debunks the belief that multiple interpretations [of the
-same embedded domain-specific language (DSL)] are hard to model with
-shallow embeddings".  It demonstrates ease by using object-oriented
-features -- namely inheritance, subtyping, and type refinement in Scala
--- to rework two examples from the literature and reconcile shallow
-embedding with modularity.
-
-I like this paper's thesis and organization, and it makes a point that
-needs to be published.  But the point is muddled by two issues that must
-and can be addressed in the presentation.
-
-The first issue is that it's not clear who harbors the belief that
-this paper debunks.  Please explicitly cite some claims that "multiple
-interpretations are hard to model with shallow embeddings".
-
-The second issue is that there is no need to switch from Haskell to
-Scala to carry out the object-oriented, modular, and shallow embedding
-explained in the paper.  All it takes is to define not "type Circuit2 =
-(Int, Int)" but rather "type Circuit2 = (Circuit1, Int)", and change the
-definitions of id2, fan2, etc. to invoke id1, fan1, etc. accordingly.
-This works for dependent and context-sensitive interpretations too; I
-enclose the code, including refuting that "such partial reuse is hard to
-achieve in Haskell" in Section 3.4.  Thus, all of Section 3 should show
-modularity achieved in Haskell, to clarify the paper's point and to ease
-comparison.  Although the Scala example in Section 5 is convincing, I
-find the Scala code in Section 3 more concerning than clarifying: is the
-Scala embedding really shallow rather than deep, given that syntactic
-subcircuits "are captured as fields" and remain accessible to code?
-
-It would be nice if this paper could discuss whether its conclusions
-are still valid in the presence of binding constructs in the embedded
-language.  (If they are, does it matter how binding is represented
-(e.g., de Bruijn vs names vs HOAS)?)
-
-Other comments:
-
-Sections 4, 3.4, and even 3.3 seem to merely translate what we already
-know in the literature from Haskell to Scala, so they seem superfluous
-and should be removed or abbreviated.  I do appreciate that p14 points
-out "Very much like the interpretation 'layout' discussed in Section
-3.3" though.
-
-On p12, the distinction between staging on the one hand and "manual
-optimizations" or "hand-coded transformations" on the other hand is
-not clear, because staging is kind of a transformation and kind of
-manual and hand-coded.  Please draw a firm distinction in terminology
-and concept, which would also strengthen your conclusion about "AST
-transformations" that is the last sentence of the paper.
-
-- DONE
-
-p2 "widely discussed by Cook" is weird: What does it mean for a person
-to "widely" discuss a topic?
-
-- DONE
-
-p4 "get the width right after" -> "get the width immediately after" to
-avoid ambiguity with the phrase "get the width right" meaning "get the
-correct width"
-
-- DONE
-
-Please order "beside" and "above" consistently throughout.  Currently on
-p4 "beside" comes first and on p5 "above" comes first.
-
-- DONE
-
-p14 "yld(Record(rec(in),out))" seems to delegate the work of Project to
-a Record constructor, so it seems uninformative to show the code for
-trait Project.
-
----
-
-{-# LANGUAGE MultiParamTypeClasses, TypeOperators #-}
-{-# OPTIONS -Wall #-}
-
-class Factory c where
- ident    :: Int -> c
- fan      :: Int -> c
- above    :: c -> c -> c
- beside   :: c -> c -> c
- stretch  :: [Int] -> c -> c
-
-class Factory c => ExtendedFactory c where
- rstretch :: [Int] -> c -> c
-
-class Extends c2 c1 where
- base :: c2 -> c1
-
-newtype Circuit1 = Circuit1 { width :: Int } deriving Show
-instance Factory Circuit1 where
- ident n       = Circuit1 n
- fan n         = Circuit1 n
- above  c1 _c2 = Circuit1 (width c1)
- beside c1 c2  = Circuit1 (width c1 + width c2)
- stretch ns _c = Circuit1 (sum ns)
-
-data Circuit2 = Circuit2 { circuit12 :: Circuit1
-                        , depth :: Int } deriving Show
-instance Circuit2 `Extends` Circuit1 where base = circuit12
-instance Factory Circuit2 where
- ident n      = Circuit2 (ident n) 0
- fan n        = Circuit2 (fan n) 1
- above c1 c2  = Circuit2 (above (base c1) (base c2))
-                         (depth c1 + depth c2)
- beside c1 c2 = Circuit2 (beside (base c1) (base c2))
-                         (depth c1 `max` depth c2)
- stretch ns c = Circuit2 (stretch ns (base c)) (depth c)
-
-data Circuit3 = Circuit3 { circuit13 :: Circuit1
-                        , wellSized :: Bool } deriving Show
-instance Circuit3 `Extends` Circuit1 where base = circuit13
-instance Factory Circuit3 where
- ident n      = Circuit3 (ident n) True
- fan n        = Circuit3 (fan n) True
- above c1 c2  = Circuit3 (above (base c1) (base c2))
-                         (wellSized c1 && wellSized c2 &&
-                          width (base c1) == width (base c2))
- beside c1 c2 = Circuit3 (beside (base c1) (base c2))
-                         (wellSized c1 && wellSized c2)
- stretch ns c = Circuit3 (stretch ns (base c))
-                         (wellSized c && length ns == width (base c))
-
-data Circuit4 = Circuit4 { circuit14 :: Circuit1
-                        , layout :: (Int -> Int) -> [[(Int, Int)]] }
-instance Circuit4 `Extends` Circuit1 where base = circuit14
-instance Factory Circuit4 where
- ident n      = Circuit4 (ident n) (\_f -> [])
- fan n        = Circuit4 (fan n) (\f -> [[(f 0, f j) | j <- [1..n-1]]])
- above c1 c2  = Circuit4 (above (base c1) (base c2))
-                         (\f -> layout c1 f ++ layout c2 f)
- beside c1 c2 = Circuit4 (beside (base c1) (base c2))
-                         (\f -> lzw (++)
-                                  (layout c1 f)
-                                  (layout c2 (f . (width (base c1) +))))
- stretch ns c = Circuit4 (stretch ns (base c))
-                         (\f -> layout c (f . pred . (scanl1 (+) ns !!)))
-instance ExtendedFactory Circuit4 where
- rstretch ns c = (stretch ns c) { layout = \f ->
-                 layout c (f . (scanl (+) (last ns - 1) ns !!)) }
-
-lzw :: (a -> a -> a) -> [a] -> [a] -> [a]
-lzw _ [] ys         = ys
-lzw _ xs []         = xs
-lzw f (x:xs) (y:ys) = f x y : lzw f xs ys
-
-{- If we had defined these interpretations using algebras,
-  then the boilerplate that is the similarity among Circuit2,
-  Circuit3, and Circuit4 would be reduced to "fmap base". -}
-
-Editor comment
-
-I like the idea of the paper but not its execution. My main gripe is
-that the paper is not very pearly. As an example, you spend two pages
-to introduce the problem, discuss related work etc. Don't. Get in
-quickly, get out quickly. (Of course, if you intend this to be a
-research paper, then you should ignore my advice, but then you should
-submit it as a standard paper, rather than a pearl). Also, the paper
-is rather long. This is easy to fix though: simply omit the "Case
-study", which doesn't seem to add a lot. (I'd like to think of the
-"Case study" as accompanying material.)
-
-Interestingly, all three reviewers seem to disagree with your
-statement that modularity *requires* OO features. Even more, each
-provides some Haskell code questioning or, perhaps, refuting your
-claim. For the revision, you should carve out the essentials of your
-approach: which language features of Scala/Haskell are necessary,
-which are accidental? I am happy to see some Scala code but then you
-should make an effort to explain it carefully (eg what is a trait,
-what's the difference to a class?) Also, be more objective/fair when
-making statements about the relative merits of Scala and Haskell.
-
-(In terms of language features, it seems to me that "deep vs shallow
-embedding" boils down to "data types vs type classes": the former are
-not extensible, the latter are. But, perhaps, this is a too simplistic
-a view?)
-
-I see two ways forward: (a) you free the paper from comparative
-statements (cannot be done in FP, can be done better in OO) and
-simply say "look, here is how I a shallow DSL can be implemented
-in Scala - it is nice, it is modular ..." Haskell could be mentioned
-as an afterthought in the conclusion: "the development can be replayed
-in Haskell using X and Y, we leave this as a challenge to the reader".
-(Or point to accompanying material.) In short: less is more.
-
-(b) You develop Haskell and Scala code in parallel. But then you
-have to be careful to make it pearly. Perhaps, the pearl would
-speak about language translations using shallow DSLs as a running
-example. But this seems to be further away from the original idea
-of the paper.
+> Referee: 1
+>
+> Comments to the Author
+> Synopsis
+>
+> This pearl compares two approaches to embedding domain specific
+> languages: a shallow embedding in Scala using the authors' previous
+> work (The Expression Problem, Trivially!) and a shallow embedding
+> originally presented by Gibbons and Wu, taken from a paper on scans by
+> Hinze. The paper argues that "the resulting Scala version has
+> advantages over the Haskell version due to the use of subtyping,
+> inheritance, and type refinement." A larger case study in the second
+> part of the paper sketches how to modify an existing deeply embedded
+> EDSL in Scala using the authors' proposed techniques.
+>
+> Review
+>
+> Firstly, I would not really consider this to be a functional pearl --
+> an 'elegant, instructive examples of functional programming'. The meat
+> of the paper -- the Scala approach for combining interpretations of
+> shallow DSLs -- relies heavily on OO language features (traits &
+> inheritance), rather than an instructive usage of functional features.
+>
+> The paper claims that the Scala version is more modular/expressive
+> than the Haskell version of the DSL. Similar modularity can also be
+> achieved in Haskell easily enough, without using many of the OO
+> features (subtyping, inheritance, type refinement) claimed to be
+> essential for the development. Choosing this particular style of
+> shallow embedding in Haskell is a strawman: it will not be as
+> extensible/modular as the Scala development -- but drawing any kind of
+> wider conclusions about the necessity of language features leads to
+> misleading conclusions such as "OOP increases the modularity of
+> shallow DSLs". I've included a proof of concept below, sketching how
+> to implement dependent and modular interpretations using Haskell in
+> the finally tagless style, without using any of the OO features used
+> in the Scala solution.
+>
+> I'm a bit unsure about the main aim of the paper. If it aims to
+> illustrate the authors' OO approach to embedded DSLs, it really should
+> hardly mention Haskell at all (and I don't think it would qualify as a
+> *functional* pearl). If it aims to compare different approaches to
+> embedded DSLs, it should be more thorough and fair when considering
+> different design alternatives -- and consider alternatives beyond the
+> two approaches mentioned in the paper already.
+>
+> I found that the case study (Section 5) on SQL did not add much. The
+> earlier sections spend quite some time discussing the Scala approach
+> to EDSLs -- why go through the motions and apply these techniques in
+> yet another example? The novel aspects compared to the previous
+> example -- such as staging using LMS or the embedded syntax -- are
+> only mentioned in passing.
+>
+> All in all, I can see this turn into a very nice paper comparing
+> different techniques for embedded DSLs across different languages,
+> evaluating the language features necessary to use these techniques,
+> and comparing their relative merits. At the moment, however, I feel
+> the paper is unfairly dismissive of Haskell, favoring the OO based
+> Scala approach -- without even trying to achieve the same results in a
+> functional style. This makes it unsuitable as a functional pearl in
+> its current incarnation.
+>
+> --- Haskell proof of concept
+>
+> {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
+>
+> class Circuit a where
+>  id :: Int -> a
+>  fan :: Int -> a
+>  besides :: a -> a -> a
+>  above :: a -> a -> a
+>  stretch :: [Int] -> a -> a
+>
+> -- A trivial semantics
+> instance Circuit () where
+>  id n = ()
+>  fan n = ()
+>  besides _ _ = ()
+>  above c _ = ()
+>  stretch ns _ = ()
+>
+> -- Defining a new semantics
+> newtype Width = W Int deriving (Show, Eq)
+>
+> instance Circuit a => Circuit (Width,a) where
+>  id n = (W n, Main.id n)
+>  fan n = (W n, Main.id n)
+>  besides (W c1, x) (W c2, y) = (W (c1 + c2), besides x y)
+>  above (W c1, x) (W c2, y) = (W c1, above x y)
+>  stretch ns (W c, x) = (W (sum ns), stretch ns x)
+>
+> -- Some machinery to work with tuples -- could be replaced by HLists,
+> -- lenses, etc.
+> class Lookup a b where
+>  prj :: b -> a
+>
+> instance {-# OVERLAPPING #-} Lookup a (a,b) where
+>  prj = fst
+>
+> instance {-# OVERLAPPING #-} Lookup a b => Lookup a (c,b) where
+>  prj = prj . snd
+>
+> -- An example dependent interpretation
+>
+> newtype WF = WF Bool deriving (Show, Eq)
+>
+> instance (Circuit a, Lookup Width a) => Circuit (WF,a) where
+>  id n = (WF True, Main.id n)
+>  fan n = (WF True, Main.fan n)
+>  above (WF c1,x) (WF c2,y) =
+>    let checkWidth :: Width -> Width -> Bool
+>        checkWidth = (==)
+>    in
+>    (WF (c1 && c2 && checkWidth (prj x) (prj y))
+>                              , above x y)
+>  besides (WF c1, x) (WF c2, y) = (WF (c1 && c2), besides x y)
+>  stretch ns (WF n, x) = (WF (W (length ns) == prj x), stretch ns x)
+>
+> -- Putting it all together
+> type C = (WF, (Width, ()))
+>
+> c :: C
+> c = Main.id 3  `besides` Main.id 2
+>
+>
+> Referee: 2
+>
+> Comments to the Author
+>
+> This pearl illustrates the relationship of object-oriented programming to the
+> shallow-embedding (a.k.a. final encoding or combinator library) technique for
+> implementing DSLs. In particular, it connects Gibbons and Wu's observation that
+> shallow embeddings are a form of procedural abstraction, and Cook's argument
+> that procedural abstraction is the essence of object-oriented programming.
+>
+> The paper then reimplements the majority of Gibbon and Wu's 2014 paper (on the
+> relationship of deep and shallow embeddings and folds) in Scala, illustrating
+> how object-oriented features make the shallow DSL implementation more modularly
+> extensible than a naive shallow embedding in a functional language.
+>
+> Finally, the paper provides a second illustration of the object-oriented
+> shallow embedding technique by translating an existing deeply embedded Scala
+> DSL for compiling SQL queries into a shallowly embedded DSL.
+>
+> Overall, I found this paper quite interesting and a useful perspective on both
+> DSL encodings and the expression problem. This paper is perfect for the pearl
+> format. It does not present any major new technical achievements, but it is a
+> fun, example-driven illustration of some insightful observations about the
+> relationships of DSLs, OOP, and FP. It also provides immediately useful
+> examples of the authors' technique for shallowly embedding DSLs in an OOP
+> language with mixin composition.
+>
+> I do think there are some significant issues to address in revision, however.
+>
+> My main complaint is that I think the comparison in Section 3 between the Scala
+> encoding and the naive shallow embedding is too simplistic and does not clearly
+> relate the advantages of the Scala encoding to its language features. The crux
+> of the argument is that OOP makes the Scala encoding more modularly extensible,
+> and the paper attributes this to "inheritance, subtyping, and type refinement".
+> However, a modularly extensible encoding is also possible in Haskell or ML,
+> neither of which have these three features.
+>
+> I think there are two interconnected problems with the comparison: The first is
+> that it compares the Scala encoding only with the naive shallow embedding. The
+> second is that it is too vague about *why* the Scala encoding is more extensible.
+>
+> The paper claims that a shallow embedding in Haskell cannot be modularly
+> extended by (1) new interpretations, (2) by dependent interpretations, or (3)
+> by context-sensitive interpretations. Points (1) and (2) are nicely illustrated
+> (for a naive embedding) by the example. Point (3) is actually not supported by
+> the example since the non-modularity is caused by the dependency on a previous
+> implementation (i.e. it's the same problem as (2)), not by context sensitivity.
+>
+> However, a finally tagless encoding can be modularly extended by all three new
+> interpretations. The key feature that makes this possible is overloading, which
+> can be achieved by type classes or explicit dictionary passing. I included a
+> finally tagless implementation of the running example at the end of this
+> review. Note that although the dependent interpretation does require some
+> boilerplate (both interpretations are still constructed in parallel), it reuses
+> the logic of the original implementation and so is modular.
+>
+> The paper does briefly discuss the finally tagless encoding in Section 3.5, but
+> I think it must do this in more depth, either by embedding this comparison
+> throughout Section 3, or by simply expanding Section 3.5. This would make the
+> comparison more honest and also force a more precise ascription of the benefits
+> of the Scala encoding to the language's features. For example, type
+> refinement/mixin composition isn't what makes modular extensibility *possible* in
+> the Scala encoding, but it is the key to *avoiding the boilerplate* required by
+> the finally tagless encoding.
+>
+> A related question I had throughout is the relationship of this encoding to
+> object algebras. Is this essentially just the object algebra pattern
+> implemented in a very clean and simple way thanks to Scala's mixin composition?
+> If so, it would be helpful to state this explicitly.
+>
+> I think that with a more direct comparison to the finally tagless encoding, and
+> a more precise account of how Scala's OOP features support the encoding
+> described in this paper, this will be very nice function pearl.
+>
+>
+> Detailed comments:
+>
+> - Section 1: "widely discussed by Cook" -> "discussed in depth by Cook"
+>
+  DONE
+>
+> - Section 2.1: I think it would help to show the example program directly
+>   in the concrete syntax of the SCANS. The explanation of the stretch
+>   operation was also unclear from the text (but became clear after seeing the
+>   implementation).
+>
+  DONE
+>
+> - Section 2.2, Toward OOP: I think "semantics preserving rewriting" is the
+>   wrong term here. Maybe "isomorphic encoding"?
+>
+  DONE
+>
+> - Section 3: See discussion above.
+>
+  DONE
+>
+> - Section 5.3: "represented by a relational algebra operator" -> "represented
+>   by a relational algebra expression".
+>
+  DONE
+>
+> - Section 5.4: I don't really understand the rationale for excluding SLOC
+>   related to syntax. Is this essentially just excluding code related to
+>   parsing (which seems reasonable)? A bit more explanation of what exactly is
+>   being excluded would be helpful here. You should also remind in this section
+>   the benefits that come with the slight increase in SLOC.
+>
+  DONE
+>
+> #+BEGIN_SRC haskell
+> module FinallyTagless where
+>
+> import Prelude hiding (id)
+>
+>
+> -- * Syntax of circuits
+>
+> class Circuit c where
+>  id      :: Int -> c
+>  fan     :: Int -> c
+>  above   :: c -> c -> c
+>  beside  :: c -> c -> c
+>  stretch :: [Int] -> c -> c
+>
+> brentKung4 :: Circuit c => c
+> brentKung4 =
+>  above (beside (fan 2) (fan 2))
+>        (above (stretch [2,2] (fan 2))
+>               (beside (beside (id 1) (fan 2)) (id 1)))
+>
+>
+> -- * Initial interpretation
+>
+> newtype Width = Width { width :: Int }
+>  deriving (Eq,Show)
+>
+> instance Circuit Width where
+>  id n         = Width n
+>  fan n        = Width n
+>  above c1 _   = Width (width c1)
+>  beside c1 c2 = Width (width c1 + width c2)
+>  stretch ns _ = Width (sum ns)
+>
+>
+> -- * Modular extension by new interpretation
+>
+> newtype Depth = Depth { depth :: Int }
+>
+> instance Circuit Depth where
+>  id _         = Depth 0
+>  fan _        = Depth 1
+>  above c1 c2  = Depth (depth c1 + depth c2)
+>  beside c1 c2 = Depth (depth c1 `max` depth c2)
+>  stretch _ c  = Depth (depth c)
+>
+>
+> -- * Modular extension by dependent interpretation
+>
+> data WellSized = WellSized { width' :: Width, wellSized :: Bool }
+>
+> instance Circuit WellSized where
+>  id n         = WellSized (id n) True
+>  fan n        = WellSized (fan n) True
+>  above c1 c2  = WellSized (above w1 w2)
+>                           (wellSized c1 && wellSized c2 && w1 == w2)
+>                   where w1 = width' c1
+>                         w2 = width' c2
+>  beside c1 c2 = WellSized (beside w1 w2)
+>                           (wellSized c1 && wellSized c2)
+>                   where w1 = width' c1
+>                         w2 = width' c2
+>  stretch ns c = WellSized (stretch ns w)
+>                           (wellSized c && length ns == width w)
+>                   where w = width' c
+>
+>
+> -- * Modular extension by dependent, context-sensitive interpretation
+>
+> type LayoutDomain = (Int -> Int) -> [[(Int,Int)]]
+>
+> data Layout = Layout { width'' :: Width, layout :: LayoutDomain }
+>
+> instance Circuit Layout where
+>  id n         = Layout (id n) (const [])
+>  fan n        = Layout (fan n) (\f -> [[(f 0, f i) | i <- [1..n-1]]])
+>  above c1 c2  = Layout (above w1 w2) (\f -> layout c1 f ++ layout c2 f)
+>                   where w1 = width'' c1
+>                         w2 = width'' c2
+>  beside c1 c2 = Layout (beside w1 w2)
+>                        (\f -> lzw (++) (layout c1 f)
+>                                        (layout c2 (f . (width w1 +))))
+>                   where w1 = width'' c1
+>                         w2 = width'' c2
+>  stretch ns c = Layout (stretch ns w)
+>                        (\f -> layout c (f . pred . (scanl1 (+) ns !!)))
+>                   where w = width'' c
+>
+> lzw :: (a -> a -> a) -> [a] -> [a] -> [a]
+> lzw _ [] ys = ys
+> lzw _ xs [] = xs
+> lzw f (x:xs) (y:ys) = f x y : lzw f xs ys
+> #+END_SRC
+>
+>
+> Referee: 3
+>
+> Comments to the Author
+>
+> This paper "debunks the belief that multiple interpretations [of the
+> same embedded domain-specific language (DSL)] are hard to model with
+> shallow embeddings".  It demonstrates ease by using object-oriented
+> features -- namely inheritance, subtyping, and type refinement in Scala
+> -- to rework two examples from the literature and reconcile shallow
+> embedding with modularity.
+>
+> I like this paper's thesis and organization, and it makes a point that
+> needs to be published.  But the point is muddled by two issues that must
+> and can be addressed in the presentation.
+>
+> The first issue is that it's not clear who harbors the belief that
+> this paper debunks.  Please explicitly cite some claims that "multiple
+> interpretations are hard to model with shallow embeddings".
+>
+> The second issue is that there is no need to switch from Haskell to
+> Scala to carry out the object-oriented, modular, and shallow embedding
+> explained in the paper.  All it takes is to define not "type Circuit2 =
+> (Int, Int)" but rather "type Circuit2 = (Circuit1, Int)", and change the
+> definitions of id2, fan2, etc. to invoke id1, fan1, etc. accordingly.
+> This works for dependent and context-sensitive interpretations too; I
+> enclose the code, including refuting that "such partial reuse is hard to
+> achieve in Haskell" in Section 3.4.  Thus, all of Section 3 should show
+> modularity achieved in Haskell, to clarify the paper's point and to ease
+> comparison.  Although the Scala example in Section 5 is convincing, I
+> find the Scala code in Section 3 more concerning than clarifying: is the
+> Scala embedding really shallow rather than deep, given that syntactic
+> subcircuits "are captured as fields" and remain accessible to code?
+>
+> It would be nice if this paper could discuss whether its conclusions
+> are still valid in the presence of binding constructs in the embedded
+> language.  (If they are, does it matter how binding is represented
+> (e.g., de Bruijn vs names vs HOAS)?)
+>
+> Other comments:
+>
+> Sections 4, 3.4, and even 3.3 seem to merely translate what we already
+> know in the literature from Haskell to Scala, so they seem superfluous
+> and should be removed or abbreviated.  I do appreciate that p14 points
+> out "Very much like the interpretation 'layout' discussed in Section
+> 3.3" though.
+>
+> On p12, the distinction between staging on the one hand and "manual
+> optimizations" or "hand-coded transformations" on the other hand is
+> not clear, because staging is kind of a transformation and kind of
+> manual and hand-coded.  Please draw a firm distinction in terminology
+> and concept, which would also strengthen your conclusion about "AST
+> transformations" that is the last sentence of the paper.
+>
+  DONE
+>
+> p2 "widely discussed by Cook" is weird: What does it mean for a person
+> to "widely" discuss a topic?
+>
+  DONE
+>
+> p4 "get the width right after" -> "get the width immediately after" to
+> avoid ambiguity with the phrase "get the width right" meaning "get the
+> correct width"
+>
+  DONE
+>
+> Please order "beside" and "above" consistently throughout.  Currently on
+> p4 "beside" comes first and on p5 "above" comes first.
+>
+  DONE
+>
+> p14 "yld(Record(rec(in),out))" seems to delegate the work of Project to
+> a Record constructor, so it seems uninformative to show the code for
+> trait Project.
+>
+> ---
+>
+> {-# LANGUAGE MultiParamTypeClasses, TypeOperators #-}
+> {-# OPTIONS -Wall #-}
+>
+> class Factory c where
+>  ident    :: Int -> c
+>  fan      :: Int -> c
+>  above    :: c -> c -> c
+>  beside   :: c -> c -> c
+>  stretch  :: [Int] -> c -> c
+>
+> class Factory c => ExtendedFactory c where
+>  rstretch :: [Int] -> c -> c
+>
+> class Extends c2 c1 where
+>  base :: c2 -> c1
+>
+> newtype Circuit1 = Circuit1 { width :: Int } deriving Show
+> instance Factory Circuit1 where
+>  ident n       = Circuit1 n
+>  fan n         = Circuit1 n
+>  above  c1 _c2 = Circuit1 (width c1)
+>  beside c1 c2  = Circuit1 (width c1 + width c2)
+>  stretch ns _c = Circuit1 (sum ns)
+>
+> data Circuit2 = Circuit2 { circuit12 :: Circuit1
+>                         , depth :: Int } deriving Show
+> instance Circuit2 `Extends` Circuit1 where base = circuit12
+> instance Factory Circuit2 where
+>  ident n      = Circuit2 (ident n) 0
+>  fan n        = Circuit2 (fan n) 1
+>  above c1 c2  = Circuit2 (above (base c1) (base c2))
+>                          (depth c1 + depth c2)
+>  beside c1 c2 = Circuit2 (beside (base c1) (base c2))
+>                          (depth c1 `max` depth c2)
+>  stretch ns c = Circuit2 (stretch ns (base c)) (depth c)
+>
+> data Circuit3 = Circuit3 { circuit13 :: Circuit1
+>                         , wellSized :: Bool } deriving Show
+> instance Circuit3 `Extends` Circuit1 where base = circuit13
+> instance Factory Circuit3 where
+>  ident n      = Circuit3 (ident n) True
+>  fan n        = Circuit3 (fan n) True
+>  above c1 c2  = Circuit3 (above (base c1) (base c2))
+>                          (wellSized c1 && wellSized c2 &&
+>                           width (base c1) == width (base c2))
+>  beside c1 c2 = Circuit3 (beside (base c1) (base c2))
+>                          (wellSized c1 && wellSized c2)
+>  stretch ns c = Circuit3 (stretch ns (base c))
+>                          (wellSized c && length ns == width (base c))
+>
+> data Circuit4 = Circuit4 { circuit14 :: Circuit1
+>                         , layout :: (Int -> Int) -> [[(Int, Int)]] }
+> instance Circuit4 `Extends` Circuit1 where base = circuit14
+> instance Factory Circuit4 where
+>  ident n      = Circuit4 (ident n) (\_f -> [])
+>  fan n        = Circuit4 (fan n) (\f -> [[(f 0, f j) | j <- [1..n-1]]])
+>  above c1 c2  = Circuit4 (above (base c1) (base c2))
+>                          (\f -> layout c1 f ++ layout c2 f)
+>  beside c1 c2 = Circuit4 (beside (base c1) (base c2))
+>                          (\f -> lzw (++)
+>                                   (layout c1 f)
+>                                   (layout c2 (f . (width (base c1) +))))
+>  stretch ns c = Circuit4 (stretch ns (base c))
+>                          (\f -> layout c (f . pred . (scanl1 (+) ns !!)))
+> instance ExtendedFactory Circuit4 where
+>  rstretch ns c = (stretch ns c) { layout = \f ->
+>                  layout c (f . (scanl (+) (last ns - 1) ns !!)) }
+>
+> lzw :: (a -> a -> a) -> [a] -> [a] -> [a]
+> lzw _ [] ys         = ys
+> lzw _ xs []         = xs
+> lzw f (x:xs) (y:ys) = f x y : lzw f xs ys
+>
+> {- If we had defined these interpretations using algebras,
+>   then the boilerplate that is the similarity among Circuit2,
+>   Circuit3, and Circuit4 would be reduced to "fmap base". -}
+>
+> Editor comment
+>
+> I like the idea of the paper but not its execution. My main gripe is
+> that the paper is not very pearly. As an example, you spend two pages
+> to introduce the problem, discuss related work etc. Don't. Get in
+> quickly, get out quickly. (Of course, if you intend this to be a
+> research paper, then you should ignore my advice, but then you should
+> submit it as a standard paper, rather than a pearl). Also, the paper
+> is rather long. This is easy to fix though: simply omit the "Case
+> study", which doesn't seem to add a lot. (I'd like to think of the
+> "Case study" as accompanying material.)
+>
+> Interestingly, all three reviewers seem to disagree with your
+> statement that modularity *requires* OO features. Even more, each
+> provides some Haskell code questioning or, perhaps, refuting your
+> claim. For the revision, you should carve out the essentials of your
+> approach: which language features of Scala/Haskell are necessary,
+> which are accidental? I am happy to see some Scala code but then you
+> should make an effort to explain it carefully (eg what is a trait,
+> what's the difference to a class?) Also, be more objective/fair when
+> making statements about the relative merits of Scala and Haskell.
+>
+> (In terms of language features, it seems to me that "deep vs shallow
+> embedding" boils down to "data types vs type classes": the former are
+> not extensible, the latter are. But, perhaps, this is a too simplistic
+> a view?)
+>
+> I see two ways forward: (a) you free the paper from comparative
+> statements (cannot be done in FP, can be done better in OO) and
+> simply say "look, here is how I a shallow DSL can be implemented
+> in Scala - it is nice, it is modular ..." Haskell could be mentioned
+> as an afterthought in the conclusion: "the development can be replayed
+> in Haskell using X and Y, we leave this as a challenge to the reader".
+> (Or point to accompanying material.) In short: less is more.
+>
+> (b) You develop Haskell and Scala code in parallel. But then you
+> have to be careful to make it pearly. Perhaps, the pearl would
+> speak about language translations using shallow DSLs as a running
+> example. But this seems to be further away from the original idea
+> of the paper.
