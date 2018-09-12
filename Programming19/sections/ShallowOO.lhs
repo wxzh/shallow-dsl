@@ -65,7 +65,7 @@ Their meanings are: |id n| contains |n| parallel wires;
 |fan n| has |n| parallel wires with the leftmost wire connected to
 all other wires from top to bottom; |c1 beside c2| joins two circuits
 |c1| and |c2| horizontally; |c1 above c2| combines two circuits of the same width vertically;
-|stretch ns c| inserts wires into the circuit |c|, where the $i^{th}$ wire of |c| is stretched to a position of $ns_1 + ... + ns_i$, resulting a new circuit of width by summing up |ns|.
+|stretch ns c| inserts wires into the circuit |c| so that the $i^{th}$ wire of |c| is stretched to a position of $ns_1 + ... + ns_i$, resulting a new circuit of width by summing up |ns|.
 \autoref{fig:circuit} visualizes a circuit constructed using all these five constructs.
 The structure of this circuit is explained as follows.
 The whole circuit is vertically composed by three sub-circuits:
