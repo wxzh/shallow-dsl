@@ -52,7 +52,7 @@ observed that, by using
 products and projections, multiple interpretations can be supported with a cumbersome and often non-modular encoding.
 Moreover it is also known that multiple interpretations \emph{without dependencies} on other interpretations
 are modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
-We show that a full solution for multiple interpretations (including dependencies)
+We show that a solution for multiple interpretations, including dependencies,
 is encodable naturally
 when the host language combines functional features with common OO features, such as
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.

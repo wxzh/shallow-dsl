@@ -79,7 +79,7 @@ The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
 Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
-Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and complementing the definition of |depth|.
+Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and implementing |depth|.
 Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
 Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \emph{modularly reused} here.
 
@@ -327,7 +327,7 @@ In their paper Gibbons and Wu show how to support modular |depth| and |width|
 (corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. This is possible because |depth| and |width| are 
 non-dependent.
 However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
-Such dependent interpretations would still require a cumbersome and non-modular 
+Such dependent interpretations would still require a cumbersome  
 encoding via tuples even with the Finally Tagless approach.
 \begin{comment}
 For example, Carette  deal with multiple interpretations (Section~\ref{subsec:multiple}) using type classes. However, while useful (see also Section~\ref{sec:modterms}), these techniques complicate the encoding of the EDSL.
