@@ -1,7 +1,7 @@
 %include lhs2TeX.fmt
 \section{Introduction}
 
-Since Hudak's seminal paper~\cite{hudak1998modular} on embedded
+Since Hudak's seminal paper~\shortcite{hudak1998modular} on embedded
 domain-specific languages (EDSLs), existing languages
 have been used to directly encode DSLs. Two common approaches to EDSLs
 are the so-called \emph{shallow} and \emph{deep} embeddings.
@@ -18,11 +18,11 @@ abstract syntax.
 
 The trade-offs between shallow and deep embeddings have been widely
 discussed~\cite{svenningsson2012combining,yinyang}: deep embeddings
-enable tranformations on the abstract syntax tree (AST), and multiple
+enable tranformations on the abstract syntax, and multiple
 interpretations are easy to implement; shallow-embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
-multiple interpretations and AST transformations in shallow embeddings.
+multiple interpretations and transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
@@ -52,27 +52,58 @@ observed that, by using
 products and projections, multiple interpretations can be supported with a cumbersome and often non-modular encoding.
 Moreover it is also known that multiple interpretations \emph{without dependencies} on other interpretations
 are modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
-We show that a solution for multiple interpretations, including dependencies,
+We show that a full solution for multiple interpretations (including dependencies)
 is encodable naturally
 when the host language combines functional features with common OO features, such as
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
 
-At the center of this pearl is Reynolds \cite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
+
+\begin{comment}
+The origin of that terminology can be
+attributed to Boulton et al.~\shortcite{Boulton92dsl}. The difference between these
+two styles of embeddings are commonly described as follows:
+
+\begin{quote}
+With a \emph{deep embedding}, terms in the DSL are implemented simply to
+construct an abstract syntax tree (AST), which is subsequently
+transformed for optimization and traversed for evaluation. With a
+\emph{shallow embedding}, terms in the DSL are implemented directly by
+their semantics, bypassing the intermediate AST and its traversal.\\~\cite{gibbons2014folding}
+\end{quote}
+
+
+\weixin{add procedural abstraction definition}
+One way to more precisely understand what ``\emph{terms in the DSL are
+implemented directly by their semantics}'' means in a shallow
+embedding is to say that terms are implemented using \emph{procedural
+abstraction} where
+
+\begin{quote}
+The abstract form of data is characterized by the primitive operations which can be peformed upon it, and an item of data is simply a procedure or collection of procedures for performing these operations.~\cite{reynolds75userdefined}
+\end{quote}
+
+\noindent This is the definition of a shallow embedding in this paper. Such interpretation
+arises naturally from the domain of shallow EDSLs being functions, and
+procedural abstraction being a way to encode data abstractions using
+functions.
+\end{comment}
+
+At the center of this pearl is Reynolds \shortcite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
 enables us to directly relate shallow embeddings and OOP. With procedural abstraction, data is characterized by the operations that are performed over it.
 This pearl connects two independently observed connections to procedural abstraction:
 
 \xymatrixcolsep{6pc}
 \xymatrix{
-\text{Shallow Embeddings} \ar@@{<->}[r]^-*+{\text{Gibbons and Wu~\cite{gibbons2014folding}}} & \text{Procedural Abstraction}\ar@@{<->}[r]^-*+{\text{Cook~\cite{cook09abstraction}}} & \text{OOP}
+\text{Shallow Embeddings} \ar@@{<->}[r]^-*+{\text{Gibbons and Wu~\shortcite{gibbons2014folding}}} & \text{Procedural Abstraction}\ar@@{<->}[r]^-*+{\text{Cook~\shortcite{cook09abstraction}}} & \text{OOP}
 }
 \vspace{5pt}
 \noindent The first connection is between procedural abstraction and shallow embeddings.
-As Gibbons and Wu~\cite{gibbons2014folding} state ``\emph{it was probably known to Reynolds, who contrasted
+As Gibbons and Wu~\shortcite{gibbons2014folding} state ``\emph{it was probably known to Reynolds, who contrasted
 deep embeddings (‘user defined types’) and shallow (‘procedural data
 structures’)}''. Gibbons and Wu noted the connection between shallow embeddings
 and procedural abstractions, although they did not go into a lot of detail.
 The second connection is the connection between OOP and procedural
-abstraction, which was discussed in depth by Cook~\cite{cook09abstraction}.
+abstraction, which was widely discussed by Cook~\shortcite{cook09abstraction}.
 
 
 
@@ -80,10 +111,10 @@ abstraction, which was discussed in depth by Cook~\cite{cook09abstraction}.
 \begin{comment}
 The first goal of this pearl is to show the close relationship between
 shallow embeddings and object-oriented programming (OOP).
-As Cook~\cite{cook09abstraction} argued, procedural abstraction is also
+As Cook~\shortcite{cook09abstraction} argued, procedural abstraction is also
 the essence of OOP. Although OOP is often associated with stateful
 (imperative) objects, it is possible to have functional objects that
-have no mutable state. Indeed Cook~\cite{cook09abstraction} calls such
+have no mutable state. Indeed Cook~\shortcite{cook09abstraction} calls such
 style \emph{pure OOP}, and argues that it captures the essence of OOP.
 Although such pure OOP definition may be controversial for OOP
 programmers, it fits very well with functional programming.  Since pure OOP
@@ -110,7 +141,7 @@ a simple solution to the \emph{Expression Problem}~\cite{expPb}. Thus using just
 shallow embeddings.
 \end{comment}
 
-We make our arguments concrete using Gibbons and Wu~\cite{gibbons2014folding}'s examples,
+We make our arguments concrete using Gibbons and Wu~\shortcite{gibbons2014folding}'s examples,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
 EDSL. We recode that EDSL in Scala using a
 design pattern~\cite{eptrivially16}, which provides
@@ -130,6 +161,18 @@ The refactored implementation allows both new (possibly dependent) interpretatio
 Complete code for all examples/case-study is available at
 \url{https://github.com/wxzh/shallow-dsl}.
 
+\begin{comment}
+To further illustrate the applicability of our OOP approach, we conduct
+a case study on refactoring an existing DSL implementation to make it
+modular. Rompf and Amin~\shortcite{rompf15} present a SQL to C compiler in Scala, which
+is an external DSL but uses deep embedding techniques such as
+algebraic datatypes and pattern matching in the implementation. The use of deep
+embedding techniques facilitates multiple interpretations at the price
+of modular language extensions. We rewrote the implementation as a
+shallow Scala EDSL. The resulting implementation allows both new
+interpretations and new constructs to be introduced modularly, and
+can be used directly (as an EDSL) in Scala.
+\end{comment}
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
 %a \emph{functional} OOP style.}
