@@ -22,7 +22,7 @@ enable tranformations on the abstract syntax tree (AST), and multiple
 interpretations are easy to implement; shallow-embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
-multiple interpretations and AST transformations in shallow embeddings.
+multiple interpretations\bruno{references} and AST transformations in shallow embeddings.
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
@@ -42,7 +42,7 @@ well with such a semantics-driven approach.
 Nevertheless, the limitations of shallow embeddings compared to
 deep embeddings can deter their use.
 
-This functional pearl shows that, given adequate language support,
+This programming pearl shows that, given adequate language support,
 having multiple modular interpretations in shallow DSLs is not
 only possible, but simple. 
 Therefore we aim to debunk the belief
@@ -59,7 +59,7 @@ when the host language combines functional features with common OO features, suc
 
 At the center of this pearl is Reynolds \cite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
 enables us to directly relate shallow embeddings and OOP. With procedural abstraction, data is characterized by the operations that are performed over it.
-This pearl connects two independently observed connections to procedural abstraction:
+This pearl builds on two independently observed connections to procedural abstraction:
 
 \xymatrixcolsep{6pc}
 \xymatrix{
@@ -122,7 +122,17 @@ to the use of subtyping, inheritance, and type-refinement.
 In particular, the Scala code
 can easily express modular interpretations that may
 \emph{not only depend on themselves but also depend on other modular interpretations},
-leading to our motto: \emph{beyond simple compositionality}. 
+leading to our motto: \emph{beyond simple compositionality}.
+
+We then port back to Haskell some of the ideas used in the Scala
+solution and show an improved Haskell encoding that has similar (and
+some times even better) benefits in terms of modularity.
+In essence in the Haskell encoding we encode a
+form of subtyping on pairs using type classes. This is useful to
+avoid explicit projections. Inheritance is encoded by explicitly
+delegating interpretations using Haskell superclasses.
+Finally, type refinement is simulated using the subtyping typeclass
+to introduce subtyping constraints.\bruno{refine later}
 
 While the technique does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
 By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techniques~\cite{rompf15} into a shallow EDSL.
