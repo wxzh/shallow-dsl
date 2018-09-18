@@ -11,7 +11,7 @@
 Indeed, modular interpretations are also possible in Haskell using the Finally Tagless~\cite{carette2009finally} approach.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
-\subsection{Revisiting \dsl}
+\subsection{Revisiting \dsl} \label{sec:class}
 Here is the type class defined for \dsl:
 
 > class Circuit c where
@@ -73,34 +73,34 @@ type-checks and works!}
 > instance a :<: a where
 >   inter = id
 >
-> instance a :<: (a,b) where
+> instance (a,b) :<: a where
 >   inter = fst
 >
-> instance (c :<: b) => c :<: (a,b) where
+> instance (b :<: c) => (a,b) :<: c where
 >   inter = inter . snd
 
-|a :<: b| means that type |a| is a component of a larger
-collection of types represented by |b|. The member function |inter|
-retrieves a value of type |a| from a value of the compound type |b|.
+|a :<: b| means that type |a| is a subtype of by |b|. The function |inter| simulates up-casting, which converts a value of type |a| to a value of type |b|.
 The three instances, which are defined using overlapping instances,
 define the behaviour of the projection function by searching for
-the type being projected in a larger state space that contains
-a value of that type.
+the type being projected in a compound type.
 
 Now, defining |wellSized| modularly becomes possible:
 
-> instance (Circuit c, Width :<: c) => Circuit (Compose WellSized c) where
->   id  n         =  (WellSized True, id n)
->   fan n         =  (WellSized True, fan n)
->   above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
->                    ,above (inter c1) (inter c2))
->   beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (inter c1) (inter c2))
->   stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (inter c))
+> instance (Circuit width, width :<: Width) => Circuit (WellSized, width) where
+>    id  n         =  (WellSized True, id n)
+>    fan n         =  (WellSized True, fan n)
+>    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
+>                     ,above (inter c1) (inter c2))
+>    beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (inter c1) (inter c2))
+>    stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (inter c))
 >
-> gwidth :: Width :<: c => c -> Int
+> gwidth :: (c :<: Width) => c -> Int
 > gwidth = width . inter
 >
-> gwellSized :: WellSized :<: c => c -> Bool
+> gdepth :: (c :<: Depth) => c -> Int
+> gdepth = depth . inter
+>
+> gwellSized :: (c :<: WellSized) => c -> Bool
 > gwellSized = wellSized . inter
 
 Essentially, dependent interpretations are still defined using tuples.
@@ -121,15 +121,15 @@ We show how to do this for the circuit shown in \autoref{fig:circuit}:
 |circuit| is a generic circuit that does not tie to any interpretation.
 When interpreting |circuit|, its type needs to be instantiated:
 
-> width (circuit :: Width)                          -- 4
-> depth (circuit :: Depth)                          -- 3
-> gwellSized (circuit :: Compose WellSized Width)   -- True
+> width (circuit :: Width)                    -- 4
+> depth (circuit :: Depth)                    -- 3
+> gwellSized (circuit :: (WellSized,Width))   -- True
 
 Note that |circuit| is annotated with the target semantic domain in choosing an appropriate type class instance for interpretation.
 
 We can further \emph{truly} compose interpretations to avoid repeating the construction of |c| for each interpretation:
 
-> circuit' = circuit :: Compose Depth (Compose WellSized Width)
+> circuit' = circuit :: (Depth,(WellSized,Width))
 > gwidth circuit'      -- 4
 > gdepth circuit'      -- 3
 > gwellSized circuit'  -- True
@@ -137,7 +137,7 @@ We can further \emph{truly} compose interpretations to avoid repeating the const
 > gdepth :: (Depth :<: c) => c -> Int
 > gdepth = depth . inter
 >
-> instance (Circuit a, Circuit b) => Circuit (Compose a b) where
+> instance (Circuit a, Circuit b) => Circuit (a,b) where
 >   id n         = (id n, id n)
 >   fan n        = (fan n, fan n)
 >   above c1 c2  = (above (inter c1) (inter c2), above (inter c1) (inter c2))
