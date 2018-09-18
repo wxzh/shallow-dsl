@@ -19,6 +19,8 @@
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+
 \renewcommand*{\sectionautorefname}{Section}
 % for code that uses string literal in lhs2TeX
 \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\texttt}
@@ -63,22 +65,56 @@
 \maketitle
 
 \begin{abstract}
-Shallow embedded domain-specific languages (EDSLs) use
-\emph{procedural abstraction} to directly encode a DSL into an
-existing host language. Procedural abstraction has 
-been argued to be the essence of object-oriented programming (OOP).
+
+{\bf Context.} 
+Embedded Domain-Specific Languages (EDSLs) are a common and widely
+used approach to
+DSLs in various languages, including Haskell and Scala. There are two
+main implementation techniques for EDSLs: \emph{shallow embeddings}
+and \emph{deep embeddings}. 
+
+{\bf Inquiry.} Shallow embeddings are quite simple, 
+but they have been criticized in the past for being quite limited in
+terms of modularity and reuse. In particular it is often argued that 
+shallow embeddings can only support a single DSL interpretation.
+
+
+{\bf Approach.}
+In this paper we argue that 
+shallow embedded domain-specific languages (EDSLs) and Object-Oriented
+Programming (OOP) are closely related. Gibbons and Wu already
+discussed the relationship between shallow EDSLs and procedural
+abstraction, while Cook discussed the connection between procedural
+abstraction and OOP. We make the transitive step in this paper by
+connecting shallow EDSLs directly to OOP via procedural abstraction. 
+The knowledge about this relationship enables us to
+improve on implementation techniques for EDSLs.
+
+{\bf Knowledge.}
 This pearl argues that common OOP mechanisms
 (including \emph{inheritance}, \emph{subtyping}, and
 \emph{type-refinement})
 increase the modularity and reuse of shallow
 EDSLs when compared to classical procedural abstraction by enabling a
-simple way to express \emph{multiple, possibly dependent, interpretations}. We make this
-argument by taking a recent paper by Gibbons and Wu, where procedural
+simple way to express \emph{multiple, possibly dependent,
+  interpretations}. 
+
+{\bf Grounding}
+We make our
+arguments by taking a recent paper by Gibbons and Wu, where procedural
 abstraction is used in Haskell to model a simple shallow EDSL, and we recode
 that EDSL both in Scala and with an improved OO-inspired Haskell encoding. 
 We further illustrate our approach with
 a case study on refactoring a deep external SQL DSL implementation to make it
 more modular, shallow, and embedded.
+
+{\bf Importance.} This work is important for two different
+reasons. Firstly, from an intelectual point of view, this work
+establishes the connection between shallow embeddings and 
+Object-Oriented Programming, which enables a better understanding
+of both concepts. Secondly, this work
+offers new programming techniques that can be used to improve 
+the modularity and reuse of shallow EDSLs.  
 \end{abstract}
 
 \input{sections/Introduction}
