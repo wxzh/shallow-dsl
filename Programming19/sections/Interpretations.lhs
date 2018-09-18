@@ -331,5 +331,4 @@ In their paper Gibbons and Wu show how to support modular |depth| and |width|
 This is possible because |depth| and |width| are
 non-dependent.
 However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). In Section~\ref{sec:modHaskell} we revisit such Finally Tagless encoding and improve it 
-to allow dependent interpretations, inspired by the OO solution presented this section. 
-
+to allow dependent interpretations, inspired by the OO solution presented in this section.

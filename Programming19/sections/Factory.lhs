@@ -9,13 +9,14 @@
 %format ExtendedFactory4
 %format Circuit4
 
-\section{Modular terms}\label{sec:modterms}
+\section{Modular terms in Scala}\label{sec:modterms}
 
 % no generic polymorphism
 One advantage of the Finally Tagless approach over our Scala approach presented so far is that terms can be constructed modularly without tying to any interpretation.
-Indeed, modular terms are also possible by combining our Scala approach with Object Algebras~\cite{oliveira2012extensibility}, which employ technique similar to Finally Tagless in the context of OOP. The idea is to
+Indeed, modular terms are also possible by combining our Scala approach with Object Algebras~\cite{oliveira2012extensibility}, which employ technique similar to Finally Tagless in the context of OOP.
 
-\paragraph{Abstract factories} To capture the generic interface of the constructors we define an abstract factory for circuits:
+\paragraph{Abstract factories} To capture the generic interface of the constructors we define an abstract factory for circuits similar to the type class version shown in \autoref{sec:class}:
+
 \begin{code}
 trait Circuit[C] {
   def id(x: Int): C

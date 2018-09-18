@@ -19,10 +19,14 @@ abstract syntax.
 The trade-offs between shallow and deep embeddings have been widely
 discussed~\cite{svenningsson2012combining,yinyang}: deep embeddings
 enable tranformations on the abstract syntax tree (AST), and multiple
-interpretations are easy to implement; shallow-embeddings enforce the property of \emph{compositionality}
+interpretations are easy to implement; shallow embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
-multiple interpretations\bruno{references} and AST transformations in shallow embeddings.
+multiple interpretations\cite{svenningsson2012combining}\bruno{references} and AST transformations in shallow embeddings.
+% http://composition.al/blog/2015/06/02/embedding-deep-and-shallow/
+% https://alessandrovermeulen.me/2013/07/13/the-difference-between-shallow-and-deep-embedding/
+% Simple Types in Type Theory: deep and shallow
+Encodings
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
@@ -73,7 +77,6 @@ structures’)}''. Gibbons and Wu noted the connection between shallow embedding
 and procedural abstractions, although they did not go into a lot of detail.
 The second connection is the connection between OOP and procedural
 abstraction, which was discussed in depth by Cook~\cite{cook09abstraction}.
-
 
 
 
@@ -142,7 +145,7 @@ efficient shallow EDSLs is still possible via
 staging~\cite{rompf2012lightweight,carette2009finally}. By removing
 the limitation of multiple interpretations, we enlarge the
 applicability of shallow embeddings. A concrete example is our case
-study, which refactors an external DSL that employs deep embedding
+study, which refactors an external SQL DSL that employs deep embedding
 techniques~\cite{rompf15} into a shallow EDSL.  The refactored
 implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing

@@ -34,7 +34,7 @@ Then translating the program into a functional OOP language like Scala becomes s
 
 \begin{figure}
 \begin{minipage}{.3\textwidth}
-  \includegraphics[width=.8\textwidth]{circuit}
+  \includegraphics[width=.8\textwidth]{circuit.pdf}
 \end{minipage}
 %
 \begin{minipage}{.5\textwidth}
