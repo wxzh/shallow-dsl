@@ -48,7 +48,7 @@ appended to each case.
 %we add the definition of |wellSized| by modifying the original code.
 
 \paragraph{Multiple interpretations in Scala}
-In contrast, Scala allows new interpretations to be introduced in a modular way:
+In contrast, a Scala solution allows new interpretations to be introduced in a modular way:
 
 %format Id2
 %format Fan2
@@ -89,7 +89,7 @@ An instance of dependent interpretation is |wellSized|, which checks whether a c
 The interpretation of |wellSized| is dependent because combinators like |above| use |width| in their definitions.
 
 \paragraph{Dependent interpretations in Haskell}
-In Haskell, dependent interpretations are again defined with tuples in a non-modular way:
+In Gibbons and Wu Haskell's solution, dependent interpretations are again defined with tuples in a non-modular way:
 
 %format Circuit3
 %format id3
@@ -294,12 +294,12 @@ trait RStretch extends Stretch4 {
 }
 \end{spec}
 
-Such an implementation of |RStretch| illustrates another strength of Scala regarding modularity.
+Such an implementation of |RStretch| illustrates another strength of the Scala approach regarding modularity.
 Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherits |Stretch4| and overrides the |layout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
 Inheritance and method overriding enable partial reuse of an existing language construct implementation,
 which is particularly useful for defining specialized constructs.
-However, such partial reuse is hard to achieve in Haskell.
+However, such partial reuse is hard to achieve in the current Haskell approach.
 
 
 \subsection{Discussion}
@@ -320,17 +320,16 @@ simple compositionality.
 OOP features (subtyping, inheritance, and type-refinement) adds
 expressiveness over traditional procedural abstraction.
 
-\begin{comment}
+One worthy point about the Scala solution presented so far is that it
+is straightforward using OOP mechanisms, it uses only simple types,
+and dependent interpretations are not a problem.
 Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems.
 In their paper Gibbons and Wu show how to support modular |depth| and |width| 
-(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. This is possible because |depth| and |width| are
+(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. 
+This is possible because |depth| and |width| are
 non-dependent.
-However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). 
-Such dependent interpretations would still require a cumbersome  
-encoding via tuples even with the Finally Tagless approach.
-In contrast,
-the Scala version is straightforward using OOP mechanisms, it uses only simple types, and dependent
-interpretations are not a problem.
-\end{comment}
+However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). In Section~\ref{sec:modHaskell} we revisit such Finally Tagless encoding and improve it 
+to allow dependent interpretations, inspired by the OO solution presented this section. 
+
