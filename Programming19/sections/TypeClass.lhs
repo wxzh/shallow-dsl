@@ -8,7 +8,7 @@
 % no longer semantics first?
 
 \section{Modular interpretations in Haskell}\label{sec:modHaskell}
-Modular interpretations are also possible in Haskell using the Finally Tagless~\cite{carette2009finally} approach.
+Indeed, modular interpretations are also possible in Haskell using the Finally Tagless~\cite{carette2009finally} approach.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
 \subsection{Revisiting \dsl}
@@ -37,7 +37,7 @@ Interpretations such as |width| are then defined as instances of |Circuit|:
 where |c| is instantiated as a record type |Width|.
 Instantiating the type parameter as |Width| rather than |Int| avoids the conflict with the |depth| interpretation which also produces integers.
 
-\paragraph{Multiple interpretations} Adding |depth| interpretation can now be done in a modular manner similar to |width|:
+\paragraph{Multiple interpretaions} Adding |depth| interpretation can now be done in a modular manner similar to |width|:
 
 > newtype Depth = Depth {depth :: Int}
 >
@@ -48,8 +48,22 @@ Instantiating the type parameter as |Width| rather than |Int| avoids the conflic
 >   beside c1 c2   =  Depth (depth c1 `max` depth c2)
 >   stretch ns c   =  Depth (depth c)
 
-\paragraph{Dependent interpretation} However, adding dependent interpretation like |wellSized| is more challenging.
-We need the following type class introduced by ~\cite{Bahr}:
+\subsection{Dependent interpretations}
+Adding modular dependent interpretation like |wellSized| is more challenging
+in the Finally Tagless approach. However, inspired by the OO approach we can
+try to mimick the OO mechanisms in Haskell to obtain similar benefits in Haskell
+
+\paragraph{Subtyping}
+In the Scala solution subtyping avoid the explicit projections that are needed
+in the Haskell solution presented in Section~\ref{?}.
+We can obtain a similar benefit in Haskell by encoding a subtyping relation
+on tuples in Haskell. We need the following type class introduced by ~\cite{Bahr}:
+
+\bruno{We have the relation the wrong way around:
+(Int,Char) <: Char  is the correct way
+(Int,Char) is a subtype of Char, not the other
+way around. Please flip the relation everywhere and make sure the code
+type-checks and works!}
 
 > class a :<: b where
 >   inter :: b -> a
@@ -63,7 +77,6 @@ We need the following type class introduced by ~\cite{Bahr}:
 > instance (c :<: b) => c :<: (a,b) where
 >   inter = inter . snd
 
-This type class is defined for simulating subtyping relation.
 |a :<: b| means that type |a| is a component of a larger
 collection of types represented by |b|. The member function |inter|
 retrieves a value of type |a| from a value of the compound type |b|.
