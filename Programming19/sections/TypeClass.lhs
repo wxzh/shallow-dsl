@@ -37,7 +37,7 @@ Interpretations such as |width| are then defined as instances of |Circuit|:
 where |c| is instantiated as a record type |Width|.
 Instantiating the type parameter as |Width| rather than |Int| avoids the conflict with the |depth| interpretation which also produces integers.
 
-\paragraph{Multiple interpretaions} Adding |depth| interpretation can now be done in a modular manner similar to |width|:
+\paragraph{Multiple interpretations} Adding |depth| interpretation can now be done in a modular manner similar to |width|:
 
 > newtype Depth = Depth {depth :: Int}
 >
@@ -51,7 +51,9 @@ Instantiating the type parameter as |Width| rather than |Int| avoids the conflic
 \subsection{Dependent interpretations}
 Adding modular dependent interpretation like |wellSized| is more challenging
 in the Finally Tagless approach. However, inspired by the OO approach we can
-try to mimick the OO mechanisms in Haskell to obtain similar benefits in Haskell
+try to mimick the OO mechanisms in Haskell to obtain similar benefits in Haskell.
+In what follows we explain how to encode subtyping, inheritance and type-refinement
+in Haskell and how that encoding enables additional modularity benefits in Haskell.
 
 \paragraph{Subtyping}
 In the Scala solution subtyping avoid the explicit projections that are needed
