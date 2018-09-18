@@ -124,21 +124,34 @@ can easily express modular interpretations that may
 \emph{not only depend on themselves but also depend on other modular interpretations},
 leading to our motto: \emph{beyond simple compositionality}.
 
-We then port back to Haskell some of the ideas used in the Scala
-solution and show an improved Haskell encoding that has similar (and
+While Haskell does not natively support subtyping, inheritance and type-refinement,
+its powerful and expressive type system is sufficient to encode similar features.
+Therefore we can port back to Haskell some of the ideas used in the Scala
+solution using an improved Haskell encoding that has similar (and
 some times even better) benefits in terms of modularity.
-In essence in the Haskell encoding we encode a
+In essence in the Haskell solution we encode a
 form of subtyping on pairs using type classes. This is useful to
-avoid explicit projections. Inheritance is encoded by explicitly
+avoid explicit projections, that clutter the original Haskell solution.
+Inheritance is encoded by explicitly
 delegating interpretations using Haskell superclasses.
 Finally, type refinement is simulated using the subtyping typeclass
-to introduce subtyping constraints.\bruno{refine later}
+to introduce subtyping constraints.
 
-While the technique does not deal with transformations, yielding efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}.
-By removing the limitation of multiple interpretations, we enlarge the applicability of shallow embeddings. A concrete example is our case study, which refactors an external DSL that employs deep embedding techniques~\cite{rompf15} into a shallow EDSL.
-The refactored implementation allows both new (possibly dependent) interpretations and new constructs to be introduced modularly without sacrificing performance.
-Complete code for all examples/case-study is available at
-\url{https://github.com/wxzh/shallow-dsl}.
+While the techniques are problematic for transformations, yielding
+efficient shallow EDSLs is still possible via
+staging~\cite{rompf2012lightweight,carette2009finally}. By removing
+the limitation of multiple interpretations, we enlarge the
+applicability of shallow embeddings. A concrete example is our case
+study, which refactors an external DSL that employs deep embedding
+techniques~\cite{rompf15} into a shallow EDSL.  The refactored
+implementation allows both new (possibly dependent) interpretations
+and new constructs to be introduced modularly without sacrificing
+performance.  Complete code for all examples/case-study is available
+at:
+
+\begin{center}
+\url{https://github.com/wxzh/shallow-dsl}
+\end{center}
 
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
