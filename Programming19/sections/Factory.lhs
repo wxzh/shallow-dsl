@@ -1,6 +1,7 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
+%include scala.fmt
 
 %format (="\!("
 %format [="\!["

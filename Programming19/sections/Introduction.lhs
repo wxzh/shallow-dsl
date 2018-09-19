@@ -25,8 +25,7 @@ operations. Such discussions lead to a generally accepted belief that it is hard
 multiple interpretations\cite{svenningsson2012combining}\bruno{references} and AST transformations in shallow embeddings.
 % http://composition.al/blog/2015/06/02/embedding-deep-and-shallow/
 % https://alessandrovermeulen.me/2013/07/13/the-difference-between-shallow-and-deep-embedding/
-% Simple Types in Type Theory: deep and shallow
-Encodings
+% Simple Types in Type Theory: deep and shallow encodings
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means

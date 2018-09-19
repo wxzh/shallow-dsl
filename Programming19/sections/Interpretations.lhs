@@ -1,6 +1,7 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
+%include scala.fmt
 \section{Multiple interpretations in shallow embeddings}\label{sec:interp}
 
 An often stated limitation of shallow embeddings is that multiple 

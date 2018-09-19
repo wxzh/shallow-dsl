@@ -68,7 +68,7 @@ way around. Please flip the relation everywhere and make sure the code
 type-checks and works!}
 
 > class a :<: b where
->   inter :: b -> a
+>   inter :: a -> b
 >
 > instance a :<: a where
 >   inter = id

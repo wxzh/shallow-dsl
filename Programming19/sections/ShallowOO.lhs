@@ -1,6 +1,7 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
 %include def.fmt
+%include scala.fmt
 
 \section{Shallow object-oriented programming}\label{sec:oo}
 
