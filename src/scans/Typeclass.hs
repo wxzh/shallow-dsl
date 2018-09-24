@@ -34,7 +34,7 @@ class a :<: b where
   inter :: a -> b
 
 instance a :<: a where
-  inter = \x -> x
+  inter x = x
 
 instance (a,b) :<: a where
   inter = fst
@@ -43,7 +43,7 @@ instance (b :<: c) => (a,b) :<: c where
   inter = inter . snd
 
 
-instance (Circuit width, width :<: Width) => Circuit (WellSized, width) where
+instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
    id  n         =  (WellSized True, id n)
    fan n         =  (WellSized True, fan n)
    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)

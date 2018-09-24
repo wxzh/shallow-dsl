@@ -1,6 +1,6 @@
 %include lhs2TeX.fmt
 %include polycode.fmt
-%include def.fmt
+%include scala.fmt
 
 %format q0
 %format q1
@@ -205,7 +205,7 @@ trait HashJoin extends Join {
 
 \subsection{Evaluation}
 \begin{table}
-\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
+\caption{SLOC for original (Deep) and refactored (Shallow) versions}
 \begin{tabular}{lccc}
  \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep } & \textbf{ Shallow}\\
 \toprule

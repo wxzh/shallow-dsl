@@ -57,10 +57,9 @@ in Haskell and how that encoding enables additional modularity benefits in Haske
 
 \paragraph{Subtyping}
 In the Scala solution subtyping avoid the explicit projections that are needed
-in the Haskell solution presented in Section~\ref{?}.
+in the Haskell solution presented in ~\autoref{sec:interp}.
 We can obtain a similar benefit in Haskell by encoding a subtyping relation
-on tuples in Haskell. We need the following type class introduced by ~\cite{Bahr}:
-
+on tuples in Haskell. We need the following type class introduced by Bahr and Hvitved~\cite{bahr2011compositional}:
 \bruno{We have the relation the wrong way around:
 (Int,Char) <: Char  is the correct way
 (Int,Char) is a subtype of Char, not the other
@@ -71,7 +70,7 @@ type-checks and works!}
 >   inter :: a -> b
 >
 > instance a :<: a where
->   inter = id
+>   inter x = x
 >
 > instance (a,b) :<: a where
 >   inter = fst
@@ -79,14 +78,16 @@ type-checks and works!}
 > instance (b :<: c) => (a,b) :<: c where
 >   inter = inter . snd
 
-|a :<: b| means that type |a| is a subtype of by |b|. The function |inter| simulates up-casting, which converts a value of type |a| to a value of type |b|.
+|a :<: b| means that type |a| is a subtype of |b|. The function |inter| simulates up-casting in OOP, which converts a value of type |a| to a value of type |b|.
 The three instances, which are defined using overlapping instances,
-define the behaviour of the projection function by searching for
-the type being projected in a compound type.
+define the behaviour on projecting a value from an intersection type.
+encode a form of subtyping on pairs.
+
+Elaborating intersection types into pairs is known in the literature~\cite{dunfield2014elaborating}.
 
 Now, defining |wellSized| modularly becomes possible:
 
-> instance (Circuit width, width :<: Width) => Circuit (WellSized, width) where
+> instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
 >    id  n         =  (WellSized True, id n)
 >    fan n         =  (WellSized True, fan n)
 >    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
@@ -104,8 +105,7 @@ Now, defining |wellSized| modularly becomes possible:
 > gwellSized = wellSized . inter
 
 Essentially, dependent interpretations are still defined using tuples.
-The dependency on |width| is expressed by constraining the type parameter as |Width :<: c|.
-% Nevertheless, such dependency is not hard-wired to any concrete implementation of |width|.
+The dependency on |width| is expressed by constraining the type parameter |c| as a subtype of |Width|.
 The implementation is modular but requires some boilerplate.
 The reuse of |width| interpretation is achieved via delegatation, where |inter| needs to be called on each subcircuit. Also, auxiliary definitions |gwidth| and |gwellSized| are necessary for projecting the desired interpretations from the constrained type parameter.
 
