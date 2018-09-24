@@ -13,8 +13,16 @@
 \section{Modular terms in Scala}\label{sec:modterms}
 
 % no generic polymorphism
-One advantage of the Finally Tagless approach over our Scala approach presented so far is that terms can be constructed modularly without tying to any interpretation.
-Indeed, modular terms are also possible by combining our Scala approach with Object Algebras~\cite{oliveira2012extensibility}, which employ technique similar to Finally Tagless in the context of OOP.
+
+One advantage of the Finally Tagless approach over our Scala approach
+presented so far is that terms can be constructed modularly without
+tying those terms to any interpretation. Modular terms are also possible
+by combining our Scala approach with Object
+Algebras~\cite{oliveira2012extensibility}, which employ technique
+similar to Finally Tagless in the context of OOP. Differently from the Haskell 
+solution presented in Section~\ref{sec:modHaskell}, the Scala approach only 
+employs parametric polymorphism to overload the constructors. Both 
+inheritance and type-refinement, do not need to be simulated or encoded.
 
 \paragraph{Abstract factories} To capture the generic interface of the constructors we define an abstract factory for circuits similar to the type class version shown in \autoref{sec:class}:
 
@@ -49,7 +57,7 @@ where the omitted code is identical to the smart constructors presented in Secti
 
 > trait Factory4 extends Factory[Circuit4] { ... }
 
-\paragraph{Concrete terms} Supplying concrete factories to abstract terms, we obtain concrete terms that can be interpreted differently:
+\paragraph{Concrete terms} By supplying concrete factories to abstract terms, we obtain concrete terms that can be interpreted differently:
 
 \begin{code}
 c(new Factory1{}).width {-"\quad\quad\quad\quad\text{ // 4} "-}

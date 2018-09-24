@@ -105,9 +105,7 @@ circuit. The definitions are:
 
 \noindent Now we are able to construct the circuit in \autoref{fig:circuit} using these definitions:
 
->  (fan 2 `beside` fan 2) `above`
->  stretch [2,2] (fan 2) `above`
->  (id 1 `beside` fan 2 `beside` id 1)
+>  (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 
 \noindent For this interpretation, the Haskell domain is simply |Int|.
 This means that we will get the width immediately after the construction of a circuit (e.g. 4 for the circuit above).
