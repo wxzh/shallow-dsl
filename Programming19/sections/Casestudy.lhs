@@ -63,11 +63,14 @@ Secondly, the original implementation contains no hand-coded AST transformations
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
+\bruno{Now "." is rendered badly here! Please go through all the paper and fix the renderings 
+of ".".}
 To illustrate our shallow EDSL, suppose there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
 > def q0 = FROM ("talks.csv")
 
+\bruno{What is the |^^|? You need to explain this.}
 \noindent Another query that finds all talks at 9 am with their room and title selected is:
 
 > def q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
@@ -125,6 +128,7 @@ For example, we will get the following operator structure for |q1|:
 \subsection{A relational algebra compiler}
 A SQL query can be represented by a relational algebra expression.
 The basic interface of operators is modeled as follows:
+\bruno{Scala code not rendered correctly!}
 
 > trait Operator {
 >   def resultSchema: Schema

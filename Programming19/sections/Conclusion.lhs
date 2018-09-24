@@ -1,5 +1,5 @@
 \section{Conclusion}
-This functional pearl revealed the close correspondence between OOP and shallow
+This programming pearl revealed the close correspondence between OOP and shallow
 embeddings: the essence of both is procedural abstraction. It also
 showed how OOP increases the modularity of shallow EDSLs. OOP
 abstractions, including subtyping, inheritance, and type-refinement,
