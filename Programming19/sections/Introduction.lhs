@@ -22,7 +22,7 @@ enable tranformations on the abstract syntax tree (AST), and multiple
 interpretations are easy to implement; shallow embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
-multiple interpretations\cite{svenningsson2012combining}\bruno{references} and AST transformations in shallow embeddings.
+multiple interpretations~\cite{svenningsson2012combining} and AST transformations in shallow embeddings.
 % http://composition.al/blog/2015/06/02/embedding-deep-and-shallow/
 % https://alessandrovermeulen.me/2013/07/13/the-difference-between-shallow-and-deep-embedding/
 % Simple Types in Type Theory: deep and shallow encodings
@@ -139,7 +139,7 @@ delegating interpretations using Haskell superclasses.
 Finally, type refinement is simulated using the subtyping typeclass
 to introduce subtyping constraints.
 
-While the techniques are problematic for transformations, yielding
+While the techniques are still problematic for transformations, yielding
 efficient shallow EDSLs is still possible via
 staging~\cite{rompf2012lightweight,carette2009finally}. By removing
 the limitation of multiple interpretations, we enlarge the
@@ -149,11 +149,7 @@ techniques~\cite{rompf15} into a shallow EDSL.  The refactored
 implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing
 performance.  Complete code for all examples/case-study is available
-at:
-
-\begin{center}
-\url{https://github.com/wxzh/shallow-dsl}
-\end{center}
+at \url{https://github.com/wxzh/shallow-dsl}.
 
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
