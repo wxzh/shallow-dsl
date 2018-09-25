@@ -66,12 +66,13 @@ class Circuit c => ExtendedCircuit c where
 instance ExtendedCircuit Width where
   rstretch = stretch
 
-
-
 circuit :: Circuit c => c
 circuit = (fan 2 `beside` fan 2) `above`
           stretch [2,2] (fan 2) `above`
           (id 1 `beside` fan 2 `beside` id 1)
+
+circuit2 :: ExtendedCircuit c => c
+circuit2 = rstretch [2,2,2,2] circuit
 
 instance (Circuit i1, Circuit i2) => Circuit (i1,i2) where
   id n         = (id n, id n)

@@ -117,7 +117,7 @@ Now we are able to construct the circuit in \autoref{fig:circuit} using these de
 < > (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 < 4
 
-\noident The embedded syntax is close to the concrete syntax shown in
+%\noident The embedded syntax is close to the concrete syntax shown in
 
 % Interpretations of a more complex domain will be shown in~\autoref{sec:interp}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.

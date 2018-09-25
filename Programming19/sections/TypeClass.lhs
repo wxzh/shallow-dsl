@@ -163,10 +163,15 @@ language constructs such as |rstretch|:
 > class Circuit c => ExtendedCircuit c where
 >   rstretch :: [Int] -> c -> c
 
-Existing interpretations can be modularly extended so that |rstretch| can be handled:
+Existing interpretations can be modularly extended to handle |rstretch|:
 
 > instance ExtendedCircuit Width where
 >   rstretch = stretch
+
+Existing circuits can also be reused for constructing circuits in extended \dsl:
+
+> circuit2 :: ExtendedCircuit c => c
+> circuit2 = rstretch [2,2,2,2] circuit
 
 \subsection{Comparing modular implementations using Scala and Haskell}
 

@@ -35,8 +35,7 @@ trait Circuit[C] {
   def stretch(x: C, xs: Int*): C
 }
 \end{code}
-|Circuit| is a generic interface, which exposes factory methods for
-each circuit construct supported by \dsl.
+which exposes factory methods for each circuit construct supported by \dsl.
 
 \paragraph{Abstract terms}
 Modular terms can be constructed via the abstract factory. For example,
@@ -55,7 +54,7 @@ def circuit[C](f: Circuit[C]) =
 
 where the omitted code is identical to the smart constructors presented in~\autoref{subsec:shallow}. Concrete factories for other circuit implementations can be defined in a similar way by instantiating the type parameter |Circuit| accordingly:
 
-> trait Factory4 extends Factory[Circuit4] { ... }
+> trait Factory4 extends Circuit[Circuit4] { ... }
 
 \paragraph{Concrete terms} By supplying concrete factories to abstract terms, we obtain concrete terms that can be interpreted differently:
 
