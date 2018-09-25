@@ -26,6 +26,12 @@ still easy to do with shallow embeddings and the full benefits
 of an extended form of compositionality still apply.
 Therefore the motivation to employ deep embeddings becomes weaker than before
 and mostly reduced to the need for AST transformations.
+One final note regarding transformations, is that
+prior work on the Finally Tagless~\cite{} and Object Algebras~\cite{}\bruno{cite relevant
+work on transformations} approaches
+already shows that transformations are still possible in those styles.
+However this requires some extra machinery, and the line between shallow
+and deep embeddings becomes quite blurry at that point. 
 
 %%where 
 %%Nevertheless, the need for transformations over the AST is still a valid reason to s%witch to deep embeddings.

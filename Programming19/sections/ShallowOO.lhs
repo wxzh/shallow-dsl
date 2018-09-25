@@ -114,8 +114,7 @@ language constructs.
 
 Now we are able to construct the circuit in \autoref{fig:circuit} using these definitions:
 
-< > (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
-< 4
+< (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
 
 % Interpretations of a more complex domain will be shown in~\autoref{sec:interp}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
@@ -147,10 +146,18 @@ behavior to the program. Hence the two programs are effectively the
 same. However, having fields makes the program look more like an
 OO program.
 
-\paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala:
+\paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala, 
+as shown in Figure~\ref{fig:shallow}. The idea is to map 
+Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
+declarations become method declarations.
+Object interfaces make the connection to procedural abstraction clear:
+data is modeled by the operations that can be performed over it.
+Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+
 %format (="\!("
 %format [="\!["
 
+\begin{figure}[t]
 \begin{minipage}{.5\textwidth}
 \begin{spec}
 {-"\text{// object interface}"-}
@@ -184,13 +191,9 @@ trait Stretch1 extends Circuit1 {
 }
 \end{spec}
 \end{minipage}
-
-\noindent The idea is to map 
-Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
-declarations become method declarations.
-Object interfaces make the connection to procedural abstraction clear:
-data is modeled by the operations that can be performed over it.
-Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+\caption{Circuit interpretation in Scala.}
+\label{fig:shallow}
+\end{figure}
 
 
 % a class is a procedure that returns a value satisfying an interface

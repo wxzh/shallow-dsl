@@ -66,9 +66,7 @@ c(new Factory4{}).layout { x => x } {-" \text{ // List(List((0,1), (2,3)), List(
 \paragraph{Modular extensions} Both factories and terms can be \emph{modularly} reused when the DSL is extended with new language constructs. To support right stretch for \dsl, we first extend the abstract factory with new factory methods:
 
 \begin{code}
-trait ExtendedCircuit[C] extends Circuit[C] {
-  def rstretch(x: C, xs: Int*): C
-}
+trait ExtendedCircuit[C] extends Circuit[C] { def rstretch(x: C, xs: Int*) : C }
 \end{code}
 We can also build extended concrete factories upon existing concrete factories:
 
@@ -80,3 +78,5 @@ trait ExtendedFactory4 extends ExtendedCircuit[Circuit4] with Factory4 {
 Furthermore, previously defined terms can be reused in constructing extended terms:
 
 > def circuit2[C](f: ExtendedCircuit[C]) = f.rstretch(circuit(f),2,2,2,2)
+
+\vspace{-20pt}
