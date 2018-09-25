@@ -53,7 +53,7 @@ def circuit[C](f: Circuit[C]) =
 
 > trait Factory1 extends Circuit[Circuit1] { ... }
 
-where the omitted code is identical to the smart constructors presented in Section~\ref{subsec:shallow}. Concrete factories for other circuit implementations can be defined in a similar way by instantiating the type parameter |Circuit| accordingly:
+where the omitted code is identical to the smart constructors presented in~\autoref{subsec:shallow}. Concrete factories for other circuit implementations can be defined in a similar way by instantiating the type parameter |Circuit| accordingly:
 
 > trait Factory4 extends Factory[Circuit4] { ... }
 

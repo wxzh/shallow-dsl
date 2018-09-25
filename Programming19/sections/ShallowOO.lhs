@@ -103,19 +103,23 @@ circuit. The definitions are:
 > above c1 c2    =  c1
 > stretch ns c   =  sum ns
 
-\noindent Now we are able to construct the circuit in \autoref{fig:circuit} using these definitions:
-
->  (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
-
 \noindent For this interpretation, the Haskell domain is simply |Int|.
-This means that we will get the width immediately after the construction of a circuit (e.g. 4 for the circuit above).
+This means that we will get the width immediately after the construction of a circuit.
 Note that the |Int| domain for |width| is a degenerate case of procedural abstraction: |Int| can be viewed
 as a no argument function. In Haskell, due to laziness, |Int|
 is a good representation. In a call-by-value language,
 a no-argument function |() -> Int| is more
 appropriate to deal correctly with potential control-flow
 language constructs.
-% Interpretations of a more complex domain will be shown in Section~\ref{sec:interp}.
+
+Now we are able to construct the circuit in \autoref{fig:circuit} using these definitions:
+
+< > (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
+< 4
+
+\noident The embedded syntax is close to the concrete syntax shown in
+
+% Interpretations of a more complex domain will be shown in~\autoref{sec:interp}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
 
 \paragraph{Towards OOP}

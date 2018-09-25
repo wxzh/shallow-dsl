@@ -65,12 +65,14 @@ Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{
 
 \bruno{Now "." is rendered badly here! Please go through all the paper and fix the renderings 
 of ".".}
+\weixin{Fixed}
 To illustrate our shallow EDSL, suppose there is a data file |talks.csv| that contains a list of talks with time, title and room. We can write several sample queries on this file with our EDSL.
 A simple query that lists all items in |talks.csv| is:
 
 > def q0 = FROM ("talks.csv")
 
 \bruno{What is the |^^|? You need to explain this.}
+\weixin{|^^| is a space for rendering, which did not appear in real code}
 \noindent Another query that finds all talks at 9 am with their room and title selected is:
 
 > def q1     =  q0 WHERE ^^ `time === "09:00 AM" SELECT (`room, `title)
@@ -136,7 +138,7 @@ The basic interface of operators is modeled as follows:
 > }
 
 Two interpretations, |resultSchema| and |execOp|, need to be implemented for each concrete operator: the former collects a schema for projection; the latter executes actions to the records of the table.
-Very much like the interpretation |layout| discussed in Section~\ref{sec:ctxsensitive},
+Very much like the interpretation |layout| discussed in~\autoref{sec:ctxsensitive},
 |execOp| is both \emph{context-sensitive} and \emph{dependent}:
 it takes a callback |yld| and accumulates what the operator does to records into |yld| and uses |resultSchema| in displaying execution results. In our implementation |execOp| is indeed introduced as an extension just like |layout|. Here we merge the two interpretations for conciseness of presentation. Some core concrete relational algebra operators are given below:
 
@@ -178,7 +180,7 @@ LMS provides a type constructor |Rep| for annotating computations that are to be
 
 where |Unit| is lifted as |Rep[Unit]| for delaying the actions on records to the generated code.
 Two staged versions of |execOp| are introduced for generating Scala and C code respectively.
-By using the technique presented in Section~\ref{sec:interp}, they are added modularly with existing interpretations such as |resultSchema| reused.
+By using the technique presented in~\autoref{sec:interp}, they are added modularly with existing interpretations such as |resultSchema| reused.
 The implementation of staged |execOp| is similar to the unstaged counterpart except for minor API differences between staged and unstaged types.
 Hence the simplicity of the implementation remains. At the same time, dramatic speedups are obtained by switching from interpretation to compilation.
 
@@ -209,7 +211,6 @@ trait HashJoin extends Join {
 
 \subsection{Evaluation}
 \begin{table}
-\caption{SLOC for original (Deep) and refactored (Shallow) versions}
 \begin{tabular}{lccc}
  \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep } & \textbf{ Shallow}\\
 \toprule
@@ -218,6 +219,7 @@ trait HashJoin extends Join {
 \emph{query_optc} & SQL to C compiler        & 245  & 262 \\
 \bottomrule
 \end{tabular}
+\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
 \label{sloc}
 \end{table}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.

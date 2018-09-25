@@ -48,7 +48,7 @@ Instantiating the type parameter as |Width| rather than |Int| avoids the conflic
 >   beside c1 c2   =  Depth (depth c1 `max` depth c2)
 >   stretch ns c   =  Depth (depth c)
 
-\subsection{Modular Dependent interpretations}
+\subsection{Modular dependent interpretations}
 Adding a modular dependent interpretation like |wellSized| is more challenging
 in the Finally Tagless approach. However, inspired by the OO approach we can
 try to mimick the OO mechanisms in Haskell to obtain similar benefits in Haskell.
@@ -57,10 +57,10 @@ in Haskell and how that encoding enables additional modularity benefits in Haske
 
 \paragraph{Subtyping}
 In the Scala solution subtyping avoids the explicit projections that are needed
-in the Haskell solution presented in Section~\ref{sec:interp}.
+in the Haskell solution presented in~\autoref{sec:interp}.
 We can obtain a similar benefit in Haskell by encoding a subtyping relation
 on tuples in Haskell. We use the following type class, which was introduced by
-Bahr~\cite{bahr2011compositional}, to express a subtyping relation on tuples:
+Bahr and Hvitved~\cite{bahr2011compositional}, to express a subtyping relation on tuples:
 
 > class a :<: b where
 >   inter :: a -> b
@@ -77,16 +77,16 @@ Bahr~\cite{bahr2011compositional}, to express a subtyping relation on tuples:
 In essence a type |a| is a subtype of a type |b| (expressed as |a :<:
 b|) if |a| has \emph{the same or more} tuple components as the type
 |b|. This subtyping relation is closely related to the elaboration interpretation
-of \emph{intersection types} proposed by Dunfield~\cite{dunfield2014elaborating}\bruno{reference}, where
+of \emph{intersection types} proposed by Dunfield~\cite{dunfield2014elaborating}, where
 Dunfield's merge operator corresponds (via elaboration) to the tuple constructor and
-projections are implicit and type-driven. 
+projections are implicit and type-driven.
 The function |inter| simulates up-casting, which converts a
 value of type |a| to a value of type |b|.  The three instances, which
 are defined using overlapping instances, define the behaviour of the
 projection function by searching for the type being projected in a
 compound type.
 
-\paragraph{Modular |wellSized| and Encodings of Inheritance and Type-Refinement}
+\paragraph{Modular |wellSized| and encodings of inheritance and type-refinement}
 Now, defining |wellSized| modularly becomes possible:
 
 > instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
@@ -120,7 +120,6 @@ necessary for projecting the desired interpretations from the
 constrained type parameter.
 
 \subsection{Modular terms}
->>>>>>> e6e925c26ebc504c1e2cf7c202e34f72d0010f1c
 As new interpretations may be added later, a problem is how to construct the term that can be interpreted by those new interpretations without reconstruction.
 We show how to do this for the circuit shown in \autoref{fig:circuit}:
 
@@ -132,9 +131,9 @@ We show how to do this for the circuit shown in \autoref{fig:circuit}:
 |circuit| is a generic circuit that is not tied to any interpretation.
 When interpreting |circuit|, its type needs to be instantiated:
 
-> {-"> "-} width (circuit :: Width)                    -- 4
-> {-"> "-} depth (circuit :: Depth)                    -- 3
-> {-"> "-} gwellSized (circuit :: (WellSized,Width))   -- True
+< > width (circuit :: Width)                    -- 4
+< > depth (circuit :: Depth)                    -- 3
+< > gwellSized (circuit :: (WellSized,Width))   -- True
 
 Note that |circuit| is annotated with the target semantic domain in choosing an appropriate type class instance for interpretation.
 

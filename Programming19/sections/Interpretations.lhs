@@ -40,8 +40,7 @@ depth  =  snd
 However, this solution is not modular because it relies
 on defining the two interpretations (|width| and
 |depth|) simultaneously. It is not
-possible to reuse the independently defined |width| interpretation in
-Section~\ref{subsec:shallow}.
+possible to reuse the independently defined |width| interpretation in~\autoref{subsec:shallow}.
 Whenever a new interpretation is needed (e.g. |depth|), the
 original code has to be revised:
 the arity of the tuple must be incremented and the new interpretation has to be
@@ -81,7 +80,7 @@ Specifically, |Circuit2| is a subtype of
 |Circuit1| and declares a new method |depth|.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and implementing |depth|.
 Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
-Importantly, all definitions for |width| in Section~\ref{subsec:shallow} are \emph{modularly reused} here.
+Importantly, all definitions for |width| in~\autoref{subsec:shallow} are \emph{modularly reused} here.
 
 \subsection{Dependent interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -328,8 +327,8 @@ Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems.
 In their paper Gibbons and Wu show how to support modular |depth| and |width| 
-(corresponding to Section~\ref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach. 
+(corresponding to~\autoref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach.
 This is possible because |depth| and |width| are
 non-dependent.
-However they do not show how to modularize |wellSized| nor |layout| (corresponding to Sections~\ref{sec:dependent} and \ref{sec:context}, respectively). In Section~\ref{sec:modHaskell} we revisit such Finally Tagless encoding and improve it 
+However they do not show how to modularize |wellSized| nor |layout| (corresponding to~\autoref{sec:dependent} and \ref{sec:context}, respectively). In~\autoref{sec:modHaskell} we revisit such Finally Tagless encoding and improve it
 to allow dependent interpretations, inspired by the OO solution presented in this section.
