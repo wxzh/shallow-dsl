@@ -17,12 +17,11 @@ the two styles.
 %%A nice aspect of shallow embeddings is their simplicity.
 Deep embeddings trade some simplicity and the ability to
 add new language constructs for some extra power. This extra power
-enables multiple interpretations, as well as complex transformations
-over the AST.
+enables multiple interpretations, as well as complex AST transformations.
 %The distinction between the two styles is not as clear in OOP languages as in functional languages.
 %A shallow EDSL turns out to be deep once classes are used as types for accessing fields~\cite{cook09abstraction}, violating
 % what Cook calls pure OOP, but allowing transformations to be defined.
-As this pearl shows, in languages with OOP mechanisms, multiple interpretations are
+As this pearl shows, in languages with OOP mechanisms, multiple (possibly dependent) interpretations are
 still easy to do with shallow embeddings and the full benefits
 of an extended form of compositionality still apply.
 Therefore the motivation to employ deep embeddings becomes weaker than before
