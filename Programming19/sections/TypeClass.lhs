@@ -110,11 +110,11 @@ Essentially, dependent interpretations are still defined using tuples.
 The dependency on |width| is expressed by constraining the type
 parameter as |c :<: Width|.  Such constraint allows us to simulate the
 type-refinement of fields in the Scala solution.  % Nevertheless, such
-dependency is not hard-wired to any concrete implementation of
-|width|.  The implementation is modular but requires some boilerplate.
+The dependency is not hard-wired to any concrete implementation of
+|width|.  Although the implementation is modular, it requires some boilerplate.
 The reuse of |width| interpretation is achieved via delegatation,
 where |inter| needs to be called on each subcircuit. Such explicit
-delegation offers simulates the inheritance employed in the Scala
+delegation simulates the inheritance employed in the Scala
 solution.  Also, auxiliary definitions |gwidth| and |gwellSized| are
 necessary for projecting the desired interpretations from the
 constrained type parameter.
@@ -157,7 +157,7 @@ We can further \emph{truly} compose interpretations to avoid repeating the const
 \end{comment}
 
 \paragraph{Syntax extensions}
-The Finally Tagless solution also allow us to modularly extend \dsl with more
+The Finally Tagless solution also allows us to modularly extend \dsl with more
 language constructs such as |rstretch|:
 
 > class Circuit c => ExtendedCircuit c where
