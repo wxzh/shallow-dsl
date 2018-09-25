@@ -18,7 +18,7 @@ abstract syntax.
 
 The trade-offs between shallow and deep embeddings have been widely
 discussed~\cite{svenningsson2012combining,yinyang}: deep embeddings
-enable tranformations on the abstract syntax tree (AST), and multiple
+enable transformations on the abstract syntax tree (AST), and multiple
 interpretations are easy to implement; shallow embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
@@ -139,16 +139,16 @@ delegating interpretations using Haskell superclasses.
 Finally, type refinement is simulated using the subtyping typeclass
 to introduce subtyping constraints.
 
-While the techniques are still problematic for transformations, yielding
+While the techniques are still cumbersome for transformations, yielding
 efficient shallow EDSLs is still possible via
 staging~\cite{rompf2012lightweight,carette2009finally}. By removing
 the limitation of multiple interpretations, we enlarge the
 applicability of shallow embeddings. A concrete example is our case
 study, which refactors an external SQL DSL that employs deep embedding
-techniques~\cite{rompf15} into a shallow EDSL.  The refactored
+techniques~\cite{rompf15} into a shallow EDSL. The refactored
 implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing
-performance.  Complete code for all examples/case-study is available
+performance. Complete code for all examples/case-study is available
 at \url{https://github.com/wxzh/shallow-dsl}.
 
 
