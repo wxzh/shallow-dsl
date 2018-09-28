@@ -14,8 +14,8 @@
 \usepackage{comment}
 \newcommand{\dsl}{\textsc{Scans}\xspace}
 \newcommand{\interp}{\textsc{Interpreter}\xspace}
-\newcommand{\an}[3]{{\color{#2} {#1}:#3}}
-%\newcommand{\an}[3]{}
+\newcommand{\an}[3]{}
+%\newcommand{\an}[3]{{\color{#2} {#1}:#3}}
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
@@ -72,7 +72,7 @@ and \emph{deep embeddings}.
 
 {\bf Inquiry.} Shallow embeddings are quite simple, 
 but they have been criticized in the past for being quite limited in
-terms of modularity and reuse. In particular it is often argued that 
+terms of modularity and reuse. In particular, it is often argued that
 supporting multiple DSL interpretations in shallow embeddings is difficult.
 
 
@@ -95,7 +95,7 @@ EDSLs when compared to classical procedural abstraction by enabling a
 simple way to express \emph{multiple, possibly dependent,
   interpretations}. 
 
-{\bf Grounding}
+{\bf Grounding.}
 We make our arguments by using Gibbons and Wu's examples, where procedural
 abstraction is used in Haskell to model a simple shallow EDSL. We recode that
 EDSL in Scala and with an improved OO-inspired Haskell encoding.
@@ -103,8 +103,8 @@ We further illustrate our approach with
 a case study on refactoring a deep external SQL DSL implementation to make it
 more modular, shallow, and embedded.
 
-{\bf Importance.} This work is important for two different
-reasons. Firstly, from an intelectual point of view, this work
+{\bf Importance.} This work is important for two reasons.
+Firstly, from an intellectual point of view, this work
 establishes the connection between shallow embeddings and OOP, which enables a
 better understanding of both concepts. Secondly, this work
 offers new programming techniques that can be used to improve 

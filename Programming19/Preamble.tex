@@ -47,7 +47,7 @@
 
 %mathindent has to be defined
 \@ifundefined{mathindent}%
-  {\newdimen\mathindent\mathindent\leftmargini}%
+  {\newdimen\mathindent\mathindent\leftmargin}%
   {}%
 
 \def\resethooks{%
@@ -116,7 +116,7 @@
 % can be used, for instance, to redefine the code size, by setting the
 % command to \small or something alike
 \newcommand{\hscodestyle}{
-\setlength\leftskip{\parindent}%
+\setlength\leftskip{\parindent}\hspace{-3pt}%
 }
 
 % The command \sethscode can be used to switch the code formatting
