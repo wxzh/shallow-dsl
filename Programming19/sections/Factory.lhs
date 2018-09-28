@@ -18,7 +18,7 @@ One advantage of the Finally Tagless approach over our Scala approach
 presented so far is that terms can be constructed modularly without
 tying those terms to any interpretation. Modular terms are also possible
 by combining our Scala approach with Object
-Algebras~\cite{oliveira2012extensibility}, which employ technique
+Algebras~\cite{oliveira2012extensibility}, which employ the technique
 similar to Finally Tagless in the context of OOP. Differently from the Haskell 
 solution presented in Section~\ref{sec:modHaskell}, the Scala approach only 
 employs parametric polymorphism to overload the constructors. Both 

@@ -51,8 +51,8 @@ Instantiating the type parameter as |Width| rather than |Int| avoids the conflic
 \subsection{Modular dependent interpretations}
 Adding a modular dependent interpretation like |wellSized| is more challenging
 in the Finally Tagless approach. However, inspired by the OO approach we can
-try to mimick the OO mechanisms in Haskell to obtain similar benefits in Haskell.
-In what follows we explain how to encode subtyping, inheritance and type-refinement
+try to mimic the OO mechanisms in Haskell to obtain similar benefits in Haskell.
+In what follows we explain how to encode subtyping, inheritance, and type-refinement
 in Haskell and how that encoding enables additional modularity benefits in Haskell.
 
 \paragraph{Subtyping}
@@ -112,7 +112,7 @@ parameter as |c :<: Width|.  Such constraint allows us to simulate the
 type-refinement of fields in the Scala solution.  % Nevertheless, such
 The dependency is not hard-wired to any concrete implementation of
 |width|.  Although the implementation is modular, it requires some boilerplate.
-The reuse of |width| interpretation is achieved via delegatation,
+The reuse of |width| interpretation is achieved via delegation,
 where |inter| needs to be called on each subcircuit. Such explicit
 delegation simulates the inheritance employed in the Scala
 solution.  Also, auxiliary definitions |gwidth| and |gwellSized| are
@@ -184,7 +184,7 @@ The Scala approach
 relies on built-in features. In particular, subtyping, multiple (trait)
 inheritance and type-refinement are all built-in. This makes it
 quite natural to program the solutions in Scala, without even needing
-any form of parametric polymorphism. In contrast the Haskell solution
+any form of parametric polymorphism. In contrast, the Haskell solution
 does not have such built-in support for OO features. Subtyping and
 type-refinement need to be
 encoded/simulated using parametric polymorphism and type classes.

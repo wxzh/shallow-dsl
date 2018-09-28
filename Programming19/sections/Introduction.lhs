@@ -126,12 +126,12 @@ can easily express modular interpretations that may
 \emph{not only depend on themselves but also depend on other modular interpretations},
 leading to our motto: \emph{beyond simple compositionality}.
 
-While Haskell does not natively support subtyping, inheritance and type-refinement,
+While Haskell does not natively support subtyping, inheritance, and type-refinement,
 its powerful and expressive type system is sufficient to encode similar features.
 Therefore we can port back to Haskell some of the ideas used in the Scala
 solution using an improved Haskell encoding that has similar (and
-some times even better) benefits in terms of modularity.
-In essence in the Haskell solution we encode a
+sometimes even better) benefits in terms of modularity.
+In essence, in the Haskell solution we encode a
 form of subtyping on pairs using type classes. This is useful to
 avoid explicit projections, that clutter the original Haskell solution.
 Inheritance is encoded by explicitly

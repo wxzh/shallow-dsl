@@ -6,7 +6,7 @@
 
 An often stated limitation of shallow embeddings is that multiple 
 interpretations are difficult. Gibbons and Wu~\cite{gibbons2014folding} work around this problem by using tuples. However, their encoding needs to modify
-the original code, and thus is non-modular. This section illustrates how various types of
+the original code and thus is non-modular. This section illustrates how various types of
 interpretations can be \emph{modularly} defined using standard OOP mechanisms, and compares the result with Gibbons and Wu's Haskell implementations.
 
 \subsection{Simple multiple interpretations}\label{subsec:multiple}
