@@ -114,7 +114,8 @@ language constructs.
 
 Now we are able to construct the circuit in \autoref{fig:circuit} using these definitions:
 
-< (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
+< > (fan 2 `beside` fan 2) `above` stretch [2,2] (fan 2) `above` (id 1 `beside` fan 2 `beside` id 1)
+< 4
 
 % Interpretations of a more complex domain will be shown in~\autoref{sec:interp}.
 % More realistic shallow DSLs, such as parser combinators~\cite{leijen01parsec}, tend to have more complex functional domains.
@@ -217,12 +218,12 @@ def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c
 \noindent Now we are able to construct the circuit shown in \autoref{fig:circuit} in Scala:
 
 \begin{spec}
-val c  = above(  beside(fan(2),fan(2)),
-                 above(  stretch(fan(2),2,2),
-                         beside(beside(id(1),fan(2)),id(1))))
+val circuit  = above(  beside(fan(2),fan(2)),
+                       above(  stretch(fan(2),2,2),
+                               beside(beside(id(1),fan(2)),id(1))))
 \end{spec}
 
-\noindent Finally, calling |c.width| will return 4 as expected.
+\noindent Finally, calling |circuit.width| will return 4 as expected.
 
 As this example illustrates, shallow embeddings and straightforward OO
 programming are closely related. The syntax of the Scala code is not

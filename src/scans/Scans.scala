@@ -11,10 +11,10 @@ def above(x: Circuit1, y: Circuit1)   =  new Above1     {val c1=x; val c2=y}
 def beside(x: Circuit1, y: Circuit1)  =  new Beside1    {val c1=x; val c2=y}
 def stretch(x: Circuit1, xs: Int*)    =  new Stretch1   {val ns=xs.toList; val c=x}
 
-val c  = above(  beside(fan(2),fan(2)),
-                 above(  stretch(fan(2),2,2),
-                         beside(beside(id(1),fan(2)),id(1))))
-println(c.width)
+val circuit  = above(  beside(fan(2),fan(2)),
+                       above(  stretch(fan(2),2,2),
+                               beside(beside(id(1),fan(2)),id(1))))
+println(circuit.width)
 }
 
 

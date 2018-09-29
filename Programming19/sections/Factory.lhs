@@ -59,8 +59,8 @@ where the omitted code is identical to the smart constructors presented in~\auto
 \paragraph{Concrete terms} By supplying concrete factories to abstract terms, we obtain concrete terms that can be interpreted differently:
 
 \begin{code}
-c(new Factory1{}).width {-"\quad\quad\quad\quad\text{ // 4} "-}
-c(new Factory4{}).layout { x => x } {-" \text{ // List(List((0,1), (2,3)), List((1,3)), List((1,2)))} "-}
+circuit(new Factory1{}).width {-"\quad\quad\quad\quad\text{ // 4} "-}
+circuit(new Factory4{}).layout { x => x } {-" \text{ // List(List((0,1), (2,3)), List((1,3)), List((1,2)))} "-}
 \end{code}
 
 \paragraph{Modular extensions} Both factories and terms can be \emph{modularly} reused when the DSL is extended with new language constructs. To support right stretch for \dsl, we first extend the abstract factory with new factory methods:
