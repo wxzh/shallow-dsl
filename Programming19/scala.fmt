@@ -1,5 +1,6 @@
 %format . = "."
 %format // = "/\!/"
+%format += = "\mathrel{{+}{=}}"
 %format trait = "\mathbf{trait}"
 %format package = "\mathbf{package}"
 %format val = "\mathbf{val}"
