@@ -60,7 +60,7 @@ is encodable naturally
 when the host language combines functional features with common OO features, such as
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
 
-At the center of this pearl is Reynolds \cite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
+At the center of this pearl is Reynolds'~\cite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
 enables us to directly relate shallow embeddings and OOP. With procedural abstraction, data is characterized by the operations that are performed over it.
 This pearl builds on two independently observed connections to procedural abstraction:
 

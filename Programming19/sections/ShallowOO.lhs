@@ -19,7 +19,7 @@ Then translating the program into a functional OOP language like Scala becomes s
 
 
 
-\setlength{\grammarindent}{5em} % increase separation between LHS/RHS
+\setlength{\grammarindent}{5.5em} % increase separation between LHS/RHS
 \begin{figure}
 \begin{grammar}
  <circuit> $\Coloneqq$ `id' <positive-number>

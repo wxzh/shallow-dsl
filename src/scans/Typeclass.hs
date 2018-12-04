@@ -42,7 +42,6 @@ instance (a,b) :<: a where
 instance (b :<: c) => (a,b) :<: c where
   inter = inter . snd
 
-
 instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
    id  n         =  (WellSized True, id n)
    fan n         =  (WellSized True, fan n)

@@ -1,208 +1,216 @@
-The reviewers have specified the following mandatory revisions:
+> The reviewers have specified the following mandatory revisions:
+>
+> - Connect to the work of Cazzola and Vacchi (see review 3).
+>
+> - In light of that connection, reframe the paper's contributions as
+>   contrasting Scala and Haskell approaches, as opposed to presenting
+>   an entirely new approach.
+>
+> ----------------------- REVIEW 1 ---------------------
+> PAPER: 30
+> TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
+> AUTHORS: Weixin Zhang and Bruno Oliveira
+>
+> Overall evaluation: 2 (accept, minor revision)
+>
+> ----------- Review -----------
+> This paper presents patterns for writing extensible, shallowly
+> embedded DSLs.  Starting from Gibbons and Wu's work relating shallow
+> embeddings and procedural abstraction, they port code to Scala, use
+> Scala features like traits and subtyping to improve modularity, and
+> then backport their more modular DSL pattern to Haskell by means of
+> explicit subtyping à la Bahr and Hvitved. They are able to support
+> dependencies between DSL operations as well as context-sensitivity and
+> delayed evaluation (e.g., operations which accumulate some context and
+> only do work at the end, avoiding the need to compute intermediate
+> results). Finally, they apply their DSL pattern to Rompf and Amin's
+> LMS implementation of SQL.
+>
+> This paper will surely prove useful to DSL implementors: not just
+> because it shows how to achieve modular definitions of a wide variety
+> of DSL operations, but because it contrasts their implementations in
+> Scala and Haskell.
+>
+> A few things would make the paper stronger:
+>
+>  * Explicitly calling out the features used in Haskell and Scala up
+>    front, showing which features in Haskell (type classes) correspond
+>    with those in Scala (traits, subtyping).
 
-- Connect to the work of Cazzola and Vacchi (see review 3).
+TODO (using a table like before?)
 
-- In light of that connection, reframe the paper's contributions as
-  contrasting Scala and Haskell approaches, as opposed to presenting
-  an entirely new approach.
-
------------------------ REVIEW 1 ---------------------
-PAPER: 30
-TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
-AUTHORS: Weixin Zhang and Bruno Oliveira
-
-Overall evaluation: 2 (accept, minor revision)
-
------------ Review -----------
-This paper presents patterns for writing extensible, shallowly
-embedded DSLs.  Starting from Gibbons and Wu's work relating shallow
-embeddings and procedural abstraction, they port code to Scala, use
-Scala features like traits and subtyping to improve modularity, and
-then backport their more modular DSL pattern to Haskell by means of
-explicit subtyping à la Bahr and Hvitved. They are able to support
-dependencies between DSL operations as well as context-sensitivity and
-delayed evaluation (e.g., operations which accumulate some context and
-only do work at the end, avoiding the need to compute intermediate
-results). Finally, they apply their DSL pattern to Rompf and Amin's
-LMS implementation of SQL.
-
-This paper will surely prove useful to DSL implementors: not just
-because it shows how to achieve modular definitions of a wide variety
-of DSL operations, but because it contrasts their implementations in
-Scala and Haskell.
-
-A few things would make the paper stronger:
-
- * Explicitly calling out the features used in Haskell and Scala up
-   front, showing which features in Haskell (type classes) correspond
-   with those in Scala (traits, subtyping).
-
- * Explicitly calling out the boilerplate burden associated with the
-   each language feature used, e.g.:
-
-   - Haskell's subtyping uses explicit upcasts while Scala's does not
-
-   - Haskell should be able to infer types for abstract terms... is
-     Scala?
-
-   - Haskell requires type annotations for abstract terms at use
-     sites; Scala seems to require them at definition sites
-
-   - Scala requires "factories"; Haskell requires "genericized",
-     upcasting versions of operators
-
-  * Making the comparisons between Haskell and Scala more
-    apples-to-apples. At present, Haskell strawmen are presented first
-    alongside more robust Scala implementations; we finally "backport"
-    the Scala to Haskell. While this may be the story of your
-    research, I think the paper would be stronger if Hakell and Scala
-    were kept in lockstep.
-
-    For example, the "Towards OOP" section introduces a record-like
-    notation for circuits, and I enjoy the observation that the added
-    curly braces make things seem more object-oriented. (Do you mean
-    that as a joke? It reads like one.)
-
-    But you've in fact made quite a leap in "Porting to Scala"---while
-    you've used Haskell's ordinary data definitions, your Scala code
-    jumps directly to mixins. Your walk through the concepts might be
-    more illustrative if your implementations are more similar. Why
-    isn't `Circuit2` implemented as a newtype in Haskell?
-
-    Later on, you claim that the Scala version of `Circuit4` is more
-    intuitive because of the named method arguments to `layout`, but
-    one could have the same thing if you used records rather than
-    tuples in Haskell.
-
-    The use of tuples also weakens your discussion of non-sugared
-    additions in Section 3.4. A new feature could partially reuse
-    others in Haskell, too:
-
-    ```
-    let rstretch ns c =
-      let (stretchWidth, _) = stretch4 ns c in
-      (stretchWidth, \f -> ...)
-    ```
-
-    The example is even cleaner if one uses records:
-
-    ```
-    let rstretch ns c =
-      let s = stretch4 ns c in
-      let layout f = ... in
-      s { layout = layout }
-    ```
-
-    Lazy evaluation means unused parts of the reused code are zero
-    cost, i.e., nothing binds the original `s.layout` so it need not
-    even be compiled.
-
-**** OTHER COMMENTS
-
-The `layout` example of context-sensitivity is a tiny bit artificial,
-since there's a naive, non-accumulating implementation. This section
-would be stronger if you came up with an example that _only_ had a
-context-sensitive implementation.
-
-The last paragraph on p17 (in Section 6.1) is slightly
-confusing. Being a case study feels like motivation enough.
-
-The explicit ASTs of deep EDSLs (and LMS) serve another purpose beyond
-allowing for optimizations: having an AST simplifies debugging.
-
-**** RELATED IDEAS
-
-How do feature classes relate? For example, one could replace a
-`gwidth` function with feature classes, as in:
-
-```
-class Circuit c => HasWidth c where
-  gwidth :: c -> Int
-
-instance HasWidth Width where
-  gwidth = width
-
-instance (a \prec b, HasWidth b) => HasWidth a where
-  gwidth = gwidth . inter
-```
-
-This approach---which seems to be the more popular one in Haskell
-libraries---has the advantage of hiding details about the subtyping
-typeclass.
-
-The cite to Gibbons and Wu about what Reynolds believed undermines the
-opening line of the introduction citing Hudak as the originator of
-EDSLs. The idea of EDSLs is clearly a very old one; Hudak's
-contribution is primarily one of establishing nomenclature and idioms.
-
-Definitional interpreters feel quite related, and probably deserve
-some brief mention/citation.
-
-
------------------------ REVIEW 2 ---------------------
-PAPER: 30
-TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
-AUTHORS: Weixin Zhang and Bruno Oliveira
-
-Overall evaluation: 3 (strong accept, as is)
-
------------ Review -----------
-The paper explores a deep connection between shallow embedded
-  domain-specific languages (EDSLs) and object-oriented programming.
-  The work by (Gibbons and Wu 2014) showing a connection between
-  shallow EDSLs and procedural abstraction serves as the starting
-  point. By leveraging OOP abstractions including inheritance,
-  subtyping, and (covariant) type refinement, the authors show how to
-  implement modular interpretations which may depend not only on
-  themselves but also other interpretations, also provided in a
-  modular way. It is then shown how the learned lessons can also be
-  applied to a solution in Haskell where subtyping and inheritance are
-  simulated using type classes and delegation. Another significant
-  contribution of this programming pearl is the demonstration that the
-  presented approach to shallow EDSLs also supports staging, thus
-  enabling, for example, the generation of efficient code; using the
-  case study of an embedded SQL DSL, the author show that the same
-  code can be generated as with the deep embedding previously
-  presented by Rompf and Amin.  Moreover, the shown shallow embedding
-  is modular, and does not suffer from the expression problem as that
-  previous deep embedding.  All these advantages come at a rather
-  modest price, namely a dozen or so extra source lines of code,
-  mainly due to the fact that the deep embedding can leverage the
-  concise syntax for case classes in Scala.
-
-  The paper is very well written and clearly structured. The technical
-  contributions are convincing and, for a programming pearl, rather
-  strong. Finally, anyone designing a shallow EDSL can likely benefit
-  from the insights presented in the paper, especially if the EDSL is
-  embedded in a language combining functional and OOP abstractions
-  like Scala.
-
-  Minor formatting issue:
-
-  On page 20, in the code listing for HashJoin, the formatting of the
-  following piece of code should be improved:
-
-    hm(rec1(keys)) + = rec1.fields
-
-
------------------------ REVIEW 3 ---------------------
-PAPER: 30
-TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
-AUTHORS: Weixin Zhang and Bruno Oliveira
-
-Overall evaluation: 1 (weak accept, needs some revision)
-
------------ Review -----------
-This paper demonstrates how OO programming can be used to fill the lacks of shallow embeddings DSL implementations with respect to the deep embeddings ones. In particular the authors demonstrate that multiple interpretations are feasible in shallow EDSLs through OOP.
-
-The whole paper demonstration is developed on top of SCANS a DSL for describing parallel prefix circuits originally developed in Haskell. Orginally presented on the Gibbons and Wu's paper that this one relies on.
-
-The paper is an interesting reading, well presented and discussed. My main concern is that most of the Scala techniques presented have been already presented in:
-
-  Walter Cazzola and Edoardo Vacchi, “Language Components for Modular DSLs using Traits”, Computer Languages, Systems & Structures, vol. 45, pp. 16–34, April 2016.
-
-in there the authors speak about using scala (and in particular its trait implementation) to support modular construction of external DSLs, similarly to how is made in several language workbenches. So the context is different but the mechanisms are quite similar if not the same and I think you had to discuss this work in the related work at least if not where you use a specific idea presented there.
-
-Few minor points:
-  - p2 "Reynolds [14] idea" should be "Reynolds' [14] idea" (it is missing the genitive ')
-  - p6 "new Id₁ {val n = x}" should be "new Id₁(x) {val n=x}" otherwise it doesn't compile
+>
+>  * Explicitly calling out the boilerplate burden associated with the
+>    each language feature used, e.g.:
+>
+>    - Haskell's subtyping uses explicit upcasts while Scala's does not
+>
+>    - Haskell should be able to infer types for abstract terms... is
+>      Scala?
+>
+>    - Haskell requires type annotations for abstract terms at use
+>      sites; Scala seems to require them at definition sites
+>
+>    - Scala requires "factories"; Haskell requires "genericized",
+>      upcasting versions of operators
+>
+>   * Making the comparisons between Haskell and Scala more
+>     apples-to-apples. At present, Haskell strawmen are presented first
+>     alongside more robust Scala implementations; we finally "backport"
+>     the Scala to Haskell. While this may be the story of your
+>     research, I think the paper would be stronger if Hakell and Scala
+>     were kept in lockstep.
+>
+>     For example, the "Towards OOP" section introduces a record-like
+>     notation for circuits, and I enjoy the observation that the added
+>     curly braces make things seem more object-oriented. (Do you mean
+>     that as a joke? It reads like one.)
+>
+>     But you've in fact made quite a leap in "Porting to Scala"---while
+>     you've used Haskell's ordinary data definitions, your Scala code
+>     jumps directly to mixins. Your walk through the concepts might be
+>     more illustrative if your implementations are more similar. Why
+>     isn't `Circuit2` implemented as a newtype in Haskell?
+>
+>     Later on, you claim that the Scala version of `Circuit4` is more
+>     intuitive because of the named method arguments to `layout`, but
+>     one could have the same thing if you used records rather than
+>     tuples in Haskell.
+>
+>     The use of tuples also weakens your discussion of non-sugared
+>     additions in Section 3.4. A new feature could partially reuse
+>     others in Haskell, too:
+>
+>     ```
+>     let rstretch ns c =
+>       let (stretchWidth, _) = stretch4 ns c in
+>       (stretchWidth, \f -> ...)
+>     ```
+>
+>     The example is even cleaner if one uses records:
+>
+>     ```
+>     let rstretch ns c =
+>       let s = stretch4 ns c in
+>       let layout f = ... in
+>       s { layout = layout }
+>     ```
+>
+>     Lazy evaluation means unused parts of the reused code are zero
+>     cost, i.e., nothing binds the original `s.layout` so it need not
+>     even be compiled.
+>
+> **** OTHER COMMENTS
+>
+> The `layout` example of context-sensitivity is a tiny bit artificial,
+> since there's a naive, non-accumulating implementation. This section
+> would be stronger if you came up with an example that _only_ had a
+> context-sensitive implementation.
+>
+> The last paragraph on p17 (in Section 6.1) is slightly
+> confusing. Being a case study feels like motivation enough.
+>
+> The explicit ASTs of deep EDSLs (and LMS) serve another purpose beyond
+> allowing for optimizations: having an AST simplifies debugging.
+>
+> **** RELATED IDEAS
+>
+> How do feature classes relate? For example, one could replace a
+> `gwidth` function with feature classes, as in:
+>
+> ```
+> class Circuit c => HasWidth c where
+>   gwidth :: c -> Int
+>
+> instance HasWidth Width where
+>   gwidth = width
+>
+> instance (a \prec b, HasWidth b) => HasWidth a where
+>   gwidth = gwidth . inter
+> ```
+>
+> This approach---which seems to be the more popular one in Haskell
+> libraries---has the advantage of hiding details about the subtyping
+> typeclass.
+>
+> The cite to Gibbons and Wu about what Reynolds believed undermines the
+> opening line of the introduction citing Hudak as the originator of
+> EDSLs. The idea of EDSLs is clearly a very old one; Hudak's
+> contribution is primarily one of establishing nomenclature and idioms.
+>
+> Definitional interpreters feel quite related, and probably deserve
+> some brief mention/citation.
+>
+>
+> ----------------------- REVIEW 2 ---------------------
+> PAPER: 30
+> TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
+> AUTHORS: Weixin Zhang and Bruno Oliveira
+>
+> Overall evaluation: 3 (strong accept, as is)
+>
+> ----------- Review -----------
+> The paper explores a deep connection between shallow embedded
+>   domain-specific languages (EDSLs) and object-oriented programming.
+>   The work by (Gibbons and Wu 2014) showing a connection between
+>   shallow EDSLs and procedural abstraction serves as the starting
+>   point. By leveraging OOP abstractions including inheritance,
+>   subtyping, and (covariant) type refinement, the authors show how to
+>   implement modular interpretations which may depend not only on
+>   themselves but also other interpretations, also provided in a
+>   modular way. It is then shown how the learned lessons can also be
+>   applied to a solution in Haskell where subtyping and inheritance are
+>   simulated using type classes and delegation. Another significant
+>   contribution of this programming pearl is the demonstration that the
+>   presented approach to shallow EDSLs also supports staging, thus
+>   enabling, for example, the generation of efficient code; using the
+>   case study of an embedded SQL DSL, the author show that the same
+>   code can be generated as with the deep embedding previously
+>   presented by Rompf and Amin.  Moreover, the shown shallow embedding
+>   is modular, and does not suffer from the expression problem as that
+>   previous deep embedding.  All these advantages come at a rather
+>   modest price, namely a dozen or so extra source lines of code,
+>   mainly due to the fact that the deep embedding can leverage the
+>   concise syntax for case classes in Scala.
+>
+>   The paper is very well written and clearly structured. The technical
+>   contributions are convincing and, for a programming pearl, rather
+>   strong. Finally, anyone designing a shallow EDSL can likely benefit
+>   from the insights presented in the paper, especially if the EDSL is
+>   embedded in a language combining functional and OOP abstractions
+>   like Scala.
+>
+>   Minor formatting issue:
+>
+>   On page 20, in the code listing for HashJoin, the formatting of the
+>   following piece of code should be improved:
+>
+>     hm(rec1(keys)) + = rec1.fields
+DONE
+>
+>
+> ----------------------- REVIEW 3 ---------------------
+> PAPER: 30
+> TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
+> AUTHORS: Weixin Zhang and Bruno Oliveira
+>
+> Overall evaluation: 1 (weak accept, needs some revision)
+>
+> ----------- Review -----------
+> This paper demonstrates how OO programming can be used to fill the lacks of shallow embeddings DSL implementations with respect to the deep embeddings ones. In particular the authors demonstrate that multiple interpretations are feasible in shallow EDSLs through OOP.
+>
+> The whole paper demonstration is developed on top of SCANS a DSL for describing parallel prefix circuits originally developed in Haskell. Orginally presented on the Gibbons and Wu's paper that this one relies on.
+>
+> The paper is an interesting reading, well presented and discussed. My main concern is that most of the Scala techniques presented have been already presented in:
+>
+>   Walter Cazzola and Edoardo Vacchi, “Language Components for Modular DSLs using Traits”, Computer Languages, Systems & Structures, vol. 45, pp. 16–34, April 2016.
+>
+> in there the authors speak about using scala (and in particular its trait implementation) to support modular construction of external DSLs, similarly to how is made in several language workbenches. So the context is different but the mechanisms are quite similar if not the same and I think you had to discuss this work in the related work at least if not where you use a specific idea presented there.
+>
+TRUE?
+>
+> Few minor points:
+>   - p2 "Reynolds [14] idea" should be "Reynolds' [14] idea" (it is missing the genitive ')
+DONE
+>   - p6 "new Id₁ {val n = x}" should be "new Id₁(x) {val n=x}" otherwise it doesn't compile
+Not true
