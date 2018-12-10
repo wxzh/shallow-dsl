@@ -63,16 +63,16 @@ on tuples in Haskell. We use the following type class, which was introduced by
 Bahr and Hvitved~\cite{bahr2011compositional}, to express a subtyping relation on tuples:
 
 > class a :<: b where
->   inter :: a -> b
+>   prj :: a -> b
 >
 > instance a :<: a where
->   inter x = x
+>   prj x = x
 >
 > instance (a,b) :<: a where
->   inter = fst
+>   prj = fst
 >
 > instance (b :<: c) => (a,b) :<: c where
->   inter = inter . snd
+>   prj = prj . snd
 
 In essence a type |a| is a subtype of a type |b| (expressed as |a :<:
 b|) if |a| has \emph{the same or more} tuple components as the type
@@ -80,7 +80,7 @@ b|) if |a| has \emph{the same or more} tuple components as the type
 of \emph{intersection types} proposed by Dunfield~\cite{dunfield2014elaborating}, where
 Dunfield's merge operator corresponds (via elaboration) to the tuple constructor and
 projections are implicit and type-driven.
-The function |inter| simulates up-casting, which converts a
+The function |prj| simulates up-casting, which converts a
 value of type |a| to a value of type |b|.  The three instances, which
 are defined using overlapping instances, define the behaviour of the
 projection function by searching for the type being projected in a
@@ -93,18 +93,18 @@ Now, defining |wellSized| modularly becomes possible:
 >    id  n         =  (WellSized True, id n)
 >    fan n         =  (WellSized True, fan n)
 >    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
->                     ,above (inter c1) (inter c2))
->    beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (inter c1) (inter c2))
->    stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (inter c))
+>                     ,above (prj c1) (prj c2))
+>    beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (prj c1) (prj c2))
+>    stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (prj c))
 >
 > gwidth :: (c :<: Width) => c -> Int
-> gwidth = width . inter
+> gwidth = width . prj
 >
 > gdepth :: (c :<: Depth) => c -> Int
-> gdepth = depth . inter
+> gdepth = depth . prj
 >
 > gwellSized :: (c :<: WellSized) => c -> Bool
-> gwellSized = wellSized . inter
+> gwellSized = wellSized . prj
 
 Essentially, dependent interpretations are still defined using tuples.
 The dependency on |width| is expressed by constraining the type
@@ -113,7 +113,7 @@ type-refinement of fields in the Scala solution.  % Nevertheless, such
 The dependency is not hard-wired to any concrete implementation of
 |width|.  Although the implementation is modular, it requires some boilerplate.
 The reuse of |width| interpretation is achieved via delegation,
-where |inter| needs to be called on each subcircuit. Such explicit
+where |prj| needs to be called on each subcircuit. Such explicit
 delegation simulates the inheritance employed in the Scala
 solution.  Also, auxiliary definitions |gwidth| and |gwellSized| are
 necessary for projecting the desired interpretations from the
@@ -146,14 +146,14 @@ We can further \emph{truly} compose interpretations to avoid repeating the const
 > gwellSized circuit'  -- True
 >
 > gdepth :: (Depth :<: c) => c -> Int
-> gdepth = depth . inter
+> gdepth = depth . prj
 >
 > instance (Circuit a, Circuit b) => Circuit (a,b) where
 >   id n         = (id n, id n)
 >   fan n        = (fan n, fan n)
->   above c1 c2  = (above (inter c1) (inter c2), above (inter c1) (inter c2))
->   beside c1 c2 = (beside (inter c1) (inter c2), beside (inter c1) (inter c2))
->   stretch xs c = (stretch xs (inter c), stretch xs (inter c))
+>   above c1 c2  = (above (prj c1) (prj c2), above (prj c1) (prj c2))
+>   beside c1 c2 = (beside (prj c1) (prj c2), beside (prj c1) (prj c2))
+>   stretch xs c = (stretch xs (prj c), stretch xs (prj c))
 \end{comment}
 
 \paragraph{Syntax extensions}
@@ -198,17 +198,7 @@ using constructors is tied with a specific interpretation.
 In the next section we will see a final refinement of the Scala
 solution that enables modular terms, by using overloaded constructors too.
 
-\begin{comment}
-Our Scala approach is
-arguably superior than the Haskell approach for the following reasons:
-\begin{itemize} \item It uses simpler language features that are
-common in OO languages and not require parametric polymorphism; \item
-It needs less boilerplate for dependent interpretations; \item It
-retains the semantics-first benefits of shallow embedding.
-
-
-\end{itemize}
-
+%TODO: mention tuples
 \begin{table}
   \begin{tabular}{lcc}
   \textbf{Functionality} & \textbf{Scala} & \textbf{Haskell} \\
@@ -218,10 +208,9 @@ retains the semantics-first benefits of shallow embedding.
   Dependency declaration & Subtyping & Type constraints \\ %(similar to bounded qualifications)
   \bottomrule
   \end{tabular}
-  \caption{Language features needed for modular interpretations: Scala vs. Haskell }  
+  \caption{Language features needed for modular interpretations: Scala vs. Haskell.}
   \label{comparison}
 \end{table}
-\end{comment}
 
 % encoding of subtyping
 

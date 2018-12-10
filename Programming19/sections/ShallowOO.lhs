@@ -29,7 +29,7 @@ Then translating the program into a functional OOP language like Scala becomes s
  \alt `stretch' <positive-numbers> <circuit>
  \alt `(' <circuit> `)'
 \end{grammar}
-\caption{The grammar of \dsl}
+\caption{The grammar of \dsl.}
   \label{grammar}
 \end{figure}
 
@@ -47,7 +47,7 @@ $$
 \end{array}
 $$
 \end{minipage}
-  \caption{The Brent-Kung circuit of width 4}
+  \caption{The Brent-Kung circuit of width 4.}
   \label{fig:circuit}
 \end{figure}
 

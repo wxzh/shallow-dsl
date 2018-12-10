@@ -326,7 +326,7 @@ and dependent interpretations are not a problem.
 Gibbons and Wu do discuss a number of more advanced
 techniques~\cite{carette2009finally,swierstra2008data} that can solve
 \emph{some} of the modularity problems.
-In their paper Gibbons and Wu show how to support modular |depth| and |width| 
+In their paper, they show how to support modular |depth| and |width|
 (corresponding to~\autoref{subsec:multiple}) using the Finally Tagless~\cite{carette2009finally} approach.
 This is possible because |depth| and |width| are
 non-dependent.

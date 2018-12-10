@@ -140,16 +140,19 @@ Finally, type refinement is simulated using the subtyping typeclass
 to introduce subtyping constraints.
 
 While the techniques are still cumbersome for transformations, yielding
-efficient shallow EDSLs is still possible via
-staging~\cite{rompf2012lightweight,carette2009finally}. By removing
+efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}. By removing
 the limitation of multiple interpretations, we enlarge the
 applicability of shallow embeddings. A concrete example is our case
 study, which refactors an external SQL DSL that employs deep embedding
 techniques~\cite{rompf15} into a shallow EDSL. The refactored
 implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing
-performance. Complete code for all examples/case-study is available
-at \url{https://github.com/wxzh/shallow-dsl}.
+performance. Complete code for all examples and case study is available
+at:
+
+  \begin{center}
+\url{https://github.com/wxzh/shallow-dsl}
+  \end{center}
 
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote
