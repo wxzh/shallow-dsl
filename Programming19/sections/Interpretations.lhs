@@ -55,9 +55,47 @@ In contrast, a Scala solution allows new interpretations to be introduced in a m
 %format Beside2
 %format Above2
 %format Stretch2
+%format Circuit12
+%format Id12
+%format Fan12
+%format Beside12
+%format Above12
+%format Stretch12
 
 \begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // the extended semantic domain} "-}
+trait Circuit2 { def depth: Int }
+trait Id2 extends Circuit2 { def depth = 0 }
+trait Fan2 extends Circuit2 { def depth = 1 }
+trait Above2 extends Circuit2 {
+  val c1, c2: Circuit2
+  def depth = c1.depth + c2.depth
+}
+trait Beside2 extends Circuit2 {
+  val c1, c2: Circuit2
+  def depth = Math.max(c1.depth, c2.depth)
+}
+trait Stretch2 extends Stretch1 with Circuit2 {
+  val c: Circuit2
+  def depth = c.depth
+}
+\end{spec}
+where the |depth| interpretation is defined as a separate trait hierarchy.
+
+An extra step to combine |width| and |depth| is needed:
+\begin{spec}
+trait Circuit12 extends Circuit1 with Circuit2 {-"  \text{ // combined semantic domain} "-}
+trait Id12 extends Id1 with Id2
+trait Fan12 extends Fan1 with Fan2
+trait Above12 extends Above1 with Above2 {
+  val c1, c2: Circuit12 {-"  \text{ // covariant type-refinement} "-}
+}
+trait Beside12 extends Beside1 with Beside2 { val c1, c2: Circuit12 }
+trait Stretch12 extends Stretch1 with Stretch2 { val c: Circuit12 }
+\end{spec}
+
+\begin{comment}
+\begin{spec}
+trait Circuit2 extends Circuit1 {def depth: Int}
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
@@ -73,14 +111,15 @@ trait Stretch2 extends Stretch1 with Circuit2 {
   def depth = c.depth
 }
 \end{spec}
+\end{comment}
 
 The encoding relies on three OOP abstraction mechanisms:
-\emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
-Specifically, |Circuit2| is a subtype of
-|Circuit1| and declares a new method |depth|.
-Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and implementing |depth|.
-Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
+\emph{(multiple-)inheritance}, \emph{subtyping}, and \emph{type-refinement}.
+Specifically, |Circuit12| is a subtype of |Circuit1| and |Circuit2|. % which declares both |width| and |depth|.
+A concrete case, for instance |Above12|, implements |Circuit12| by inheriting |Above1| and  |Above2|.
+Also, fields of circuit type are covariantly refined as type |Circuit12| to allow both |width| and |depth| invocations.
 Importantly, all definitions for |width| in~\autoref{subsec:shallow} are \emph{modularly reused} here.
+
 
 \subsection{Dependent interpretations}
 \emph{Dependent interpretations} are a generalization of multiple
@@ -120,7 +159,7 @@ Once again, it is easy to model dependent interpretation with a simple OO approa
 %format Stretch3
 
 \begin{spec}
-trait Circuit3 extends Circuit1 { def wellSized: Boolean } {-" \text{ // the semantic domain} "-}
+trait Circuit3 extends Circuit1 { def wellSized: Boolean } {-" \text{ // extended semantic domain} "-}
 trait Id3 extends Id1 with Circuit3 {def wellSized = true}
 trait Fan3 extends Fan1 with Circuit3 {def wellSized = true}
 trait Above3 extends Above1 with Circuit3 {
@@ -138,10 +177,13 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
+In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|.
 Essentially, it is sufficient to define |wellSized| while
-knowing only the signature of |width| in the object interface.
-In the definition of |Above3|, for example, it is possible 
-not only to call |wellSized|, but also |width|. 
+knowing only the signature of |width| in the object interface in a way similar to |depth|.
+Compared to |depth|, this alternative encoding is more compact but less modular.
+  No extra step is required for combining |wellSized| with |width| at the expense of |wellSized| being coupled with a particular implementation of |width|.
+
+% TODO: discuss self-type annotation for dependency injection?
 
 \subsection{Context-sensitive interpretations}\label{sec:ctxsensitive}
 Interpretations may rely on some context.
