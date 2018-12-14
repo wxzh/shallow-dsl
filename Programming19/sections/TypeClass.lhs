@@ -176,12 +176,9 @@ Existing circuits can also be reused for constructing circuits in extended \dsl:
 \subsection{Comparing modular implementations using Scala and Haskell}
 
 Although both the Scala and Haskell solutions are able to do modular dependent interpretations
-embedding, they use a different set of language
-features.
-%%\autoref{comparison} compares the language features needed
-%%by Scala and Haskell for a modular implemention.
-The Scala approach
-relies on built-in features. In particular, subtyping, multiple (trait)
+embedding, they use a different set of language features.
+\autoref{comparison} compares the language features needed by Scala and Haskell.
+The Scala approach relies on built-in features. In particular, subtyping, multiple (trait)
 inheritance and type-refinement are all built-in. This makes it
 quite natural to program the solutions in Scala, without even needing
 any form of parametric polymorphism. In contrast, the Haskell solution

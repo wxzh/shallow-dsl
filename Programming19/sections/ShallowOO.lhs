@@ -153,7 +153,7 @@ Haskell's record types into an object interface (modeled as a |trait| in Scala) 
 declarations become method declarations.
 Object interfaces make the connection to procedural abstraction clear:
 data is modeled by the operations that can be performed over it.
-Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as immutable fields.
 
 %format (="\!("
 %format [="\!["

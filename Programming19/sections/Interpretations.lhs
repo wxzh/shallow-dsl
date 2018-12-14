@@ -87,10 +87,10 @@ trait Circuit12 extends Circuit1 with Circuit2 {-"  \text{ // combined semantic 
 trait Id12 extends Circuit12 with Id1 with Id2
 trait Fan12 extends Circuit12 with Fan1 with Fan2
 trait Above12 extends Circuit12 with Above1 with Above2 {
-  val c1, c2: Circuit12 {-"  \text{ // covariant type-refinement} "-}
+  override val c1, c2: Circuit12 {-"  \text{ // covariant type-refinement} "-}
 }
-trait Beside12 extends Circuit12 with Beside1 with Beside2 { val c1, c2: Circuit12 }
-trait Stretch12 extends Circuit12 with Stretch1 with Stretch2 { val c: Circuit12 }
+trait Beside12 extends Circuit12 with Beside1 with Beside2 { override val c1, c2: Circuit12 }
+trait Stretch12 extends Circuit12 with Stretch1 with Stretch2 { override val c: Circuit12 }
 \end{spec}
 
 \begin{comment}
@@ -177,11 +177,12 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
-In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|.
-Essentially, it is sufficient to define |wellSized| while
-knowing only the signature of |width| in the object interface in a way similar to |depth|.
-Compared to |depth|, this alternative encoding is more compact but less modular.
-  No extra step is required for combining |wellSized| with |width| at the expense of |wellSized| being coupled with a particular implementation of |width|.
+In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|. Essentially, it is sufficient to define |wellSized| while
+knowing only the signature of |width| in the object interface.
+That is, traits allow us to define a concrete case like |Id3| without extending |Id2| and with the |width| method unimplemented.
+However, the encoding presented here requires only \emph{single inheritance} and
+is more compact as no glue code is needed for combining |wellSized| with |width|.
+The price to pay is some sort of modularity - |wellSized| is tightly coupled with a particular implementation of |width|.
 
 % TODO: discuss self-type annotation for dependency injection?
 
