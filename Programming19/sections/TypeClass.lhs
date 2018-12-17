@@ -8,7 +8,7 @@
 % no longer semantics first?
 
 \section{Modular interpretations in Haskell}\label{sec:modHaskell}
-Modular interpretations are also possible in Haskell using the Finally Tagless~\cite{carette2009finally} approach.
+Modular interpretations are also possible in Haskell using a variant of Church encodings that uses type classes. The original technique is due to Hinze~\cite{hinze06generics} and was shown to be modular and extensible by Oliveira et al.~\cite{emgm}. It has since been popularized under the name Finally Tagless~\cite{carette2009finally} in the context of embedded DSLs.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
 \subsection{Revisiting \dsl} \label{sec:class}

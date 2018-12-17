@@ -33,6 +33,25 @@ already show that AST transformations are still possible in those styles.
 However this requires some extra machinery, and the line between shallow
 and deep embeddings becomes quite blurry at that point. 
 
+Finally, this work shows a combination of two previously
+studied solutions to the Expression Problem in OO: the extensible
+interpreter design proposed by Wang and Oliveira~\cite{eptrivially16} and Object
+Algebras~\cite{oliveira2012extensibility}. The combination exploits the advantages of each of
+the approaches to overcome limitations of each approach individually.
+In the original approach by Wang and Oliveira modular terms
+are hard to model, whereas with Object Algebras a difficulty is
+modeling modular dependent operations. A closely related technique is
+employed by Cazolla and Vacchi~\cite{Cazzola16dsls}, although in the
+context of external DSLs. Their technique is slightly different with
+respect to the extensible interpreter pattern. Essentially while our
+approach is purely based on subtyping and
+type-refinement, they use generic types types instead to simulate the
+type refinement. While the focus of our work is embedded DSLs,
+the techniques discussed here are useful for other applications, including
+external DSLs as Cazolla and Vacchi shows.
+
+
+
 %%where 
 %%Nevertheless, the need for transformations over the AST is still a valid reason to s%witch to deep embeddings.
 % classes as object generators
