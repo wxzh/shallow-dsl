@@ -17,9 +17,9 @@ domain. Therefore there is no data type representing uninterpreted
 abstract syntax. 
 
 The trade-offs between shallow and deep embeddings have been widely
-discussed~\cite{svenningsson2012combining,yinyang}: deep embeddings
+discussed~\cite{svenningsson2012combining,yinyang}. Deep embeddings
 enable transformations on the abstract syntax tree (AST), and multiple
-interpretations are easy to implement; shallow embeddings enforce the property of \emph{compositionality}
+interpretations are easy to implement. Shallow embeddings enforce the property of \emph{compositionality}
 by construction, and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
 multiple interpretations~\cite{svenningsson2012combining} and AST transformations in shallow embeddings.
@@ -114,12 +114,12 @@ shallow embeddings.
 
 We make our arguments concrete using Gibbons and Wu~\cite{gibbons2014folding}'s examples,
 where procedural abstraction is used in Haskell to model a simple \emph{shallow}
-EDSL. We recode that EDSL in Scala using a
-design pattern~\cite{eptrivially16}, which provides
+EDSL. We recode that EDSL in Scala using Wang and Oliveira's~\cite{eptrivially16}
+extensible interpreter pattern, which provides
 a simple solution to the \emph{Expression Problem}~\cite{expPb}.
 %\footnote{Available online: \url{https://github.com/wxzh/shallow-dsl}}.
-From the \emph{modularity} point of view, the
-resulting Scala version has advantages over the Haskell version, due
+The
+resulting Scala version has \emph{modularity} advantages over the Haskell version, due
 to the use of subtyping, inheritance, and type-refinement.
 In particular, the Scala code
 can easily express modular interpretations that may
