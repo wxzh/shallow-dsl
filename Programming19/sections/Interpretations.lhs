@@ -286,9 +286,8 @@ def lzw[A](xs: List[A], ys: List[A])(f: (A, A) => A): List[A] = (xs, ys) match {
   case (x::xs,y::ys)  =>  f(x,y) :: lzw (xs,ys) (f)
 }
 \end{spec}
-The Scala version is both modular and arguably more intuitive, since
-contexts are captured as method arguments.
-The implementation of |layout| is a direct translation from the Haskell version.
+The Scala version captures contexts as method arguments and
+the implementation of |layout| is a direct translation from the Haskell version.
 There are some minor syntax differences that need explanations.
 Firstly, in |Fan4|, a |for comprehension| is used for producing a list of connections.
 Secondly, for simplicity, anonymous functions are created without a parameter list.

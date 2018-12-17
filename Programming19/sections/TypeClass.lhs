@@ -135,7 +135,7 @@ When interpreting |circuit|, its type needs to be instantiated:
 < > depth (circuit :: Depth)                    -- 3
 < > gwellSized (circuit :: (WellSized,Width))   -- True
 
-Note that |circuit| is annotated with the target semantic domain in choosing an appropriate type class instance for interpretation.
+At user-site, |circuit| must be annotated with the target semantic domain so that an appropriate type class instance for interpretation can be chosen.
 
 \begin{comment}
 We can further \emph{truly} compose interpretations to avoid repeating the construction of |c| for each interpretation:
@@ -198,11 +198,11 @@ solution that enables modular terms, by using overloaded constructors too.
 %TODO: mention tuples
 \begin{table}
   \begin{tabular}{lcc}
-  \textbf{Functionality} & \textbf{Scala} & \textbf{Haskell} \\
+  \textbf{Goal} & \textbf{Scala} & \textbf{Haskell} \\
   \toprule
-  Multiple interpretations & Type refinement & Type class \\
+  Multiple interpretation & Type-refinement & Type class \\
   Interpretation reuse & Inheritance & Delegation \\
-  Dependency declaration & Subtyping & Type constraints \\ %(similar to bounded qualifications)
+  Dependency declaration & Subtyping & Tuples \& Type constraints \\ %(similar to bounded qualifications)
   \bottomrule
   \end{tabular}
   \caption{Language features needed for modular interpretations: Scala vs. Haskell.}

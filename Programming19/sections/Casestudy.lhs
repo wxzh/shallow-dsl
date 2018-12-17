@@ -37,7 +37,7 @@ the need for AST transformations for a realistic query DSL.
 To further illustrate the applicability
 of shallow OO embeddings, we refactored Rompf and Amin's deep, external DSL implementation
 to make it more \emph{modular}, \emph{shallow} and \emph{embedded}.
-The shallow DSL retains the performance of the original deep DSL.
+The shallow DSL retains the performance of the original deep DSL by generating the same code.
 
 % To further illustrate the applicability of shallow OO embeddings,
 %we refactored an existing \emph{deep external} DSL implementation
@@ -59,7 +59,7 @@ suffering from the Expression Problem.
 
 We refactored Rompf and Amin~\cite{rompf15}'s implementation into a shallow EDSL for the following reasons.
 Firstly, multiple interpretations are no longer a problem for our shallow embedding technique.
-Secondly, the original implementation contains no hand-coded AST transformations, due to the use of staging.
+Secondly, the original implementation contains no hand-coded AST transformations.
 Thirdly, it is common to embed SQL into a general purpose language. %%\footnote{\url{http://circumflex.ru/projects/orm/index.html}} does this in Scala.
 % while almost the same source lines of code.
 
@@ -180,7 +180,7 @@ Hence the simplicity of the implementation remains. At the same time, dramatic s
 
 \paragraph{Language extensions}
 Rompf and Amin also extend the query processor with two new language constructs, hash joins and aggregates.
-Differently from the original implementation, the introduction of these constructs is done in a modular manner with our approach:
+The introduction of these constructs is done in a modular manner with our approach:
 
 \begin{code}
 trait Group extends Operator {

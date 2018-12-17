@@ -13,6 +13,9 @@ conclusion mentions the connection between the patterns used
 in the paper, previous work and the work by Cazzola and Vacchi
 explicitly.
 
+We have added a table that contrasts the features needed for modular
+interpretations in Scala and Haskell in Section 4.4.
+
 
 > ----------------------- REVIEW 1 ---------------------
 > PAPER: 30
@@ -45,7 +48,7 @@ explicitly.
 >    front, showing which features in Haskell (type classes) correspond
 >    with those in Scala (traits, subtyping).
 
-TODO (using a table like before?)
+DONE
 
 >
 >  * Explicitly calling out the boilerplate burden associated with the
