@@ -29,7 +29,7 @@ Then translating the program into a functional OOP language like Scala becomes s
  \alt `stretch' <positive-numbers> <circuit>
  \alt `(' <circuit> `)'
 \end{grammar}
-\caption{The grammar of \dsl}
+\caption{The grammar of \dsl.}
   \label{grammar}
 \end{figure}
 
@@ -47,7 +47,7 @@ $$
 \end{array}
 $$
 \end{minipage}
-  \caption{The Brent-Kung circuit of width 4}
+  \caption{The Brent-Kung circuit of width 4.}
   \label{fig:circuit}
 \end{figure}
 
@@ -153,7 +153,7 @@ Haskell's record types into an object interface (modeled as a |trait| in Scala) 
 declarations become method declarations.
 Object interfaces make the connection to procedural abstraction clear:
 data is modeled by the operations that can be performed over it.
-Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as fields.
+Each case in the semantic function corresponds to a concrete implementation of |Circuit1|, where function parameters are captured as immutable fields.
 
 %format (="\!("
 %format [="\!["

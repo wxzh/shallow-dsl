@@ -31,33 +31,33 @@ newtype WellSized  = WellSized {wellSized :: Bool}
 -- type Compose i1 i2 = (i1, i2)
 
 class a :<: b where
-  inter :: a -> b
+  prj :: a -> b
 
 instance a :<: a where
-  inter x = x
+  prj x = x
 
 instance (a,b) :<: a where
-  inter = fst
+  prj = fst
 
 instance (b :<: c) => (a,b) :<: c where
-  inter = inter . snd
+  prj = prj . snd
 
 instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
    id  n         =  (WellSized True, id n)
    fan n         =  (WellSized True, fan n)
    above c1 c2   =  (WellSized (gwellSized c1 && gwellSized c2 && gwidth c1 == gwidth c2)
-                    ,above (inter c1) (inter c2))
-   beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (inter c1) (inter c2))
-   stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (inter c))
+                    ,above (prj c1) (prj c2))
+   beside c1 c2  =  (WellSized (gwellSized c1 && gwellSized c2),beside (prj c1) (prj c2))
+   stretch ns c  =  (WellSized (gwellSized c && length ns == gwidth c),stretch ns (prj c))
 
 gwidth :: (c :<: Width) => c -> Int
-gwidth = width . inter
+gwidth = width . prj
 
 gdepth :: (c :<: Depth) => c -> Int
-gdepth = depth . inter
+gdepth = depth . prj
 
 gwellSized :: (c :<: WellSized) => c -> Bool
-gwellSized = wellSized . inter
+gwellSized = wellSized . prj
 
 class Circuit c => ExtendedCircuit c where
   rstretch :: [Int] -> c -> c
@@ -76,9 +76,9 @@ circuit2 = rstretch [2,2,2,2] circuit
 instance (Circuit i1, Circuit i2) => Circuit (i1,i2) where
   id n         = (id n, id n)
   fan n        = (fan n, fan n)
-  above c1 c2  = (above (inter c1) (inter c2), above (inter c1) (inter c2))
-  beside c1 c2 = (beside (inter c1) (inter c2), beside (inter c1) (inter c2))
-  stretch xs c = (stretch xs (inter c), stretch xs (inter c))
+  above c1 c2  = (above (prj c1) (prj c2), above (prj c1) (prj c2))
+  beside c1 c2 = (beside (prj c1) (prj c2), beside (prj c1) (prj c2))
+  stretch xs c = (stretch xs (prj c), stretch xs (prj c))
 
 v1 = width (circuit :: Width)
 v2 = depth (circuit :: Depth)
