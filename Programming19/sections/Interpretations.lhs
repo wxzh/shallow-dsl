@@ -179,10 +179,10 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 Note that |width| and |wellSized| are defined separately.
 In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|. Essentially, it is sufficient to define |wellSized| while
 knowing only the signature of |width| in the object interface.
-That is, traits allow us to define a concrete case like |Id3| without extending |Id2| and with the |width| method unimplemented.
-However, the encoding presented here requires only \emph{single inheritance} and
-is more compact as no glue code is needed for combining |wellSized| with |width|.
-The price to pay is some sort of modularity - |wellSized| is tightly coupled with a particular implementation of |width|.
+Scala trait allowes us to define a concrete case like |Id3| without implementing the |width| method. Then the whole implementation of |wellSized| would be very much like the |depth| interpretation given above.
+Defining |Id3| with |width| inherited from |Id1|, however, compacts the implementation bypassing the glue code for combining |wellSized| with |width|.
+Another benefit of this encoding is that it works for OOP languages supporting \emph{single-inheritance} only, where new interpretations are added linearly to existing ones.
+The price to pay is some sort of modularity: |wellSized| is tightly coupled with a particular implementation of |width|.
 
 % TODO: discuss self-type annotation for dependency injection?
 
@@ -342,7 +342,7 @@ Note that |RStretch| does not implement |Circuit4| directly.
 Instead, it inherits |Stretch4| and overrides the |layout| definition so as to reuse other interpretations as well as field declarations from |Stretch4|.
 Inheritance and method overriding enable partial reuse of an existing language construct implementation,
 which is particularly useful for defining specialized constructs.
-However, such partial reuse is hard to achieve in the current Haskell approach.
+%However, such partial reuse is hard to achieve in the current Haskell approach.
 
 
 \subsection{Discussion}
