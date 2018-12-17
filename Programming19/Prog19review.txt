@@ -5,7 +5,15 @@
 > - In light of that connection, reframe the paper's contributions as
 >   contrasting Scala and Haskell approaches, as opposed to presenting
 >   an entirely new approach.
->
+
+We have made it clearer that the work here is a combination of
+existing techniques. It is not quite the same technique as Cazzola and
+Vacchi but it is indeed related. Now the last paragraph in the
+conclusion mentions the connection between the patterns used
+in the paper, previous work and the work by Cazzola and Vacchi
+explicitly.
+
+
 > ----------------------- REVIEW 1 ---------------------
 > PAPER: 30
 > TITLE: Shallow EDSLs and Object-Oriented Programming: Beyond Simple Compositionality
