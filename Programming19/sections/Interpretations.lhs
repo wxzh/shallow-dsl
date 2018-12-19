@@ -48,7 +48,7 @@ appended to each case.
 %we add the definition of |wellSized| by modifying the original code.
 
 \paragraph{Multiple interpretations in Scala}
-In contrast, a Scala solution allows new interpretations to be introduced in a modular way:
+In contrast, a Scala solution allows new interpretations to be introduced in a modular way:\bruno{I didn't mean to change the encoding that we had before! What I meant was to discuss a possible alternative encoding (more Scala-specific) later.}
 
 %format Id2
 %format Fan2

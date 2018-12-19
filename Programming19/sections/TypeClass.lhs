@@ -157,7 +157,7 @@ We can further \emph{truly} compose interpretations to avoid repeating the const
 \end{comment}
 
 \paragraph{Syntax extensions}
-The Finally Tagless solution also allows us to modularly extend \dsl with more
+This solution also allows us to modularly extend~\cite{emgm} \dsl with more
 language constructs such as |rstretch|:
 
 > class Circuit c => ExtendedCircuit c where
