@@ -262,7 +262,7 @@ trait Circuit3 extends Circuit1 { def wellSized: Boolean }
 trait Id3 extends Circuit3 { def wellSized = true }
 ...
 trait Stretch3 extends Circuit3 {
-  val c: Circuit3; val ns
+  val c: Circuit3; val ns: List[Int]
   def wellSized = c.wellSized && ns.length==c.width
 }
 \end{spec}

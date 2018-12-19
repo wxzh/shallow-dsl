@@ -23,7 +23,7 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 }
 
 object Alterative {
-  trait Id3 extends Circuit3 { def wellSized = true }
+trait Id3 extends Circuit3 { def wellSized = true }
 trait Fan3 extends Circuit3 { def wellSized = true }
 trait Above3 extends Circuit3 {
   val c1, c2: Circuit3
