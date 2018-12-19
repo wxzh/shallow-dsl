@@ -136,7 +136,7 @@ form of subtyping on pairs using type classes. This is useful to
 avoid explicit projections, that clutter the original Haskell solution.
 Inheritance is encoded by explicitly
 delegating interpretations using Haskell superclasses.
-Finally, type refinement is simulated using the subtyping typeclass
+Finally, type-refinement is simulated using the subtyping typeclass
 to introduce subtyping constraints.
 
 While the techniques are still cumbersome for transformations, yielding
