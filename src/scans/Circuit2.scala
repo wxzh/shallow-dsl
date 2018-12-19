@@ -21,10 +21,3 @@ trait Stretch2 extends Stretch1 with Circuit2 {
   val c: Circuit2
   def depth = c.depth
 }
-
-trait Circuit12 extends Circuit1 with Circuit2
-trait Id12 extends Circuit12 with Id1 with Id2
-trait Fan12 extends Circuit12 with Fan1 with Fan2
-trait Above12 extends Circuit12 with Above1 with Above2 { override val c1, c2: Circuit12 }
-trait Beside12 extends Circuit12 with Beside1 with Beside2 { override val c1, c2: Circuit12 }
-trait Stretch12 extends Circuit12 with Stretch1 with Stretch2 { override val c: Circuit12 }

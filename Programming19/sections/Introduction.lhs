@@ -149,10 +149,9 @@ implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing
 performance. Complete code for all examples and case study is available
 at:
-
-  \begin{center}
-\url{https://github.com/wxzh/shallow-dsl}
-  \end{center}
+%  \begin{center}
+\url{https://github.com/wxzh/shallow-dsl}.
+%  \end{center}
 
 
 %\bruno{Disclaimer about the OOP style promoted here: we promote

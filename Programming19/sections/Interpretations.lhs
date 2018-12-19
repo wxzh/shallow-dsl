@@ -57,7 +57,7 @@ In contrast, a Scala solution allows new interpretations to be introduced in a m
 %format Stretch2
 
 \begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // the extended semantic domain} "-}
+trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // extended semantic domain} "-}
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
@@ -196,9 +196,8 @@ layout =  snd
 produces a layout.  An anonymous function is hence defined for each
 case, where |f| is the accumulating parameter.  Note that |f| is
 accumulated in |beside4| and |stretch4| through function
-composition\footnote{A minor remark is that the composition order for |f| is
-incorrect in Gibbons and Wu's paper.}, propagated in
-|above4|, and finally applied to wire connections in |fan4|.  An
+composition%\footnote{A minor remark is that the composition order for |f| is incorrect in Gibbons and Wu's paper.}
+, propagated in |above4|, and finally applied to wire connections in |fan4|.  An
 auxiliary definition |lzw| (stands for ``long zip with'') zips two
 lists by applying the binary operator to elements of the same index,
 and appending the remaining elements from the longer list to the
