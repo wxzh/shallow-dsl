@@ -55,47 +55,9 @@ In contrast, a Scala solution allows new interpretations to be introduced in a m
 %format Beside2
 %format Above2
 %format Stretch2
-%format Circuit12
-%format Id12
-%format Fan12
-%format Beside12
-%format Above12
-%format Stretch12
 
 \begin{spec}
-trait Circuit2 { def depth: Int }
-trait Id2 extends Circuit2 { def depth = 0 }
-trait Fan2 extends Circuit2 { def depth = 1 }
-trait Above2 extends Circuit2 {
-  val c1, c2: Circuit2
-  def depth = c1.depth + c2.depth
-}
-trait Beside2 extends Circuit2 {
-  val c1, c2: Circuit2
-  def depth = Math.max(c1.depth, c2.depth)
-}
-trait Stretch2 extends Circuit2 {
-  val c: Circuit2
-  def depth = c.depth
-}
-\end{spec}
-where the |depth| interpretation is defined as a separate trait hierarchy.
-
-An extra step to combine |width| and |depth| is needed:
-\begin{spec}
-trait Circuit12 extends Circuit1 with Circuit2 {-"  \text{ // combined semantic domain} "-}
-trait Id12 extends Circuit12 with Id1 with Id2
-trait Fan12 extends Circuit12 with Fan1 with Fan2
-trait Above12 extends Circuit12 with Above1 with Above2 {
-  override val c1, c2: Circuit12 {-"  \text{ // covariant type-refinement} "-}
-}
-trait Beside12 extends Circuit12 with Beside1 with Beside2 { override val c1, c2: Circuit12 }
-trait Stretch12 extends Circuit12 with Stretch1 with Stretch2 { override val c: Circuit12 }
-\end{spec}
-
-\begin{comment}
-\begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}
+trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // the extended semantic domain} "-}
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
 trait Above2 extends Above1 with Circuit2 {
@@ -111,13 +73,13 @@ trait Stretch2 extends Stretch1 with Circuit2 {
   def depth = c.depth
 }
 \end{spec}
-\end{comment}
 
 The encoding relies on three OOP abstraction mechanisms:
-\emph{(multiple-)inheritance}, \emph{subtyping}, and \emph{type-refinement}.
-Specifically, |Circuit12| is a subtype of |Circuit1| and |Circuit2|. % which declares both |width| and |depth|.
-A concrete case, for instance |Above12|, implements |Circuit12| by inheriting |Above1| and  |Above2|.
-Also, fields of circuit type are covariantly refined as type |Circuit12| to allow both |width| and |depth| invocations.
+\emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
+Specifically, |Circuit2| is a subtype of
+|Circuit1| and declares a new method |depth|.
+Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and implementing |depth|.
+Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
 Importantly, all definitions for |width| in~\autoref{subsec:shallow} are \emph{modularly reused} here.
 
 
@@ -177,12 +139,9 @@ trait Stretch3 extends Stretch1 with Circuit3 {
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
-In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|. Essentially, it is sufficient to define |wellSized| while
+Essentially, it is sufficient to define |wellSized| while
 knowing only the signature of |width| in the object interface.
-Scala trait allowes us to define a concrete case like |Id3| without implementing the |width| method. Then the whole implementation of |wellSized| would be very much like the |depth| interpretation given above.
-Defining |Id3| with |width| inherited from |Id1|, however, compacts the implementation bypassing the glue code for combining |wellSized| with |width|.
-Another benefit of this encoding is that it works for OOP languages supporting \emph{single-inheritance} only, where new interpretations are added linearly to existing ones.
-The price to pay is some sort of modularity: |wellSized| is tightly coupled with a particular implementation of |width|.
+In the definition of |Above3|, for example, it is possible not only to call |wellSized|, but also |width|.
 
 % TODO: discuss self-type annotation for dependency injection?
 
@@ -294,6 +253,31 @@ Secondly, for simplicity, anonymous functions are created without a parameter li
 For example, inside |Beside4|, |c1.width + _| is a shorthand for |i => c1.width + i|, where the placeholder |_| plays the role of the named parameter |i|.
 Thirdly, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
 Fourthly, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
+
+\subsection{An Alternative Encoding of Modular Interpretations}
+There is an alternative encoding of modular interpretation in Scala. For example, the |wellSized| interpretation can be re-defined like this:
+
+\begin{spec}
+trait Circuit3 extends Circuit1 { def wellSized: Boolean }
+trait Id3 extends Circuit3 { def wellSized = true }
+...
+trait Stretch3 extends Circuit3 {
+  val c: Circuit3; val ns
+  def wellSized = c.wellSized && ns.length==c.width
+}
+\end{spec}
+where a concrete case like |Id3| does not inherit |Id1| and leaves the |width| method unimplemented. An extra step to combine |wellSized| and |width| is needed:
+
+%format Id13
+%format Stretch13
+\begin{spec}
+trait Id13 extends Id1 with Id3
+...
+trait Stretch13 extends Stretch1 with Stretch3
+\end{spec}
+
+Compared to the previous encoding, this encoding is more modular because it decouples the |wellSized| with a particular implementation of |width|.
+However, more boilerplate is needed for combining interpretations. Moreover, it requires some support of \emph{multiple-inheritance}, which restricts the encoding itself from being applied to a wider range of OO languages.
 
 \subsection{Modular language constructs}\label{sec:construct}
 
