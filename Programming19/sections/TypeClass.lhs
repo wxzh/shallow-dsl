@@ -197,10 +197,11 @@ solution that enables modular terms, by using overloaded constructors too.
 
 %TODO: mention tuples
 \begin{table}
+  \centering
   \begin{tabular}{lcc}
   \textbf{Goal} & \textbf{Scala} & \textbf{Haskell} \\
   \toprule
-  Multiple interpretation & Type-refinement & Type class \\
+  Multiple interpretation & Trait \& Type-refinement & Type class \\
   Interpretation reuse & Inheritance & Delegation \\
   Dependency declaration & Subtyping & Tuples \& Type constraints \\ %(similar to bounded qualifications)
   \bottomrule
