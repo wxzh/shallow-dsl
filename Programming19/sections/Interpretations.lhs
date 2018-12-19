@@ -277,7 +277,7 @@ trait Stretch13 extends Stretch1 with Stretch3
 \end{spec}
 
 Compared to the previous encoding, this encoding is more modular because it decouples the |wellSized| with a particular implementation of |width|.
-However, more boilerplate is needed for combining interpretations. Moreover, it requires some support of \emph{multiple-inheritance}, which restricts the encoding itself from being applied to a wider range of OO languages.
+However, more boilerplate is needed for combining interpretations. Moreover, it requires some support for \emph{multiple-inheritance}, which restricts the encoding itself from being applied to a wider range of OO languages.
 
 \subsection{Modular language constructs}\label{sec:construct}
 
