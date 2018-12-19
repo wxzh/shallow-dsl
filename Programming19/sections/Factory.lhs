@@ -22,9 +22,9 @@ Algebras~\cite{oliveira2012extensibility}, which employ a technique
 similar to Finally Tagless in the context of OOP. Differently from the Haskell 
 solution presented in Section~\ref{sec:modHaskell}, the Scala approach only 
 employs parametric polymorphism to overload the constructors. Both 
-inheritance and type-refinement, do not need to be simulated or encoded.
+inheritance and type-refinement do not need to be simulated or encoded.
 
-\paragraph{Abstract factories} To capture the generic interface of the constructors we define an abstract factory for circuits similar to the type class version shown in \autoref{sec:class}:
+\paragraph{Object Algebra interface} To capture the generic interface of the constructors we define an abstract factory (or Object Algebra interface) for circuits similar to the type class version shown in \autoref{sec:class}:
 
 \begin{code}
 trait Circuit[C] {
@@ -48,7 +48,7 @@ def circuit[C](f: Circuit[C]) =
                         f.beside(f.beside(f.id(1),f.fan(2)),f.id(1))))
 \end{spec}
 |circuit| is a generic method that takes a |Circuit| instance and builds a circuit through that instance. With Scala the definition of |circuit| can be even simpler: we can avoid prefixing ``|f.|'' everywhere by importing |f|. Nevertheless, the definition shown here is more language-independent.
-\paragraph{Concrete factories} We need concrete factories that implement |Circuit| to actually invoke |circuit|. Here is a concrete factory that produces |Circuit1|:
+\paragraph{Object Algebras} We need concrete factories (Object Algebras) that implement |Circuit| to actually invoke |circuit|. Here is a concrete factory that produces |Circuit1|:
 
 > trait Factory1 extends Circuit[Circuit1] { ... }
 

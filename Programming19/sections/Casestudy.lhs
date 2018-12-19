@@ -205,6 +205,7 @@ trait HashJoin extends Join {
 
 \subsection{Evaluation}
 \begin{table}
+\centering
 \begin{tabular}{lccc}
  \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep } & \textbf{ Shallow}\\
 \toprule
