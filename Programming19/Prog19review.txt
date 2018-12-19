@@ -79,6 +79,9 @@ interpretations in Scala and Haskell in Section 4.4.
 >     jumps directly to mixins. Your walk through the concepts might be
 >     more illustrative if your implementations are more similar. Why
 >     isn't `Circuit2` implemented as a newtype in Haskell?
+
+The constructor of a newtype must have exactly one field.
+
 >
 >     Later on, you claim that the Scala version of `Circuit4` is more
 >     intuitive because of the named method arguments to `layout`, but

@@ -178,22 +178,21 @@ Existing circuits can also be reused for constructing circuits in extended \dsl:
 Although both the Scala and Haskell solutions are able to do modular dependent interpretations
 embedding, they use a different set of language features.
 \autoref{comparison} compares the language features needed by Scala and Haskell.
-The Scala approach relies on built-in features. In particular, subtyping, multiple (trait)
-inheritance and type-refinement are all built-in. This makes it
+The Scala approach relies on built-in features. In particular, subtyping, inheritance (mixin composition) and type-refinement are all built-in. This makes it
 quite natural to program the solutions in Scala, without even needing
 any form of parametric polymorphism. In contrast, the Haskell solution
 does not have such built-in support for OO features. Subtyping and
 type-refinement need to be
 encoded/simulated using parametric polymorphism and type classes.
-Inheritance is simulated by explicitly delegating method implementations.
-The encoding is arguably conceptually more difficult to understand and use, but
+Inheritance is simulated by explicit delegations.
+The Haskell encoding is arguably conceptually more difficult to understand and use, but
 it is still quite simple. One interesting feature that is
 supported in Haskell is the ability to encode modular terms. This relies
 on the fact that the constructors are overloaded. The Scala
 solution presented so far does not allow such overloading, so code
 using constructors is tied with a specific interpretation.
 In the next section we will see a final refinement of the Scala
-solution that enables modular terms, by using overloaded constructors too.
+solution that enables modular terms, also by using overloaded constructors.
 
 %TODO: mention tuples
 \begin{table}
