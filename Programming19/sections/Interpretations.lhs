@@ -126,8 +126,8 @@ trait Id3 extends Id1 with Circuit3 {def wellSized = true}
 trait Fan3 extends Fan1 with Circuit3 {def wellSized = true}
 trait Above3 extends Above1 with Circuit3 {
   override val c1, c2: Circuit3
-  def wellSized = c1.wellSized && c2.wellSized &&
-    c1.width==c2.width                               {-" \text{ // width dependency} "-}
+  def wellSized =
+    c1.wellSized && c2.wellSized && c1.width==c2.width                               {-" \text{ // width dependency} "-}
 }
 trait Beside3 extends Beside1 with Circuit3 {
   override val c1, c2: Circuit3
@@ -254,7 +254,7 @@ Thirdly, function composition is achieved through the |compose| method defined o
 Fourthly, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
 
 \subsection{An Alternative Encoding of Modular Interpretations}
-There is an alternative encoding of modular interpretation in Scala. For example, the |wellSized| interpretation can be re-defined like this:
+There is an alternative encoding of modular interpretations in Scala. For example, the |wellSized| interpretation can be re-defined like this:
 
 \begin{spec}
 trait Circuit3 extends Circuit1 { def wellSized: Boolean }
@@ -265,7 +265,7 @@ trait Stretch3 extends Circuit3 {
   def wellSized = c.wellSized && ns.length==c.width
 }
 \end{spec}
-where a concrete case like |Id3| does not inherit |Id1| and leaves the |width| method unimplemented. An extra step to combine |wellSized| and |width| is needed:
+where a concrete case like |Id3| does not inherit |Id1| and leaves the |width| method unimplemented. Then, an extra step to combine |wellSized| and |width| is needed:
 
 %format Id13
 %format Stretch13

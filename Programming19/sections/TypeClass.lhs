@@ -89,6 +89,8 @@ compound type.
 \paragraph{Modular |wellSized| and encodings of inheritance and type-refinement}
 Now, defining |wellSized| modularly becomes possible:
 
+> newtype WellSized  = WellSized {wellSized :: Bool}
+>
 > instance (Circuit c, c :<: Width) => Circuit (WellSized, c) where
 >    id  n         =  (WellSized True, id n)
 >    fan n         =  (WellSized True, fan n)
