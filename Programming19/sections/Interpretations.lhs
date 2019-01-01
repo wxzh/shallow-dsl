@@ -253,7 +253,7 @@ For example, inside |Beside4|, |c1.width + _| is a shorthand for |i => c1.width 
 Thirdly, function composition is achieved through the |compose| method defined on function values, which has a reverse composition order as opposed to $\circ$ in Haskell.
 Fourthly, |lzw| is implemented as a |curried function|, where the binary operator |f| is moved to the end as a separate parameter list for facilitating type inference.
 
-\subsection{An Alternative Encoding of Modular Interpretations}
+\subsection{An alternative encoding of modular interpretations}
 There is an alternative encoding of modular interpretations in Scala. For example, the |wellSized| interpretation can be re-defined like this:
 
 \begin{spec}
@@ -274,6 +274,7 @@ trait Id13 extends Id1 with Id3
 ...
 trait Stretch13 extends Stretch1 with Stretch3
 \end{spec}
+
 
 Compared to the previous encoding, this encoding is more modular because it decouples |wellSized| with a particular implementation of |width|.
 However, more boilerplate is needed for combining interpretations. Moreover, it requires some support for \emph{multiple-inheritance}, which restricts the encoding itself from being applied to a wider range of OO languages.

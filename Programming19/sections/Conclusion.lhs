@@ -45,7 +45,9 @@ context of external DSLs. Their technique is slightly different with
 respect to the extensible interpreter pattern. Essentially while our
 approach is purely based on subtyping and
 type-refinement, they use generic types instead to simulate the
-type-refinement. While the focus of our work is embedded DSLs,
+type-refinement.
+% Their encoding is more Scala specific which relies on type members, self-type and variant annotations etc. While our encoding is presented also in Scala, it can be easily ported to other languages like Java.
+While the focus of our work is embedded DSLs,
 the techniques discussed here are useful for other applications, including
 external DSLs as Cazolla and Vacchi show.
 

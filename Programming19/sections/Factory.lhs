@@ -15,7 +15,7 @@
 % no generic polymorphism
 
 One advantage of the Finally Tagless approach over our Scala approach
-presented so far is that terms can be constructed modularly without
+presented so far is that terms can be constructed modularly without % TODO
 tying those terms to any interpretation. Modular terms are also possible
 by combining our Scala approach with Object
 Algebras~\cite{oliveira2012extensibility}, which employ a technique
@@ -47,7 +47,7 @@ def circuit[C](f: Circuit[C]) =
              f.above (  f.stretch(f.fan(2),2,2),
                         f.beside(f.beside(f.id(1),f.fan(2)),f.id(1))))
 \end{spec}
-|circuit| is a generic method that takes a |Circuit| instance and builds a circuit through that instance. With Scala the definition of |circuit| can be even simpler: we can avoid prefixing ``|f.|'' everywhere by importing |f|. Nevertheless, the definition shown here is more language-independent.
+Similarly, |circuit| is a generic method that takes a |Circuit| instance and builds a circuit through that instance. With Scala the definition of |circuit| can be even simpler: we can avoid prefixing ``|f.|'' everywhere by importing |f|. Nevertheless, the definition shown here is more language-independent.
 \paragraph{Object Algebras} We need concrete factories (Object Algebras) that implement |Circuit| to actually invoke |circuit|. Here is a concrete factory that produces |Circuit1|:
 
 > trait Factory1 extends Circuit[Circuit1] { ... }

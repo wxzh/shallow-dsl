@@ -80,7 +80,14 @@ interpretations in Scala and Haskell in Section 4.4.
 >     more illustrative if your implementations are more similar. Why
 >     isn't `Circuit2` implemented as a newtype in Haskell?
 
-The constructor of a newtype must have exactly one field.
+We followed Gibbons and Wu's paper (sec 4.2) in implementing `Circuit2`.
+It is indeed possible to declare Circuit2 as:
+
+`newtype Circuit2 = Circuit2 (Int,Int)`
+
+or even closer to our OOP program as:
+
+`data Circuit2 = Circuit2 { width :: Int, depth :: Int }`
 
 >
 >     Later on, you claim that the Scala version of `Circuit4` is more
@@ -200,7 +207,9 @@ We removed that claim.
 >   following piece of code should be improved:
 >
 >     hm(rec1(keys)) + = rec1.fields
-Done
+
+Fixed
+
 >
 >
 > ----------------------- REVIEW 3 ---------------------
@@ -225,6 +234,9 @@ Done: As explained in the reply to the PC Chair
 >
 > Few minor points:
 >   - p2 "Reynolds [14] idea" should be "Reynolds' [14] idea" (it is missing the genitive ')
-Done
+
+Fixed
+
 >   - p6 "new Id₁ {val n = x}" should be "new Id₁(x) {val n=x}" otherwise it doesn't compile
+
 Not true

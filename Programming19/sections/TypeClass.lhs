@@ -8,7 +8,7 @@
 % no longer semantics first?
 
 \section{Modular interpretations in Haskell}\label{sec:modHaskell}
-Modular interpretations are also possible in Haskell using a variant of Church encodings that uses type classes. The original technique is due to Hinze~\cite{hinze06generics} and was shown to be modular and extensible by Oliveira et al.~\cite{emgm}. It has since been popularized under the name Finally Tagless~\cite{carette2009finally} in the context of embedded DSLs.
+Modular interpretations are also possible in Haskell via a variant of Church encodings that uses type classes. The original technique is due to Hinze~\cite{hinze06generics} and was shown to be modular and extensible by Oliveira et al.~\cite{emgm}. It has since been popularized under the name Finally Tagless~\cite{carette2009finally} in the context of embedded DSLs.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
 \subsection{Revisiting \dsl} \label{sec:class}
@@ -81,10 +81,7 @@ of \emph{intersection types} proposed by Dunfield~\cite{dunfield2014elaborating}
 Dunfield's merge operator corresponds (via elaboration) to the tuple constructor and
 projections are implicit and type-driven.
 The function |prj| simulates up-casting, which converts a
-value of type |a| to a value of type |b|.  The three instances, which
-are defined using overlapping instances, define the behaviour of the
-projection function by searching for the type being projected in a
-compound type.
+value of type |a| to a value of type |b|.  The three overlapping instances define the behaviour of the projection function by searching for the type being projected in a compound type.
 
 \paragraph{Modular |wellSized| and encodings of inheritance and type-refinement}
 Now, defining |wellSized| modularly becomes possible:
@@ -112,8 +109,8 @@ Essentially, dependent interpretations are still defined using tuples.
 The dependency on |width| is expressed by constraining the type
 parameter as |c :<: Width|.  Such constraint allows us to simulate the
 type-refinement of fields in the Scala solution.  % Nevertheless, such
-The dependency is not hard-wired to any concrete implementation of
-|width|.  Although the implementation is modular, it requires some boilerplate.
+%The dependency is not hard-wired to any concrete implementation of |width|.
+Although the implementation is modular, it requires some boilerplate.
 The reuse of |width| interpretation is achieved via delegation,
 where |prj| needs to be called on each subcircuit. Such explicit
 delegation simulates the inheritance employed in the Scala
@@ -130,8 +127,8 @@ We show how to do this for the circuit shown in \autoref{fig:circuit}:
 >              stretch [2,2] (fan 2) `above`
 >              (id 1 `beside` fan 2 `beside` id 1)
 
-|circuit| is a generic circuit that is not tied to any interpretation.
-When interpreting |circuit|, its type needs to be instantiated:
+Here, |circuit| is a generic circuit that is not tied to any interpretation.
+When interpreting |circuit|, its type must be instantiated:
 
 < > width (circuit :: Width)                    -- 4
 < > depth (circuit :: Depth)                    -- 3
@@ -202,7 +199,7 @@ solution that enables modular terms, also by using overloaded constructors.
   \begin{tabular}{lcc}
   \textbf{Goal} & \textbf{Scala} & \textbf{Haskell} \\
   \toprule
-  Multiple interpretation & Trait \& Type-refinement & Type class \\
+  Multiple interpretation & Trait \& Type-refinement  & Type class \\
   Interpretation reuse & Inheritance & Delegation \\
   Dependency declaration & Subtyping & Tuples \& Type constraints \\ %(similar to bounded qualifications)
   \bottomrule
