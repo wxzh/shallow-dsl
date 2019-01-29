@@ -21,6 +21,7 @@ Then translating the program into a functional OOP language like Scala becomes s
 
 \setlength{\grammarindent}{5.5em} % increase separation between LHS/RHS
 \begin{figure}
+\centering
 \begin{grammar}
  <circuit> $\Coloneqq$ `id' <positive-number>
  \alt `fan' <positive-number>
@@ -34,6 +35,7 @@ Then translating the program into a functional OOP language like Scala becomes s
 \end{figure}
 
 \begin{figure}
+\centering
 \begin{minipage}{.3\textwidth}
   \includegraphics[width=.8\textwidth]{circuit.pdf}
 \end{minipage}
@@ -148,7 +150,7 @@ same. However, having fields makes the program look more like an
 OO program.
 
 \paragraph{Porting to Scala} Indeed, we can easily translate the program from Haskell to Scala, 
-as shown in Figure~\ref{fig:shallow}. The idea is to map 
+as shown in~\autoref{fig:shallow}. The idea is to map
 Haskell's record types into an object interface (modeled as a |trait| in Scala) |Circuit1|, and Haskell's field
 declarations become method declarations.
 Object interfaces make the connection to procedural abstraction clear:

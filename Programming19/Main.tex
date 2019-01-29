@@ -1,17 +1,9 @@
-\documentclass[english,submission]{programming}
+\documentclass[english]{programming}
 
 \usepackage{mathtools}
-\usepackage{caption}
-\usepackage{wrapfig}
-\usepackage{xspace}
 \usepackage{xypic}
-\usepackage{hyperref}
 %\usepackage{amsmath}
-\usepackage{url}
 \usepackage{syntax}
-\usepackage{textcomp}
-\usepackage{color}
-\usepackage{comment}
 \newcommand{\dsl}{\textsc{Scans}\xspace}
 \newcommand{\interp}{\textsc{Interpreter}\xspace}
 \newcommand{\an}[3]{}
@@ -19,18 +11,22 @@
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
-\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
+%\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
 
 \defcaptionname{english}{\sectionautorefname}{Section}
+\defcaptionname{english}{\figureautorefname}{Figure}
+\defcaptionname{english}{\tableautorefname}{Table}
 % for code that uses string literal in lhs2TeX
 \DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\texttt}
 
-\let\oldpar\paragraph
-\renewcommand{\paragraph}[1]{\vspace{-7pt}\oldpar{#1}}
-%\let\oldsec\section
-%\renewcommand{\section}[1]{\vspace{-7pt}\oldsec{#1}}
-\let\oldsubsec\subsection
-\renewcommand{\subsection}[1]{\vspace{-7pt}\oldsubsec{#1}}
+\AtBeginDocument{\paperdetails{
+		submitted=2018-09-29,
+		published=2019-02-01,
+		year=2019,
+		volume=3,
+		issue=3,
+		articlenumber=10,
+}}
 
 %% for comments
 \input{Preamble}
@@ -59,8 +55,11 @@
 \subtitle{Beyond Simple Compositionality}
 
 \author[a]{Weixin Zhang}
+\authorinfo[weixin]{is a PhD student at the University of Hong Kong. Contact him at wxzhang2@cs.hku.hk}
 \author[a]{Bruno C. d. S. Oliveira}
 \affiliation[a]{The University of Hong Kong, Hong Kong, China}
+
+\keywords{embedded domain-specific languages, shallow embedding, object-oriented programming}
 
 \paperdetails{
   %% perspective options are: art, sciencetheoretical, scienceempirical, engineering.
@@ -79,20 +78,19 @@
 
 \begin{abstract}
 
-{\bf Context.} 
+\textbf{Context.}
 Embedded Domain-Specific Languages (EDSLs) are a common and widely
 used approach to
 DSLs in various languages, including Haskell and Scala. There are two
 main implementation techniques for EDSLs: \emph{shallow embeddings}
 and \emph{deep embeddings}. 
 
-{\bf Inquiry.} Shallow embeddings are quite simple, 
+\textbf{Inquiry.} Shallow embeddings are quite simple,
 but they have been criticized in the past for being quite limited in
 terms of modularity and reuse. In particular, it is often argued that
 supporting multiple DSL interpretations in shallow embeddings is difficult.
 
-
-{\bf Approach.}
+\textbf{Approach.}
 This paper argues that shallow EDSLs and Object-Oriented
 Programming (OOP) are closely related. Gibbons and Wu already
 discussed the relationship between shallow EDSLs and procedural
@@ -102,7 +100,7 @@ connecting shallow EDSLs directly to OOP via procedural abstraction.
 The knowledge about this relationship enables us to
 improve on implementation techniques for EDSLs.
 
-{\bf Knowledge.}
+\textbf{Knowledge.}
 This paper argues that common OOP mechanisms
 (including \emph{inheritance}, \emph{subtyping}, and
 \emph{type-refinement})
@@ -111,7 +109,7 @@ EDSLs when compared to classical procedural abstraction by enabling a
 simple way to express \emph{multiple, possibly dependent,
   interpretations}. 
 
-{\bf Grounding.}
+\textbf{Grounding.}
 We make our arguments by using Gibbons and Wu's examples, where procedural
 abstraction is used in Haskell to model a simple shallow EDSL. We recode that
 EDSL in Scala and with an improved OO-inspired Haskell encoding.
@@ -119,7 +117,7 @@ We further illustrate our approach with
 a case study on refactoring a deep external SQL DSL implementation to make it
 more modular, shallow, and embedded.
 
-{\bf Importance.} This work is important for two reasons.
+\textbf{Importance.} This work is important for two reasons.
 Firstly, from an intellectual point of view, this work
 establishes the connection between shallow embeddings and OOP, which enables a
 better understanding of both concepts. Secondly, this work

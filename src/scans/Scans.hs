@@ -35,15 +35,15 @@ beside2        ::  Circuit2 -> Circuit2 -> Circuit2
 above2         ::  Circuit2 -> Circuit2 -> Circuit2
 stretch2       ::  [Int] -> Circuit2 -> Circuit2
 
-data Circuit2  =  Circuit2 { width :: Int, depth :: Int }
-id2 n          =  Circuit2 (n,0)
+type Circuit2  =  (Int,Int)
+id2 n          =  (n,0)
 fan2 n         =  (n,1)
 above2 c1 c2   =  (width c1,depth c1 + depth c2)
 beside2 c1 c2  =  (width c1 + width c2, depth c1 `max` depth c2)
-  stretch2 ns c  =  (sum ns,depth c)
+stretch2 ns c  =  (sum ns,depth c)
 
---width  =  fst
---depth  =  snd
+width  =  fst
+depth  =  snd
 
 id3            ::  Int -> Circuit3
 fan3           ::  Int -> Circuit3

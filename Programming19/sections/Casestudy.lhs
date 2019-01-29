@@ -206,15 +206,15 @@ trait HashJoin extends Join {
 \subsection{Evaluation}
 \begin{table}
 \centering
-\begin{tabular}{lccc}
- \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep } & \textbf{ Shallow}\\
+\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
+\begin{tabular}{lcrr}
+ \textbf{Source}  & \textbf{Functionality}  & \textbf{Deep} & \textbf{Shallow}\\
 \toprule
 \emph{query_unstaged} & SQL interpreter        & 83   & 98 \\
 \emph{query_staged} & SQL to Scala compiler  & 179  & 194 \\
 \emph{query_optc} & SQL to C compiler        & 245  & 262 \\
 \bottomrule
 \end{tabular}
-\caption{SLOC for original (Deep) and refactored (Shallow) versions.}
 \label{sloc}
 \end{table}
 We evaluate our refactored shallow implementation with respect to the original deep implementation.

@@ -196,6 +196,7 @@ solution that enables modular terms, also by using overloaded constructors.
 %TODO: mention tuples
 \begin{table}
   \centering
+  \caption{Language features needed for modular interpretations: Scala vs. Haskell.}
   \begin{tabular}{lcc}
   \textbf{Goal} & \textbf{Scala} & \textbf{Haskell} \\
   \toprule
@@ -204,7 +205,6 @@ solution that enables modular terms, also by using overloaded constructors.
   Dependency declaration & Subtyping & Tuples \& Type constraints \\ %(similar to bounded qualifications)
   \bottomrule
   \end{tabular}
-  \caption{Language features needed for modular interpretations: Scala vs. Haskell.}
   \label{comparison}
 \end{table}
 
