@@ -20,7 +20,7 @@
 %format of="of"
 
 %%\weixin{Isn't staging transformation?}
-\section{Case study: A shallow EDSL for SQL queries}
+\section{Case study: a shallow EDSL for SQL queries}
 %Performance is critical for realistic DSLs. Transformation
 % AST rewriting vs. staging
 %hurt compositionality

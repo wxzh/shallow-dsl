@@ -57,27 +57,26 @@ In contrast, a Scala solution allows new interpretations to be introduced in a m
 %format Stretch2
 
 \begin{spec}
-trait Circuit2 extends Circuit1 {def depth: Int}      {-"  \text{ // extended semantic domain} "-}
+trait Circuit2 extends Circuit1 {def depth: Int}      {-"\text{ // subtyping} "-}
 trait Id2 extends Id1 with Circuit2 {def depth = 0}
 trait Fan2 extends Fan1 with Circuit2 {def depth = 1}
-trait Above2 extends Above1 with Circuit2 {
-  override val c1, c2: Circuit2    {-"  \text{   // type-refinement that allows depth invocations } "-}
+trait Above2 extends Above1 with Circuit2 {           {-"\text{ // inheritance} "-}
+  override val c1, c2: Circuit2                       {-"  \text{   // covariant type-refinement} "-}
   def depth = c1.depth + c2.depth
 }
 trait Beside2 extends Beside1 with Circuit2 {
-  override val c1, c2: Circuit2    {-"  \text{   // type-refinement that allows depth invocations } "-}
+  override val c1, c2: Circuit2
   def depth = Math.max(c1.depth, c2.depth)
 }
 trait Stretch2 extends Stretch1 with Circuit2 {
-  override val c: Circuit2         {-"  \text{   // type-refinement that allows depth invocations } "-}
+  override val c: Circuit2
   def depth = c.depth
 }
 \end{spec}
 
 The encoding relies on three OOP abstraction mechanisms:
 \emph{inheritance}, \emph{subtyping}, and \emph{type-refinement}.
-Specifically, |Circuit2| is a subtype of
-|Circuit1| and declares a new method |depth|.
+Specifically, |Circuit2| is a subtype of |Circuit1|, which extends the semantic domain with a |depth| method.
 Concrete cases, for instance |Above2|, implement |Circuit2| by inheriting |Above1| and implementing |depth|.
 Also, fields of type |Circuit1| are covariantly refined as type |Circuit2| to allow |depth| invocations.
 Importantly, all definitions for |width| in~\autoref{subsec:shallow} are \emph{modularly reused} here.
@@ -121,13 +120,13 @@ Once again, it is easy to model dependent interpretation with a simple OO approa
 %format Stretch3
 
 \begin{spec}
-trait Circuit3 extends Circuit1 { def wellSized: Boolean } {-" \text{ // extended semantic domain} "-}
+trait Circuit3 extends Circuit1 { def wellSized: Boolean }    {-" \text{ // dependency declaration} "-}
 trait Id3 extends Id1 with Circuit3 {def wellSized = true}
 trait Fan3 extends Fan1 with Circuit3 {def wellSized = true}
 trait Above3 extends Above1 with Circuit3 {
   override val c1, c2: Circuit3
   def wellSized =
-    c1.wellSized && c2.wellSized && c1.width==c2.width                               {-" \text{ // width dependency} "-}
+    c1.wellSized && c2.wellSized && c1.width==c2.width        {-" \text{ // dependency usage} "-}
 }
 trait Beside3 extends Beside1 with Circuit3 {
   override val c1, c2: Circuit3
@@ -135,7 +134,7 @@ trait Beside3 extends Beside1 with Circuit3 {
 }
 trait Stretch3 extends Stretch1 with Circuit3 {
   override val c: Circuit3
-  def wellSized = c.wellSized && ns.length==c.width  {-" \text{ // width dependency} "-}
+  def wellSized = c.wellSized && ns.length==c.width           {-" \text{ // dependency usage} "-}
 }
 \end{spec}
 Note that |width| and |wellSized| are defined separately.
@@ -199,7 +198,7 @@ accumulated in |beside4| and |stretch4| through function
 composition%\footnote{A minor remark is that the composition order for |f| is incorrect in Gibbons and Wu's paper.}
 , propagated in |above4|, and finally applied to wire connections in |fan4|.  An
 auxiliary definition |lzw| (stands for ``long zip with'') zips two
-lists by applying the binary operator to elements of the same index,
+lists by applying the binary operator to elements of the same index
 and appending the remaining elements from the longer list to the
 resulting list.  By calling |layout| on a circuit and supplying an identity function
 as the initial value of the accumulating parameter, we will get the

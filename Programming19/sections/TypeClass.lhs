@@ -8,7 +8,7 @@
 % no longer semantics first?
 
 \section{Modular interpretations in Haskell}\label{sec:modHaskell}
-Modular interpretations are also possible in Haskell via a variant of Church encodings that uses type classes. The original technique is due to Hinze~\cite{hinze06generics} and was shown to be modular and extensible by Oliveira et al.~\cite{emgm}. It has since been popularized under the name Finally Tagless~\cite{carette2009finally} in the context of embedded DSLs.
+Modular interpretations are also possible in Haskell via a variant of Church encodings that uses type classes. The original technique is due to Hinze~\cite{hinze06generics} and was shown to be modular and extensible by Oliveira, Hinze and L{\"o}h~\cite{emgm}. It has since been popularized under the name Finally Tagless~\cite{carette2009finally} in the context of embedded DSLs.
 The idea is to use a \emph{type class} to abstract over the signatures of constructs and define interpretations as instances of that type class. This section recodes the \dsl example and compares the two modular implementations in Haskell and Scala.
 
 \subsection{Revisiting \dsl} \label{sec:class}
@@ -81,7 +81,7 @@ of \emph{intersection types} proposed by Dunfield~\cite{dunfield2014elaborating}
 Dunfield's merge operator corresponds (via elaboration) to the tuple constructor and
 projections are implicit and type-driven.
 The function |prj| simulates up-casting, which converts a
-value of type |a| to a value of type |b|.  The three overlapping instances define the behaviour of the projection function by searching for the type being projected in a compound type.
+value of type |a| to a value of type |b|.  The three overlapping instances define the behavior of the projection function by searching for the type being projected in a compound type.
 
 \paragraph{Modular |wellSized| and encodings of inheritance and type-refinement}
 Now, defining |wellSized| modularly becomes possible:
@@ -98,9 +98,6 @@ Now, defining |wellSized| modularly becomes possible:
 >
 > gwidth :: (c :<: Width) => c -> Int
 > gwidth = width . prj
->
-> gdepth :: (c :<: Depth) => c -> Int
-> gdepth = depth . prj
 >
 > gwellSized :: (c :<: WellSized) => c -> Bool
 > gwellSized = wellSized . prj
@@ -130,9 +127,12 @@ We show how to do this for the circuit shown in \autoref{fig:circuit}:
 Here, |circuit| is a generic circuit that is not tied to any interpretation.
 When interpreting |circuit|, its type must be instantiated:
 
-< > width (circuit :: Width)                    -- 4
-< > depth (circuit :: Depth)                    -- 3
-< > gwellSized (circuit :: (WellSized,Width))   -- True
+< > width (circuit :: Width)
+< 4
+< > depth (circuit :: Depth)
+< 3
+< > gwellSized (circuit :: (WellSized,Width))
+< True
 
 At user-site, |circuit| must be annotated with the target semantic domain so that an appropriate type class instance for interpretation can be chosen.
 
@@ -174,8 +174,7 @@ Existing circuits can also be reused for constructing circuits in extended \dsl:
 
 \subsection{Comparing modular implementations using Scala and Haskell}
 
-Although both the Scala and Haskell solutions are able to do modular dependent interpretations
-embedding, they use a different set of language features.
+Although both the Scala and Haskell solutions are able to model modular dependent interpretations, they use a different set of language features.
 \autoref{comparison} compares the language features needed by Scala and Haskell.
 The Scala approach relies on built-in features. In particular, subtyping, inheritance (mixin composition) and type-refinement are all built-in. This makes it
 quite natural to program the solutions in Scala, without even needing

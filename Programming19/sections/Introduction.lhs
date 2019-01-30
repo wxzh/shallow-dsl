@@ -16,16 +16,18 @@ the operations of the EDSLs are interpreted directly into the semantic
 domain. Therefore there is no data type representing uninterpreted
 abstract syntax. 
 
+\begin{sloppypar}
 The trade-offs between shallow and deep embeddings have been widely
-discussed~\cite{svenningsson2012combining,yinyang}. Deep embeddings
+discussed \cite{svenningsson2012combining,yinyang}. Deep embeddings
 enable transformations on the abstract syntax tree (AST), and multiple
 interpretations are easy to implement. Shallow embeddings enforce the property of \emph{compositionality}
-by construction, and are easily extended with new EDSL
+by construction and are easily extended with new EDSL
 operations. Such discussions lead to a generally accepted belief that it is hard to support
 multiple interpretations~\cite{svenningsson2012combining} and AST transformations in shallow embeddings.
 % http://composition.al/blog/2015/06/02/embedding-deep-and-shallow/
 % https://alessandrovermeulen.me/2013/07/13/the-difference-between-shallow-and-deep-embedding/
 % Simple Types in Type Theory: deep and shallow encodings
+\end{sloppypar}
 
 Compositionality is considered a sign of good language design, and
 it is one of the hallmarks of denotational semantics. Compositionality means
@@ -47,13 +49,13 @@ deep embeddings can deter their use.
 
 This programming pearl shows that, given adequate language support,
 having multiple modular interpretations in shallow DSLs is not
-only possible, but simple. 
+only possible but simple.
 Therefore we aim to debunk the belief
 that multiple interpretations are hard to model with shallow embeddings.
 Several previous authors~\cite{gibbons2014folding,erwig2014semantics} already
 observed that, by using
 products and projections, multiple interpretations can be supported with a cumbersome and often non-modular encoding.
-Moreover it is also known that multiple interpretations \emph{without dependencies} on other interpretations
+Moreover, it is also known that multiple interpretations \emph{without dependencies} on other interpretations
 are modularized easily using variants Church encodings~\cite{gibbons2014folding,carette2009finally,oliveira2012extensibility}. 
 We show that a solution for multiple interpretations, including dependencies,
 is encodable naturally
@@ -61,7 +63,7 @@ when the host language combines functional features with common OO features, suc
 \emph{subtyping}, \emph{inheritance}, and \emph{type-refinement}.
 
 At the center of this pearl is Reynolds'~\cite{reynolds75userdefined} idea of \emph{procedural abstraction}, which
-enables us to directly relate shallow embeddings and OOP. With procedural abstraction, data is characterized by the operations that are performed over it.
+enables us to relate shallow embeddings and OOP directly. With procedural abstraction, data is characterized by the operations that are performed over it.
 This pearl builds on two independently observed connections to procedural abstraction:
 
 \xymatrixcolsep{6pc}
@@ -70,10 +72,10 @@ This pearl builds on two independently observed connections to procedural abstra
 }
 \vspace{5pt}
 \noindent The first connection is between procedural abstraction and shallow embeddings.
-As Gibbons and Wu~\cite{gibbons2014folding} state ``\emph{it was probably known to Reynolds, who contrasted
+As Gibbons and Wu~\cite{gibbons2014folding} state, ``\emph{it was probably known to Reynolds, who contrasted
 deep embeddings (‘user defined types’) and shallow (‘procedural data
 structures’)}''. Gibbons and Wu noted the connection between shallow embeddings
-and procedural abstractions, although they did not go into a lot of detail.
+and procedural abstractions, although they did not go into much detail.
 The second connection is the connection between OOP and procedural
 abstraction, which was discussed in depth by Cook~\cite{cook09abstraction}.
 
@@ -143,12 +145,12 @@ While the techniques are still cumbersome for transformations, yielding
 efficient shallow EDSLs is still possible via staging~\cite{rompf2012lightweight,carette2009finally}. By removing
 the limitation of multiple interpretations, we enlarge the
 applicability of shallow embeddings. A concrete example is our case
-study, which refactors an external SQL DSL that employs deep embedding
+study, which refactors an external SQL query processor that employs deep embedding
 techniques~\cite{rompf15} into a shallow EDSL. The refactored
 implementation allows both new (possibly dependent) interpretations
 and new constructs to be introduced modularly without sacrificing
-performance. Complete code for all examples and case study is available
-at:
+performance. The complete code for all examples and case study is available
+at
 %  \begin{center}
 \url{https://github.com/wxzh/shallow-dsl}.
 %  \end{center}

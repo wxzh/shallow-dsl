@@ -5,8 +5,8 @@ showed how OOP increases the modularity of shallow EDSLs. OOP
 abstractions, including subtyping, inheritance, and type-refinement,
 bring extra modularity to traditional procedural abstraction. As a
 result, multiple interpretations are allowed to co-exist in shallow
-embeddings. Moreover the multiple interpretations can be \emph{dependent}: 
-an interpretation can depend not only on itself, but also on other
+embeddings. Moreover, the multiple interpretations can be \emph{dependent}:
+an interpretation can depend not only on itself but also on other
 modular interpretations. Thus the approach presented here allows us to
 go \emph{beyond simple compositionality}, where interpretations can only depend
 on themselves.
@@ -36,7 +36,7 @@ Finally, this work shows a combination of two previously
 studied solutions to the Expression Problem in OO: the extensible
 interpreter pattern proposed by Wang and Oliveira~\cite{eptrivially16} and Object
 Algebras~\cite{oliveira2012extensibility}. The combination exploits the advantages of each of
-the approaches to overcome limitations of each approach individually.
+the approaches to overcome the limitations of each approach individually.
 In the original approach by Wang and Oliveira modular terms
 are hard to model, whereas with Object Algebras a difficulty is
 modeling modular dependent operations. A closely related technique is
