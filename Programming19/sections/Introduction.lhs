@@ -36,7 +36,7 @@ its parts. Compositionality
 leads to a modular semantics, where adding new language
 constructs does not require changes in the semantics of existing constructs.
 Because compositionality offers a guideline for good language design,
-some authors~\cite{erwig2014semantics} argue that a semantics-first
+Erwig and Walkingshaw~\cite{erwig2014semantics} argue that a semantics-first
 approach to EDSLs is superior to a syntax-first approach.
 %%In such
 %%semantics-driven approach, the idea is to first find a target domain

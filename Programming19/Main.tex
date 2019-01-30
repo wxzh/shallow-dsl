@@ -11,13 +11,13 @@
 \newcommand{\weixin}[1]{\an{weixin}{cyan}{#1}}
 \newcommand{\bruno}[1]{\an{bruno}{blue}{#1}}
 
-%\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
-
 \defcaptionname{english}{\sectionautorefname}{Section}
 \defcaptionname{english}{\figureautorefname}{Figure}
 \defcaptionname{english}{\tableautorefname}{Table}
 % for code that uses string literal in lhs2TeX
-\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\texttt}
+
+%% Uncomment this line if you want to use make command to generate pdf
+%\DeclareOldFontCommand{\tt}{\normalfont\ttfamily}{\texttt}
 
 \AtBeginDocument{\paperdetails{
 		submitted=2018-09-29,
